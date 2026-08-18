@@ -62,6 +62,16 @@ npm run build
 3. DNS-ის გავრცელების შემდეგ (რამდენიმე წუთი — რამდენიმე საათი) GitHub ავტომატურად
    გასცემს უფასო HTTPS სერტიფიკატს. Settings → Pages-ში ჩართეთ **Enforce HTTPS**.
 
+## პროექტების screenshot-ების განახლება
+
+პროექტების web/tablet/mobile სურათები `public/projects/<slug>/{desktop,tablet,mobile}.png`-შია
+და `scripts/capture-screenshots.mjs`-ით გენერირდება (Playwright-ით, ლოკალურად):
+
+```bash
+npm install -D playwright && npx playwright install chromium
+node scripts/capture-screenshots.mjs
+```
+
 ## სტრუქტურა
 
 ```

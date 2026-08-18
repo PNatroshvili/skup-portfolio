@@ -8,9 +8,15 @@ export interface ServiceItem {
   description: LocalizedText;
 }
 
+export interface ProjectImages {
+  desktop: string;
+  tablet: string;
+  mobile: string;
+}
+
 export interface ProjectItem {
   name: string;
-  image: string;
+  image: ProjectImages | "";
   description: LocalizedText;
   tech: string[];
   link: string;

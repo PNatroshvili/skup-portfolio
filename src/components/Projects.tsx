@@ -2,6 +2,57 @@
 
 import { useLanguage } from "./LanguageProvider";
 import { siteContent } from "@/lib/content";
+import type { ProjectImages } from "@/lib/types";
+
+function DeviceShots({ images, name }: { images: ProjectImages; name: string }) {
+  return (
+    <div className="space-y-2 p-3">
+      {/* Desktop — wide browser-chrome frame */}
+      <div className="overflow-hidden rounded-lg border border-white/10 bg-black/40">
+        <div className="flex items-center gap-1.5 bg-white/[0.06] px-2.5 py-1.5">
+          <span className="h-2 w-2 rounded-full bg-white/20" />
+          <span className="h-2 w-2 rounded-full bg-white/20" />
+          <span className="h-2 w-2 rounded-full bg-white/20" />
+        </div>
+        <div className="aspect-[16/10] w-full overflow-hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={images.desktop}
+            alt={`${name} — web`}
+            loading="lazy"
+            className="h-full w-full object-cover object-top"
+          />
+        </div>
+      </div>
+
+      {/* Tablet + mobile — smaller side-by-side frames */}
+      <div className="flex gap-2">
+        <div className="w-[62%] overflow-hidden rounded-lg border border-white/10 bg-black/40">
+          <div className="aspect-[4/3] w-full overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={images.tablet}
+              alt={`${name} — tablet`}
+              loading="lazy"
+              className="h-full w-full object-cover object-top"
+            />
+          </div>
+        </div>
+        <div className="w-[38%] overflow-hidden rounded-lg border border-white/10 bg-black/40">
+          <div className="aspect-[9/16] w-full overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={images.mobile}
+              alt={`${name} — mobile`}
+              loading="lazy"
+              className="h-full w-full object-cover object-top"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Projects() {
   const { t } = useLanguage();
@@ -18,23 +69,16 @@ export default function Projects() {
           {projects.items.map((project, i) => {
             const card = (
               <div className="group flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] transition-colors hover:border-white/25">
-                <div className="aspect-video w-full overflow-hidden bg-gradient-to-br from-indigo-500/20 to-fuchsia-500/10">
-                  {project.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={project.image}
-                      alt={project.name}
-                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-white/20">
-                      <span className="text-4xl font-bold">
-                        {project.name.slice(0, 1)}
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <div className="flex flex-1 flex-col p-6">
+                {project.image ? (
+                  <DeviceShots images={project.image} name={project.name} />
+                ) : (
+                  <div className="m-3 flex aspect-[16/10] items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500/20 to-fuchsia-500/10 text-white/20">
+                    <span className="text-4xl font-bold">
+                      {project.name.slice(0, 1)}
+                    </span>
+                  </div>
+                )}
+                <div className="flex flex-1 flex-col px-6 pb-6 pt-1">
                   <h3 className="text-lg font-semibold text-white">
                     {project.name}
                   </h3>
