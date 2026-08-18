@@ -102,37 +102,76 @@
 
   "projects": {
     "title": { "ka": "პროექტები", "en": "Projects" },
-    "_note": "ბმულები მოწოდების შემდეგ დაემატება — placeholder-ები ჯერჯერობით.",
     "items": [
       {
-        "name": "Project One",
+        "name": "Greenart",
         "image": "",
         "description": {
-          "ka": "მოკლე აღწერა პროექტის შესახებ — რა პრობლემას წყვეტდა და რა შედეგი მოჰყვა.",
-          "en": "Short description of the project — what problem it solved and the outcome."
+          "ka": "მცენარეების პროფესიონალური მოვლის სერვისი ბიზნესებისთვის — სასტუმროები, რესტორნები, ოფისები და კომერციული სივრცეები. სრული ციკლი: კონსულტაციიდან რეგულარულ მოვლამდე.",
+          "en": "A professional plant-care service platform for businesses — hotels, restaurants, offices and commercial spaces in Tbilisi. Full cycle from consultation to ongoing maintenance."
         },
-        "tech": ["Next.js", "TypeScript", "Tailwind"],
-        "link": ""
+        "tech": ["Landing Page", "Lead-gen ფორმა"],
+        "link": "https://www.greenart.ge/"
       },
       {
-        "name": "Project Two",
+        "name": "Rufus the Churchill",
         "image": "",
         "description": {
-          "ka": "მოკლე აღწერა პროექტის შესახებ.",
-          "en": "Short description of the project."
+          "ka": "ცხოველების დახმარების საქველმოქმედო პლატფორმა — მომხმარებელი კონკრეტულ ცხოველს ირჩევს და საკვების/მოვლის დაფინანსებაში ეხმარება progress-tracking-ით.",
+          "en": "An animal-welfare donation platform — users choose a specific animal and fund its food and care with live progress tracking."
         },
-        "tech": ["React Native"],
-        "link": ""
+        "tech": ["Charity Platform", "Donation Flow"],
+        "link": "https://rufusthechurchill.org/"
       },
       {
-        "name": "Project Three",
+        "name": "ABM",
         "image": "",
         "description": {
-          "ka": "მოკლე აღწერა პროექტის შესახებ.",
-          "en": "Short description of the project."
+          "ka": "სამედიცინო/გენომიკის კომპანიის კორპორატიული საიტი — სიახლეების, კონფერენციებისა და პროფესიული აქტივობების საინფორმაციო ფიდით.",
+          "en": "Corporate site for a medical genomics company, featuring a news feed of conferences and professional activities."
         },
-        "tech": [".NET", "WPF"],
-        "link": ""
+        "tech": ["Corporate Site", "News/Blog"],
+        "link": "https://abm.org.ge/"
+      },
+      {
+        "name": "Peter Moennig Foundation",
+        "image": "",
+        "description": {
+          "ka": "საქველმოქმედო სამხატვრო ფონდის საიტი — გამოფენები, გრანტების Open Call განცხადებები და ხელოვანების მხარდაჭერის პროგრამები.",
+          "en": "Site for an art foundation — exhibitions, grant open-calls and artist-support programs."
+        },
+        "tech": ["Foundation Site"],
+        "link": "https://pmfinfo.com/"
+      },
+      {
+        "name": "Around Caucasus",
+        "image": "",
+        "description": {
+          "ka": "ტურისტული სააგენტოს საიტი თბილისსა და კავკასიაში — ტურების კატეგორიები (თავგადასავლური, კულინარიული, საველოსიპედო, ლაშქრობა და სხვ.) მარტივი დათვალიერებით.",
+          "en": "Tour operator site for Tbilisi and the Caucasus — browsable tour categories (adventure, culinary, biking, hiking and more)."
+        },
+        "tech": ["Tourism", "Multi-page Site"],
+        "link": "https://around-caucasus.com/"
+      },
+      {
+        "name": "Asomtavari",
+        "image": "",
+        "description": {
+          "ka": "ხელნაკეთი ხელოვნების ონლაინ მაღაზია, შთაგონებული ქართული ანბანით — ინიციალები, ზოდიაქოს ნიშნები და პერსონალიზებული ასო-ნიშნები.",
+          "en": "An online shop for handcrafted art inspired by the Georgian alphabet — initials, zodiac signs and personalized letter pieces."
+        },
+        "tech": ["E-commerce", "WordPress / WooCommerce"],
+        "link": "https://asomtavari.com/"
+      },
+      {
+        "name": "Blades.GE",
+        "image": "",
+        "description": {
+          "ka": "პრემიუმ დანებისა და ტყავის აქსესუარების ონლაინ მაღაზია — სრული კატალოგი, ფასდაკლებები, კალათა და checkout ნაკადი.",
+          "en": "An online store for premium knives and leather accessories — full catalog, sales, cart and checkout flow."
+        },
+        "tech": ["E-commerce", "WordPress / WooCommerce"],
+        "link": "https://blades.ge/"
       }
     ]
   },
