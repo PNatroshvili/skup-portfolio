@@ -1,0 +1,158 @@
+{
+  "_readme": "ეს ფაილი მართავს მთელ საიტის კონტენტს. ყველა ტექსტური ველი არის ორენოვანი ობიექტი { \"ka\": \"...\", \"en\": \"...\" }. ცვლილების შემდეგ უბრალოდ git commit + push გააკეთეთ — საიტი ავტომატურად განახლდება (იხ. README.md).",
+
+  "meta": {
+    "title": { "ka": "SKUP Studio — ვებ, დესკტოპ და მობაილ დეველოპმენტი", "en": "SKUP Studio — Web, Desktop & Mobile Development" },
+    "description": {
+      "ka": "SKUP Studio — ვებ, დესკტოპ და მობაილ აპლიკაციების დეველოპმენტი და ციფრული სერვისები.",
+      "en": "SKUP Studio — web, desktop and mobile application development and digital services."
+    }
+  },
+
+  "nav": {
+    "brand": "SKUP Studio",
+    "links": {
+      "about": { "ka": "შესახებ", "en": "About" },
+      "services": { "ka": "სერვისები", "en": "Services" },
+      "projects": { "ka": "პროექტები", "en": "Projects" },
+      "contact": { "ka": "კონტაქტი", "en": "Contact" }
+    }
+  },
+
+  "hero": {
+    "eyebrow": { "ka": "ციფრული სტუდია", "en": "Digital Studio" },
+    "title": { "ka": "SKUP Studio", "en": "SKUP Studio" },
+    "subtitle": {
+      "ka": "ვქმნით ვებ, დესკტოპ და მობაილ აპლიკაციებს — იდეიდან სამუშაო პროდუქტამდე.",
+      "en": "We build web, desktop and mobile applications — from idea to shipped product."
+    },
+    "ctaPrimary": { "ka": "პროექტების ნახვა", "en": "View Projects" },
+    "ctaSecondary": { "ka": "დაკავშირება", "en": "Get in Touch" }
+  },
+
+  "about": {
+    "title": { "ka": "შესახებ", "en": "About" },
+    "body": {
+      "ka": "SKUP Studio არის დეველოპმენტის სტუდია, რომელიც ეხმარება ბიზნესებს იდეის რეალურ პროდუქტად გადაქცევაში. ჩვენ ვმუშაობთ ვებ, დესკტოპ და მობაილ პლატფორმებზე — დიზაინიდან და არქიტექტურიდან დაწყებული, გაშვებამდე და შემდგომ მხარდაჭერამდე. მიდგომა დაფუძნებულია სისუფთავეზე, სისწრაფეზე და გრძელვადიან საიმედოობაზე — თითოეული პროექტი შენდება ისე, რომ იზრდებოდეს კლიენტთან ერთად.",
+      "en": "SKUP Studio is a development studio that helps businesses turn ideas into real products. We work across web, desktop and mobile platforms — from design and architecture through launch and ongoing support. Our approach is built on clean execution, speed and long-term reliability — every project is built to grow together with the client."
+    }
+  },
+
+  "services": {
+    "title": { "ka": "სერვისები", "en": "Services" },
+    "items": [
+      {
+        "icon": "🌐",
+        "title": { "ka": "ვებ დეველოპმენტი", "en": "Web Development" },
+        "description": {
+          "ka": "თანამედროვე, სწრაფი და მორგებადი ვებსაიტები და ვებ აპლიკაციები.",
+          "en": "Modern, fast and responsive websites and web applications."
+        }
+      },
+      {
+        "icon": "🖥️",
+        "title": { "ka": "დესკტოპ აპლიკაციები", "en": "Desktop Applications" },
+        "description": {
+          "ka": "Windows/macOS/Linux დესკტოპ აპლიკაციები თქვენი საჭიროებებისთვის.",
+          "en": "Windows/macOS/Linux desktop applications tailored to your needs."
+        }
+      },
+      {
+        "icon": "📱",
+        "title": { "ka": "მობაილ აპლიკაციები", "en": "Mobile Applications" },
+        "description": {
+          "ka": "iOS და Android აპლიკაციები, native ან cross-platform მიდგომით.",
+          "en": "iOS and Android applications, native or cross-platform."
+        }
+      },
+      {
+        "icon": "🔍",
+        "title": { "ka": "SEO და საძიებო ოპტიმიზაცია", "en": "SEO & Search Optimization" },
+        "description": {
+          "ka": "საიტის ხილვადობის ზრდა საძიებო სისტემებში — ტექნიკური SEO, სიჩქარე, სტრუქტურა.",
+          "en": "Growing search visibility — technical SEO, performance, and structure."
+        }
+      },
+      {
+        "icon": "🎨",
+        "title": { "ka": "UI/UX დიზაინი", "en": "UI/UX Design" },
+        "description": {
+          "ka": "მომხმარებელზე ორიენტირებული ინტერფეისის დიზაინი და პროტოტიპირება.",
+          "en": "User-centered interface design and prototyping."
+        }
+      },
+      {
+        "icon": "🔗",
+        "title": { "ka": "ინტეგრაციები და API", "en": "Integrations & API" },
+        "description": {
+          "ka": "მესამე მხარის სერვისების, გადახდის სისტემებისა და API-ების ინტეგრაცია.",
+          "en": "Third-party service, payment system and API integrations."
+        }
+      },
+      {
+        "icon": "🛠️",
+        "title": { "ka": "მხარდაჭერა და განვითარება", "en": "Maintenance & Support" },
+        "description": {
+          "ka": "არსებული პროდუქტების გრძელვადიანი მხარდაჭერა, განახლება და გაფართოება.",
+          "en": "Long-term maintenance, updates and feature growth for existing products."
+        }
+      }
+    ]
+  },
+
+  "projects": {
+    "title": { "ka": "პროექტები", "en": "Projects" },
+    "_note": "ბმულები მოწოდების შემდეგ დაემატება — placeholder-ები ჯერჯერობით.",
+    "items": [
+      {
+        "name": "Project One",
+        "image": "",
+        "description": {
+          "ka": "მოკლე აღწერა პროექტის შესახებ — რა პრობლემას წყვეტდა და რა შედეგი მოჰყვა.",
+          "en": "Short description of the project — what problem it solved and the outcome."
+        },
+        "tech": ["Next.js", "TypeScript", "Tailwind"],
+        "link": ""
+      },
+      {
+        "name": "Project Two",
+        "image": "",
+        "description": {
+          "ka": "მოკლე აღწერა პროექტის შესახებ.",
+          "en": "Short description of the project."
+        },
+        "tech": ["React Native"],
+        "link": ""
+      },
+      {
+        "name": "Project Three",
+        "image": "",
+        "description": {
+          "ka": "მოკლე აღწერა პროექტის შესახებ.",
+          "en": "Short description of the project."
+        },
+        "tech": [".NET", "WPF"],
+        "link": ""
+      }
+    ]
+  },
+
+  "contact": {
+    "title": { "ka": "დამიკავშირდით", "en": "Get in Touch" },
+    "body": {
+      "ka": "დაინტერესებული ხართ თანამშრომლობით? მოგვწერეთ პირდაპირ.",
+      "en": "Interested in working together? Reach out directly."
+    },
+    "email": "skup@gmail.com",
+    "phone": "+995 571 77 99 31",
+    "links": [
+      { "label": "GitHub", "url": "" },
+      { "label": "LinkedIn", "url": "" },
+      { "label": "Telegram", "url": "" }
+    ]
+  },
+
+  "footer": {
+    "text": { "ka": "ყველა უფლება დაცულია.", "en": "All rights reserved." }
+  }
+}
