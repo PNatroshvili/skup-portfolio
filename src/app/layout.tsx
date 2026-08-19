@@ -1,17 +1,22 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Noto_Sans_Georgian, Noto_Serif_Georgian } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/components/LanguageProvider";
 import { siteContent } from "@/lib/content";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+// Georgian-first typography: a serif for display headings, a sans for text.
+const georgianSans = Noto_Sans_Georgian({
+  variable: "--font-georgian-sans",
+  subsets: ["georgian", "latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const georgianSerif = Noto_Serif_Georgian({
+  variable: "--font-georgian-serif",
+  subsets: ["georgian", "latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -23,9 +28,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="ka"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${georgianSans.variable} ${georgianSerif.variable} h-full`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="flex min-h-full flex-col bg-bg text-fg">
         <LanguageProvider>{children}</LanguageProvider>
       </body>
     </html>

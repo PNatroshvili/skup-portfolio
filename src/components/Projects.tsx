@@ -1,120 +1,92 @@
 "use client";
 
+import Reveal from "./Reveal";
+import DeviceShowcase from "./DeviceShowcase";
 import { useLanguage } from "./LanguageProvider";
 import { siteContent } from "@/lib/content";
-import type { ProjectImages } from "@/lib/types";
-
-function DeviceShots({ images, name }: { images: ProjectImages; name: string }) {
-  return (
-    <div className="space-y-2 p-3">
-      {/* Desktop — wide browser-chrome frame */}
-      <div className="overflow-hidden rounded-lg border border-white/10 bg-black/40">
-        <div className="flex items-center gap-1.5 bg-white/[0.06] px-2.5 py-1.5">
-          <span className="h-2 w-2 rounded-full bg-white/20" />
-          <span className="h-2 w-2 rounded-full bg-white/20" />
-          <span className="h-2 w-2 rounded-full bg-white/20" />
-        </div>
-        <div className="aspect-[16/10] w-full overflow-hidden">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={images.desktop}
-            alt={`${name} — web`}
-            loading="lazy"
-            className="h-full w-full object-cover object-top"
-          />
-        </div>
-      </div>
-
-      {/* Tablet + mobile — smaller side-by-side frames */}
-      <div className="flex gap-2">
-        <div className="w-[62%] overflow-hidden rounded-lg border border-white/10 bg-black/40">
-          <div className="aspect-[4/3] w-full overflow-hidden">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={images.tablet}
-              alt={`${name} — tablet`}
-              loading="lazy"
-              className="h-full w-full object-cover object-top"
-            />
-          </div>
-        </div>
-        <div className="w-[38%] overflow-hidden rounded-lg border border-white/10 bg-black/40">
-          <div className="aspect-[9/16] w-full overflow-hidden">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={images.mobile}
-              alt={`${name} — mobile`}
-              loading="lazy"
-              className="h-full w-full object-cover object-top"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function Projects() {
   const { t } = useLanguage();
   const projects = siteContent.projects;
 
   return (
-    <section id="projects" className="px-6 py-20">
+    <section id="projects" className="border-t border-line px-6 py-24 md:py-28">
       <div className="mx-auto max-w-6xl">
-        <h2 className="text-center text-sm font-semibold uppercase tracking-[0.2em] text-indigo-400">
-          {t(projects.title)}
-        </h2>
+        <Reveal>
+          <h2 className="text-[12px] font-medium tracking-[0.12em] text-muted">
+            {t(projects.title)}
+          </h2>
+        </Reveal>
 
-        <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-16 space-y-24 md:space-y-32">
           {projects.items.map((project, i) => {
-            const card = (
-              <div className="group flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] transition-colors hover:border-white/25">
-                {project.image ? (
-                  <DeviceShots images={project.image} name={project.name} />
-                ) : (
-                  <div className="m-3 flex aspect-[16/10] items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500/20 to-fuchsia-500/10 text-white/20">
-                    <span className="text-4xl font-bold">
-                      {project.name.slice(0, 1)}
-                    </span>
-                  </div>
-                )}
-                <div className="flex flex-1 flex-col px-6 pb-6 pt-1">
-                  <h3 className="text-lg font-semibold text-white">
-                    {project.name}
-                  </h3>
-                  <p className="mt-2 flex-1 text-sm leading-relaxed text-white/65">
-                    {t(project.description)}
-                  </p>
-                  {project.tech.length > 0 && (
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {project.tech.map((tech) => (
-                        <span
-                          key={tech}
-                          className="rounded-full border border-white/10 px-2.5 py-1 text-xs text-white/60"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
+            const flipped = i % 2 === 1;
 
-            return project.link ? (
-              <a
-                key={project.name + i}
-                href={project.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block h-full"
-              >
-                {card}
-              </a>
-            ) : (
-              <div key={project.name + i} className="h-full">
-                {card}
-              </div>
+            return (
+              <Reveal key={project.name + i}>
+                <article className="grid items-center gap-10 md:grid-cols-12 md:gap-14">
+                  <div
+                    className={`md:col-span-7 ${
+                      flipped ? "md:order-2 md:col-start-6" : ""
+                    }`}
+                  >
+                    {project.image ? (
+                      <DeviceShowcase images={project.image} name={project.name} />
+                    ) : (
+                      <div className="flex aspect-[16/10] items-center justify-center rounded-xl border border-line bg-surface text-4xl font-medium text-subtle">
+                        {project.name.slice(0, 1)}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className={`md:col-span-5 ${flipped ? "md:order-1 md:col-start-1 md:row-start-1" : ""}`}>
+                    <span className="font-display text-[12px] tabular-nums text-subtle">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+
+                    <h3 className="mt-3 font-display text-2xl font-medium tracking-tight text-fg md:text-3xl">
+                      {project.name}
+                    </h3>
+
+                    <p className="mt-4 text-[14px] leading-relaxed text-muted">
+                      {t(project.description)}
+                    </p>
+
+                    {project.tech.length > 0 && (
+                      <div className="mt-6 flex flex-wrap gap-2">
+                        {project.tech.map((tech) => (
+                          <span
+                            key={tech}
+                            className="rounded-full border border-line px-3 py-1 text-[11px] tracking-wide text-subtle"
+                          >
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {project.link && (
+                      <a
+                        href={project.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group mt-7 inline-flex items-center gap-2 border-b border-line pb-1 text-[13px] text-fg transition-colors hover:border-accent"
+                      >
+                        {project.link.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          className="text-subtle transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent"
+                        >
+                          <path d="M5 11l6-6M6 5h5v5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </a>
+                    )}
+                  </div>
+                </article>
+              </Reveal>
             );
           })}
         </div>
