@@ -118,6 +118,16 @@
         "link": "https://www.greenart.ge/"
       },
       {
+        "name": "NCODE Development",
+        "image": { "desktop": "/projects/ncode/desktop.webp", "tablet": "/projects/ncode/tablet.webp", "mobile": "/projects/ncode/mobile.webp" },
+        "description": {
+          "ka": "პრემიუმ საცხოვრებელი კომპლექსის (NCODE შატბერაშვილი, ვაკე) გაყიდვების საიტი — ინტერაქტიული სართულების/ბინების სელექტორი, ფასები, 3D ვიზუალები და საბანკო დაფინანსების ინფორმაცია.",
+          "en": "Sales site for a premium residential development (NCODE Shatberashvili, Vake) — interactive floor/unit selector, pricing, 3D visuals and bank financing details."
+        },
+        "tech": ["Real Estate", "Interactive UI"],
+        "link": "https://ncode-development.ge/"
+      },
+      {
         "name": "Rufus the Churchill",
         "image": { "desktop": "/projects/rufus/desktop.webp", "tablet": "/projects/rufus/tablet.webp", "mobile": "/projects/rufus/mobile.webp" },
         "description": {

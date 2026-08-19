@@ -17,6 +17,7 @@ const outRoot = path.join(__dirname, "..", "public", "projects");
 
 const sites = [
   { slug: "greenart", url: "https://www.greenart.ge/" },
+  { slug: "ncode", url: "https://ncode-development.ge/" },
   { slug: "rufus", url: "https://rufusthechurchill.org/" },
   { slug: "abm", url: "https://abm.org.ge/" },
   { slug: "pmfinfo", url: "https://pmfinfo.com/" },
