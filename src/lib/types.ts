@@ -31,6 +31,7 @@ export interface SiteContent {
   meta: {
     title: LocalizedText;
     description: LocalizedText;
+    keywords: Record<Locale, string[]>;
   };
   nav: {
     brand: string;

@@ -2,10 +2,14 @@
   "_readme": "ეს ფაილი მართავს მთელ საიტის კონტენტს. ყველა ტექსტური ველი არის ორენოვანი ობიექტი { \"ka\": \"...\", \"en\": \"...\" }. ცვლილების შემდეგ უბრალოდ git commit + push გააკეთეთ — საიტი ავტომატურად განახლდება (იხ. README.md).",
 
   "meta": {
-    "title": { "ka": "SKUP Studio — ვებ, დესკტოპ და მობაილ დეველოპმენტი", "en": "SKUP Studio — Web, Desktop & Mobile Development" },
+    "title": { "ka": "SKUP Studio — ვებსაიტის დამზადება, მობაილ და დესკტოპ აპლიკაციები", "en": "SKUP Studio — Web, Desktop & Mobile Development" },
     "description": {
-      "ka": "SKUP Studio — ვებ, დესკტოპ და მობაილ აპლიკაციების დეველოპმენტი და ციფრული სერვისები.",
-      "en": "SKUP Studio — web, desktop and mobile application development and digital services."
+      "ka": "SKUP Studio — ვებსაიტის დამზადება, ონლაინ მაღაზიები, მობაილ და დესკტოპ აპლიკაციები, UI/UX დიზაინი და SEO ოპტიმიზაცია თბილისში. სწრაფი, თანამედროვე ციფრული პროდუქტები თქვენი ბიზნესისთვის.",
+      "en": "SKUP Studio — website development, online stores, mobile and desktop apps, UI/UX design and SEO optimization in Tbilisi, Georgia. Fast, modern digital products for your business."
+    },
+    "keywords": {
+      "ka": ["ვებსაიტის დამზადება", "საიტის დამზადება თბილისი", "ვებ დეველოპერი საქართველო", "ვებ სტუდია თბილისი", "ვებგვერდის დამზადება", "მობაილ აპლიკაციის დამზადება", "დესკტოპ აპლიკაციის შექმნა", "ონლაინ მაღაზიის დამზადება", "UI UX დიზაინი", "SEO ოპტიმიზაცია საქართველო", "პროგრამისტი დამკვეთისთვის", "ვებ დეველოპმენტი"],
+      "en": ["website development Georgia", "web development Tbilisi", "web studio Tbilisi", "mobile app development Georgia", "desktop app development", "e-commerce website Georgia", "UI UX design Tbilisi", "SEO optimization Georgia", "freelance developer Georgia", "software development studio"]
     }
   },
 
