@@ -99,6 +99,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        {/* Cloudflare Web Analytics — privacy-first, no cookies, no consent banner needed. */}
+        <script
+          type="module"
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon='{"token": "3777c4832eb743baa79dcbfa2b2ebe6f"}'
+        />
       </head>
       <body className="flex min-h-full flex-col bg-bg text-fg">
         <LanguageProvider>{children}</LanguageProvider>

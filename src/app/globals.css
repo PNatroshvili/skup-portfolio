@@ -9,7 +9,9 @@
   --line-strong: rgba(255, 255, 255, 0.16);
   --fg: #eceae6;
   --muted: #97948e;
-  --subtle: #6a6862;
+  /* WCAG AA (4.5:1) against --bg — was #6a6862 (3.53:1, failed for the
+     small-text uses it's actually applied to: labels, tech tags, footer). */
+  --subtle: #847f78;
   /* A single restrained accent (warm sand) instead of neon indigo. */
   --accent: #cbb894;
   --accent-soft: rgba(203, 184, 148, 0.12);
