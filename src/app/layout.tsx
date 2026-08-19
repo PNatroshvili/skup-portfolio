@@ -8,14 +8,14 @@ import { siteContent } from "@/lib/content";
 const georgianSans = Noto_Sans_Georgian({
   variable: "--font-georgian-sans",
   subsets: ["georgian", "latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500"],
   display: "swap",
 });
 
 const georgianSerif = Noto_Serif_Georgian({
   variable: "--font-georgian-serif",
   subsets: ["georgian", "latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600"],
   display: "swap",
 });
 

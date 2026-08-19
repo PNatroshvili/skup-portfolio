@@ -105,7 +105,7 @@
     "items": [
       {
         "name": "Greenart",
-        "image": { "desktop": "/projects/greenart/desktop.png", "tablet": "/projects/greenart/tablet.png", "mobile": "/projects/greenart/mobile.png" },
+        "image": { "desktop": "/projects/greenart/desktop.webp", "tablet": "/projects/greenart/tablet.webp", "mobile": "/projects/greenart/mobile.webp" },
         "description": {
           "ka": "მცენარეების პროფესიონალური მოვლის სერვისი ბიზნესებისთვის — სასტუმროები, რესტორნები, ოფისები და კომერციული სივრცეები. სრული ციკლი: კონსულტაციიდან რეგულარულ მოვლამდე.",
           "en": "A professional plant-care service platform for businesses — hotels, restaurants, offices and commercial spaces in Tbilisi. Full cycle from consultation to ongoing maintenance."
@@ -115,7 +115,7 @@
       },
       {
         "name": "Rufus the Churchill",
-        "image": { "desktop": "/projects/rufus/desktop.png", "tablet": "/projects/rufus/tablet.png", "mobile": "/projects/rufus/mobile.png" },
+        "image": { "desktop": "/projects/rufus/desktop.webp", "tablet": "/projects/rufus/tablet.webp", "mobile": "/projects/rufus/mobile.webp" },
         "description": {
           "ka": "ცხოველების დახმარების საქველმოქმედო პლატფორმა — მომხმარებელი კონკრეტულ ცხოველს ირჩევს და საკვების/მოვლის დაფინანსებაში ეხმარება progress-tracking-ით.",
           "en": "An animal-welfare donation platform — users choose a specific animal and fund its food and care with live progress tracking."
@@ -125,7 +125,7 @@
       },
       {
         "name": "ABM",
-        "image": { "desktop": "/projects/abm/desktop.png", "tablet": "/projects/abm/tablet.png", "mobile": "/projects/abm/mobile.png" },
+        "image": { "desktop": "/projects/abm/desktop.webp", "tablet": "/projects/abm/tablet.webp", "mobile": "/projects/abm/mobile.webp" },
         "description": {
           "ka": "სამედიცინო/გენომიკის კომპანიის კორპორატიული საიტი — სიახლეების, კონფერენციებისა და პროფესიული აქტივობების საინფორმაციო ფიდით.",
           "en": "Corporate site for a medical genomics company, featuring a news feed of conferences and professional activities."
@@ -135,7 +135,7 @@
       },
       {
         "name": "Peter Moennig Foundation",
-        "image": { "desktop": "/projects/pmfinfo/desktop.png", "tablet": "/projects/pmfinfo/tablet.png", "mobile": "/projects/pmfinfo/mobile.png" },
+        "image": { "desktop": "/projects/pmfinfo/desktop.webp", "tablet": "/projects/pmfinfo/tablet.webp", "mobile": "/projects/pmfinfo/mobile.webp" },
         "description": {
           "ka": "საქველმოქმედო სამხატვრო ფონდის საიტი — გამოფენები, გრანტების Open Call განცხადებები და ხელოვანების მხარდაჭერის პროგრამები.",
           "en": "Site for an art foundation — exhibitions, grant open-calls and artist-support programs."
@@ -145,7 +145,7 @@
       },
       {
         "name": "Around Caucasus",
-        "image": { "desktop": "/projects/around-caucasus/desktop.png", "tablet": "/projects/around-caucasus/tablet.png", "mobile": "/projects/around-caucasus/mobile.png" },
+        "image": { "desktop": "/projects/around-caucasus/desktop.webp", "tablet": "/projects/around-caucasus/tablet.webp", "mobile": "/projects/around-caucasus/mobile.webp" },
         "description": {
           "ka": "ტურისტული სააგენტოს საიტი თბილისსა და კავკასიაში — ტურების კატეგორიები (თავგადასავლური, კულინარიული, საველოსიპედო, ლაშქრობა და სხვ.) მარტივი დათვალიერებით.",
           "en": "Tour operator site for Tbilisi and the Caucasus — browsable tour categories (adventure, culinary, biking, hiking and more)."
@@ -155,7 +155,7 @@
       },
       {
         "name": "Asomtavari",
-        "image": { "desktop": "/projects/asomtavari/desktop.png", "tablet": "/projects/asomtavari/tablet.png", "mobile": "/projects/asomtavari/mobile.png" },
+        "image": { "desktop": "/projects/asomtavari/desktop.webp", "tablet": "/projects/asomtavari/tablet.webp", "mobile": "/projects/asomtavari/mobile.webp" },
         "description": {
           "ka": "ხელნაკეთი ხელოვნების ონლაინ მაღაზია, შთაგონებული ქართული ანბანით — ინიციალები, ზოდიაქოს ნიშნები და პერსონალიზებული ასო-ნიშნები.",
           "en": "An online shop for handcrafted art inspired by the Georgian alphabet — initials, zodiac signs and personalized letter pieces."
@@ -165,7 +165,7 @@
       },
       {
         "name": "Blades.GE",
-        "image": { "desktop": "/projects/blades/desktop.png", "tablet": "/projects/blades/tablet.png", "mobile": "/projects/blades/mobile.png" },
+        "image": { "desktop": "/projects/blades/desktop.webp", "tablet": "/projects/blades/tablet.webp", "mobile": "/projects/blades/mobile.webp" },
         "description": {
           "ka": "პრემიუმ დანებისა და ტყავის აქსესუარების ონლაინ მაღაზია — სრული კატალოგი, ფასდაკლებები, კალათა და checkout ნაკადი.",
           "en": "An online store for premium knives and leather accessories — full catalog, sales, cart and checkout flow."

@@ -18,13 +18,13 @@ export default function LoadingOverlay() {
       if (cancelled) return;
       setDone(true);
       // Unmount after the fade so the overlay never traps clicks.
-      window.setTimeout(() => !cancelled && setGone(true), 500);
+      window.setTimeout(() => !cancelled && setGone(true), 220);
     };
 
     const fonts = document.fonts;
     const ready = fonts ? fonts.ready : Promise.resolve();
     // Never hold the page hostage if font loading stalls.
-    const failsafe = window.setTimeout(finish, 2000);
+    const failsafe = window.setTimeout(finish, 600);
 
     ready.then(() => {
       window.clearTimeout(failsafe);
@@ -42,7 +42,7 @@ export default function LoadingOverlay() {
   return (
     <div
       aria-hidden="true"
-      className={`fixed inset-0 z-[100] bg-bg transition-opacity duration-500 ${
+      className={`fixed inset-0 z-[100] bg-bg transition-opacity duration-200 ${
         done ? "pointer-events-none opacity-0" : "opacity-100"
       }`}
     >

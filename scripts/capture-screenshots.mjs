@@ -1,12 +1,14 @@
 // One-off tool: captures desktop/tablet/mobile screenshots of each portfolio
 // project's live site and saves them into public/projects/<slug>/.
 //
-// Playwright isn't a project dependency (kept out of CI on purpose) — install
-// it locally before running this:
-//   npm install -D playwright && npx playwright install chromium
+// Playwright + sharp aren't project dependencies (kept out of CI on purpose)
+// — install them locally before running this:
+//   npm install -D playwright sharp && npx playwright install chromium
+// Screenshots are saved straight to WebP (q=82) via sharp.
 // Run with: node scripts/capture-screenshots.mjs
 import { chromium, devices } from "playwright";
-import { mkdir } from "node:fs/promises";
+import sharp from "sharp";
+import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -50,8 +52,10 @@ const run = async () => {
         await page.goto(site.url, { waitUntil: "networkidle", timeout: 30000 });
         // Dismiss common cookie banners so they don't dominate the shot.
         await page.waitForTimeout(1200);
-        const file = path.join(dir, `${name}.png`);
-        await page.screenshot({ path: file });
+        const png = await page.screenshot();
+        const webp = await sharp(png).webp({ quality: 82 }).toBuffer();
+        const file = path.join(dir, `${name}.webp`);
+        await writeFile(file, webp);
         console.log(`✓ ${site.slug} / ${name} -> ${file}`);
       } catch (err) {
         console.error(`✗ ${site.slug} / ${name}: ${err.message}`);
