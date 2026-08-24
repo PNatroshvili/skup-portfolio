@@ -13,7 +13,7 @@ const navItems = [
 ] as const;
 
 export default function Header() {
-  const { t, locale, toggleLocale } = useLanguage();
+  const { t, locale } = useLanguage();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const nav = siteContent.nav;
@@ -52,13 +52,15 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={toggleLocale}
+          {/* Real navigation to a real page, not a client-side swap — this is
+              what makes /en/ a distinct, crawlable, indexable URL. */}
+          <a
+            href={locale === "ka" ? "/en/" : "/"}
+            hrefLang={locale === "ka" ? "en" : "ka"}
             className="rounded-full border border-line px-3 py-1.5 text-[11px] font-medium tracking-wider text-muted transition-colors hover:border-line-strong hover:text-fg"
-            aria-label="Toggle language"
           >
             {locale === "ka" ? "EN" : "ქა"}
-          </button>
+          </a>
 
           <button
             className="-mr-1 p-1.5 text-muted transition-colors hover:text-fg md:hidden"

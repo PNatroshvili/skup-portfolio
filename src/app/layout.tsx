@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Noto_Sans_Georgian, Noto_Serif_Georgian } from "next/font/google";
 import "./globals.css";
-import { LanguageProvider } from "@/components/LanguageProvider";
 import { siteContent } from "@/lib/content";
 
 // Georgian-first typography: a serif for display headings, a sans for text.
@@ -21,33 +20,20 @@ const georgianSerif = Noto_Serif_Georgian({
 
 const siteUrl = "https://skup.ge";
 
+// title/description/OG/twitter/canonical are set per-page (app/page.tsx for
+// ka, app/en/page.tsx for en) — each locale is a real, separately indexable
+// URL with its own metadata, not a shared default. What's left here is only
+// what's genuinely site-wide.
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: {
-    default: siteContent.meta.title.ka,
-    template: `%s — ${siteContent.nav.brand}`,
-  },
+  // No title template: both page.tsx (ka) and en/page.tsx (en) already set
+  // a complete, brand-prefixed title of their own — a suffix template here
+  // would double up ("SKUP Studio — X — SKUP Studio"). This `default` only
+  // covers routes that don't set their own, e.g. not-found.tsx.
+  title: siteContent.meta.title.ka,
   description: siteContent.meta.description.ka,
   keywords: [...siteContent.meta.keywords.ka, ...siteContent.meta.keywords.en],
   authors: [{ name: siteContent.nav.brand }],
-  alternates: {
-    canonical: siteUrl,
-  },
-  openGraph: {
-    type: "website",
-    url: siteUrl,
-    siteName: siteContent.nav.brand,
-    title: siteContent.meta.title.ka,
-    description: siteContent.meta.description.ka,
-    locale: "ka_GE",
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: siteContent.nav.brand }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: siteContent.meta.title.ka,
-    description: siteContent.meta.description.ka,
-    images: ["/og-image.png"],
-  },
   robots: {
     index: true,
     follow: true,
@@ -107,7 +93,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         />
       </head>
       <body className="flex min-h-full flex-col bg-bg text-fg">
-        <LanguageProvider>{children}</LanguageProvider>
+        {children}
       </body>
     </html>
   );

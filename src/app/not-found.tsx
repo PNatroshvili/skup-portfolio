@@ -2,9 +2,9 @@
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { useLanguage } from "@/components/LanguageProvider";
+import { LanguageProvider, useLanguage } from "@/components/LanguageProvider";
 
-export default function NotFound() {
+function NotFoundContent() {
   const { t } = useLanguage();
 
   return (
@@ -40,5 +40,15 @@ export default function NotFound() {
       </main>
       <Footer />
     </>
+  );
+}
+
+export default function NotFound() {
+  // No route param to read the locale from here — default to the primary
+  // site language, matching the un-prefixed "/" root.
+  return (
+    <LanguageProvider locale="ka">
+      <NotFoundContent />
+    </LanguageProvider>
   );
 }

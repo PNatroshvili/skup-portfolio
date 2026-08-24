@@ -8,10 +8,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const base = "https://skup.ge";
   const lastModified = new Date();
 
-  // Single-page site: only the canonical URL belongs here. #anchor entries
-  // aren't distinct crawlable resources — Google folds them into the base
-  // page and never indexes them separately, so listing them just wastes
-  // crawl attention (and showed up as noise in Search Console's
+  // Two real, separately indexable pages: "/" (ka) and "/en/" (en). #anchor
+  // fragments aren't distinct crawlable resources — Google folds them into
+  // the base page and never indexes them separately, so they don't belong
+  // here (they previously showed up as noise in Search Console's
   // "discovered/crawled — currently not indexed" buckets).
-  return [{ url: base, lastModified, changeFrequency: "monthly", priority: 1 }];
+  return [
+    {
+      url: base,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 1,
+      alternates: { languages: { ka: base, en: `${base}/en/` } },
+    },
+    {
+      url: `${base}/en/`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.9,
+      alternates: { languages: { ka: base, en: `${base}/en/` } },
+    },
+  ];
 }
