@@ -8,13 +8,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const base = "https://skup.ge";
   const lastModified = new Date();
 
-  // Single-page site: list the page plus its in-page sections so crawlers
-  // have anchor-level entries to work with.
-  return [
-    { url: base, lastModified, changeFrequency: "monthly", priority: 1 },
-    { url: `${base}/#about`, lastModified, changeFrequency: "yearly", priority: 0.6 },
-    { url: `${base}/#services`, lastModified, changeFrequency: "monthly", priority: 0.8 },
-    { url: `${base}/#projects`, lastModified, changeFrequency: "monthly", priority: 0.8 },
-    { url: `${base}/#contact`, lastModified, changeFrequency: "yearly", priority: 0.5 },
-  ];
+  // Single-page site: only the canonical URL belongs here. #anchor entries
+  // aren't distinct crawlable resources — Google folds them into the base
+  // page and never indexes them separately, so listing them just wastes
+  // crawl attention (and showed up as noise in Search Console's
+  // "discovered/crawled — currently not indexed" buckets).
+  return [{ url: base, lastModified, changeFrequency: "monthly", priority: 1 }];
 }
