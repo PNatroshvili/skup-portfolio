@@ -5,6 +5,8 @@ import DeviceShowcase from "./DeviceShowcase";
 import { useLanguage } from "./LanguageProvider";
 import { siteContent } from "@/lib/content";
 
+const defaultCtaLabel = { ka: "პროექტის ნახვა", en: "View Project" };
+
 export default function Projects() {
   const { t } = useLanguage();
   const projects = siteContent.projects;
@@ -48,41 +50,43 @@ export default function Projects() {
                       {project.name}
                     </h3>
 
-                    <p className="mt-4 text-[14px] leading-relaxed text-muted">
+                    <p className="mt-1.5 text-[13px] font-medium text-muted">
+                      {t(project.eyebrow)}
+                    </p>
+
+                    <p className="mt-4 whitespace-pre-line text-[14px] leading-relaxed text-muted">
                       {t(project.description)}
                     </p>
 
-                    {project.tech.length > 0 && (
-                      <div className="mt-6 flex flex-wrap gap-2">
-                        {project.tech.map((tech) => (
-                          <span
-                            key={tech}
-                            className="rounded-full border border-line px-3 py-1 text-[11px] tracking-wide text-subtle"
-                          >
-                            {tech}
-                          </span>
-                        ))}
-                      </div>
+                    {project.tags.length > 0 && (
+                      <p className="mt-5 text-[12px] tracking-[0.02em] text-subtle">
+                        {project.tags.join(" · ")}
+                      </p>
                     )}
 
                     {project.link && (
-                      <a
-                        href={project.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group mt-7 inline-flex items-center gap-2 border-b border-line pb-1 text-[13px] text-fg transition-colors hover:border-accent"
-                      >
-                        {project.link.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
-                        <svg
-                          width="12"
-                          height="12"
-                          viewBox="0 0 16 16"
-                          fill="none"
-                          className="text-subtle transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent"
+                      <div className="mt-6">
+                        <span className="block text-[13px] font-medium text-fg">
+                          {t(project.ctaLabel ?? defaultCtaLabel)}
+                        </span>
+                        <a
+                          href={project.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="group mt-1.5 inline-flex items-center gap-2 border-b border-line pb-1 text-[13px] text-muted transition-colors hover:border-accent hover:text-fg"
                         >
-                          <path d="M5 11l6-6M6 5h5v5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </a>
+                          {project.link.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            className="text-subtle transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent"
+                          >
+                            <path d="M5 11l6-6M6 5h5v5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </a>
+                      </div>
                     )}
                   </div>
                 </article>

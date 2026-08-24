@@ -11,7 +11,7 @@ export default function Hero() {
   const serviceCount = siteContent.services.items.length;
 
   return (
-    <section id="top" className="relative overflow-hidden px-6 pt-20 pb-24 md:pt-28 md:pb-32">
+    <section id="top" className="relative overflow-hidden px-6 pt-24 pb-24 md:pt-32 md:pb-32">
       {/* Barely-there texture instead of a saturated gradient wash. */}
       <div
         aria-hidden
@@ -20,20 +20,19 @@ export default function Hero() {
 
       <div className="mx-auto max-w-6xl">
         <Reveal>
-          <p className="flex items-center gap-3 text-[12px] font-medium tracking-[0.12em] text-muted">
-            <span className="h-px w-8 bg-line-strong" />
-            {t(hero.eyebrow)}
-          </p>
-        </Reveal>
-
-        <Reveal delay={80}>
-          <h1 className="mt-7 max-w-4xl font-display text-[2.6rem] leading-[1.08] font-medium tracking-tight text-fg sm:text-6xl lg:text-[4rem]">
-            {t(hero.subtitle)}
+          <h1 className="max-w-4xl font-display text-[2.6rem] leading-[1.08] font-medium tracking-tight text-fg sm:text-6xl lg:text-[4rem]">
+            {t(hero.title)}
           </h1>
         </Reveal>
 
+        <Reveal delay={80}>
+          <p className="mt-7 max-w-2xl text-lg leading-relaxed text-muted">
+            {t(hero.subtitle)}
+          </p>
+        </Reveal>
+
         <Reveal delay={160}>
-          <div className="mt-11 flex flex-wrap items-center gap-3">
+          <div className="mt-10 flex flex-wrap items-center gap-3">
             <a
               href="#projects"
               className="group inline-flex items-center gap-2.5 rounded-full bg-fg px-6 py-3 text-[13px] font-medium text-bg transition-opacity hover:opacity-85"

@@ -16,29 +16,42 @@
   "nav": {
     "brand": "SKUP Studio",
     "links": {
-      "about": { "ka": "შესახებ", "en": "About" },
-      "services": { "ka": "სერვისები", "en": "Services" },
       "projects": { "ka": "პროექტები", "en": "Projects" },
+      "services": { "ka": "სერვისები", "en": "Services" },
+      "about": { "ka": "ჩვენ შესახებ", "en": "About" },
       "contact": { "ka": "კონტაქტი", "en": "Contact" }
     }
   },
 
   "hero": {
-    "eyebrow": { "ka": "ციფრული სტუდია", "en": "Digital Studio" },
-    "title": { "ka": "SKUP Studio", "en": "SKUP Studio" },
+    "title": {
+      "ka": "ციფრულ პროდუქტებს ვქმნით, რომლებიც რეალურად მუშაობს.",
+      "en": "We build digital products that actually work."
+    },
     "subtitle": {
-      "ka": "ვქმნით ვებ, დესკტოპ და მობაილ აპლიკაციებს — იდეიდან სამუშაო პროდუქტამდე.",
-      "en": "We build web, desktop and mobile applications — from idea to shipped product."
+      "ka": "SKUP არის ციფრული სტუდია თბილისიდან. ვქმნით ვებსაიტებს, web აპლიკაციებსა და პროგრამულ პროდუქტებს — დიზაინიდან და განვითარებიდან საბოლოო გაშვებამდე.",
+      "en": "SKUP is a digital studio from Tbilisi. We build websites, web apps and software products — from design and development through to launch."
     },
     "ctaPrimary": { "ka": "პროექტების ნახვა", "en": "View Projects" },
-    "ctaSecondary": { "ka": "დაკავშირება", "en": "Get in Touch" }
+    "ctaSecondary": { "ka": "დავიწყოთ საუბარი", "en": "Let's Talk" }
   },
 
   "about": {
     "title": { "ka": "შესახებ", "en": "About" },
+    "heading": {
+      "ka": "პატარა სტუდია. რეალური პროექტები.",
+      "en": "A small studio. Real projects."
+    },
     "body": {
-      "ka": "SKUP Studio არის დეველოპმენტის სტუდია, რომელიც ეხმარება ბიზნესებს იდეის რეალურ პროდუქტად გადაქცევაში. ჩვენ ვმუშაობთ ვებ, დესკტოპ და მობაილ პლატფორმებზე — დიზაინიდან და არქიტექტურიდან დაწყებული, გაშვებამდე და შემდგომ მხარდაჭერამდე. მიდგომა დაფუძნებულია სისუფთავეზე, სისწრაფეზე და გრძელვადიან საიმედოობაზე — თითოეული პროექტი შენდება ისე, რომ იზრდებოდეს კლიენტთან ერთად.",
-      "en": "SKUP Studio is a development studio that helps businesses turn ideas into real products. We work across web, desktop and mobile platforms — from design and architecture through launch and ongoing support. Our approach is built on clean execution, speed and long-term reliability — every project is built to grow together with the client."
+      "ka": "SKUP არის ციფრული სტუდია თბილისში.\n\nვქმნით ვებსაიტებს, web აპლიკაციებსა და პროგრამულ პროდუქტებს სხვადასხვა სფეროს ბიზნესებისა და ორგანიზაციებისთვის.\n\nზოგი პროექტი ნულიდან იწყება. ზოგჯერ კი უკვე არსებული პროდუქტის გაუმჯობესება ან თავიდან აწყობაა საჭირო. ორივე შემთხვევაში ჩვენი მიზანი ერთია — გავაკეთოთ პროდუქტი, რომელიც კარგად გამოიყურება, მარტივად გამოიყენება და რეალურ საქმეს აკეთებს.\n\nპროექტზე კლიენტთან ახლოს ვმუშაობთ. არ გვიყვარს ზედმეტი ბიუროკრატია და რთული პროცესები — გვირჩევნია პირდაპირი კომუნიკაცია, მკაფიო გადაწყვეტილებები და კარგი შედეგი.",
+      "en": "SKUP is a digital studio in Tbilisi.\n\nWe build websites, web applications and software products for businesses and organizations across different fields.\n\nSome projects start from zero. Sometimes it's about improving or rebuilding an existing product. Either way, our goal is the same — make a product that looks good, is easy to use, and does real work.\n\nWe work closely with the client on every project. We don't like unnecessary bureaucracy or complicated processes — we prefer direct communication, clear decisions and a good result."
+    },
+    "statement": {
+      "heading": "We don't build for the sake of building.",
+      "body": {
+        "ka": "ვაკეთებთ იმას, რასაც პროექტი რეალურად საჭიროებს — არც მეტს და არც ნაკლებს.",
+        "en": "We do what the project actually needs — no more, no less."
+      }
     }
   },
 
@@ -47,58 +60,83 @@
     "items": [
       {
         "icon": "🌐",
-        "title": { "ka": "ვებ დეველოპმენტი", "en": "Web Development" },
+        "title": { "ka": "ვებსაიტები და Web აპლიკაციები", "en": "Websites & Web Apps" },
         "description": {
-          "ka": "თანამედროვე, სწრაფი და მორგებადი ვებსაიტები და ვებ აპლიკაციები.",
-          "en": "Modern, fast and responsive websites and web applications."
-        }
+          "ka": "ვქმნით როგორც მარტივ ბიზნეს ვებსაიტებს, ისე უფრო რთულ web აპლიკაციებსა და პლატფორმებს.",
+          "en": "We build everything from simple business websites to more complex web applications and platforms."
+        },
+        "tags": ["Websites", "Web Apps", "Custom Platforms"]
       },
       {
         "icon": "🖥️",
-        "title": { "ka": "დესკტოპ აპლიკაციები", "en": "Desktop Applications" },
+        "title": { "ka": "პროგრამული პროდუქტები", "en": "Software Products" },
         "description": {
-          "ka": "Windows/macOS/Linux დესკტოპ აპლიკაციები თქვენი საჭიროებებისთვის.",
-          "en": "Windows/macOS/Linux desktop applications tailored to your needs."
-        }
-      },
-      {
-        "icon": "📱",
-        "title": { "ka": "მობაილ აპლიკაციები", "en": "Mobile Applications" },
-        "description": {
-          "ka": "iOS და Android აპლიკაციები, native ან cross-platform მიდგომით.",
-          "en": "iOS and Android applications, native or cross-platform."
-        }
-      },
-      {
-        "icon": "🔍",
-        "title": { "ka": "SEO და საძიებო ოპტიმიზაცია", "en": "SEO & Search Optimization" },
-        "description": {
-          "ka": "საიტის ხილვადობის ზრდა საძიებო სისტემებში — ტექნიკური SEO, სიჩქარე, სტრუქტურა.",
-          "en": "Growing search visibility — technical SEO, performance, and structure."
-        }
+          "ka": "თუ გჭირდებათ კონკრეტულ ამოცანაზე მორგებული პროგრამა, ვქმნით desktop და mobile პროდუქტებს თქვენი საჭიროებების მიხედვით.",
+          "en": "If you need software built for a specific task, we build desktop and mobile products tailored to your needs."
+        },
+        "tags": ["Desktop", "Mobile", "Custom Software"]
       },
       {
         "icon": "🎨",
-        "title": { "ka": "UI/UX დიზაინი", "en": "UI/UX Design" },
+        "title": { "ka": "UI/UX და პროდუქტის დიზაინი", "en": "UI/UX & Product Design" },
         "description": {
-          "ka": "მომხმარებელზე ორიენტირებული ინტერფეისის დიზაინი და პროტოტიპირება.",
-          "en": "User-centered interface design and prototyping."
-        }
-      },
-      {
-        "icon": "🔗",
-        "title": { "ka": "ინტეგრაციები და API", "en": "Integrations & API" },
-        "description": {
-          "ka": "მესამე მხარის სერვისების, გადახდის სისტემებისა და API-ების ინტეგრაცია.",
-          "en": "Third-party service, payment system and API integrations."
-        }
+          "ka": "ვაწყობთ პროდუქტის სტრუქტურას, მომხმარებლის გზას და ინტერფეისს ისე, რომ საბოლოო პროდუქტი უბრალოდ კარგად არ გამოიყურებოდეს — გამოყენებაც მარტივი იყოს.",
+          "en": "We structure the product, the user journey and the interface so the result doesn't just look good — it's simple to use, too."
+        },
+        "tags": ["UX", "UI", "Prototyping", "Design Systems"]
       },
       {
         "icon": "🛠️",
-        "title": { "ka": "მხარდაჭერა და განვითარება", "en": "Maintenance & Support" },
+        "title": { "ka": "არსებული პროდუქტის განვითარება", "en": "Ongoing Product Development" },
         "description": {
-          "ka": "არსებული პროდუქტების გრძელვადიანი მხარდაჭერა, განახლება და გაფართოება.",
-          "en": "Long-term maintenance, updates and feature growth for existing products."
+          "ka": "პროექტის გაშვებით ჩვენი სამუშაო ყოველთვის არ მთავრდება. შეგვიძლია გავაგრძელოთ არსებული პროდუქტის მხარდაჭერა, დამატება, გაუმჯობესება და ინტეგრაციები.",
+          "en": "Our work doesn't always end when a project launches. We can continue supporting, extending, improving and integrating an existing product."
+        },
+        "tags": ["Maintenance", "Improvements", "Integrations", "New Features"]
+      }
+    ]
+  },
+
+  "howWeWork": {
+    "title": { "ka": "როგორ ვმუშაობთ", "en": "How We Work" },
+    "subtitle": {
+      "ka": "ზედმეტ პროცესებს არ ვქმნით. ჯერ ვარკვევთ, რა არის საჭირო, შემდეგ ვაკეთებთ.",
+      "en": "We don't create unnecessary process. We figure out what's needed, then we do it."
+    },
+    "steps": [
+      {
+        "title": { "ka": "საუბარი", "en": "Conversation" },
+        "description": {
+          "ka": "პირველ ეტაპზე ვსაუბრობთ იდეაზე, პრობლემაზე და იმაზე, თუ რისი მიღწევა გინდათ.",
+          "en": "First, we talk about the idea, the problem, and what you want to achieve."
+        }
+      },
+      {
+        "title": { "ka": "დაგეგმვა", "en": "Planning" },
+        "description": {
+          "ka": "ვაწყობთ პროდუქტის სტრუქტურას, ვადგენთ რა უნდა გაკეთდეს და ვთანხმდებით სამუშაოს მოცულობაზე.",
+          "en": "We structure the product, define what needs to be done, and agree on the scope of work."
+        }
+      },
+      {
+        "title": { "ka": "დიზაინი და განვითარება", "en": "Design & Development" },
+        "description": {
+          "ka": "ვქმნით ინტერფეისს და ვიწყებთ პროდუქტის აწყობას. პროცესში მუდმივად გაჩვენებთ პროგრესს.",
+          "en": "We design the interface and start building the product, showing you progress throughout."
+        }
+      },
+      {
+        "title": { "ka": "გაშვება", "en": "Launch" },
+        "description": {
+          "ka": "ვტესტავთ, ვასწორებთ დეტალებს და საბოლოო პროდუქტს ვუშვებთ.",
+          "en": "We test, polish the details, and ship the final product."
+        }
+      },
+      {
+        "title": { "ka": "შემდეგ", "en": "What's Next" },
+        "description": {
+          "ka": "თუ პროექტს შემდგომი განვითარება, მხარდაჭერა ან ახალი ფუნქციები სჭირდება, შეგვიძლია ამაზეც გავაგრძელოთ მუშაობა.",
+          "en": "If the project needs further development, support, or new features, we can keep working on it."
         }
       }
     ]
@@ -110,102 +148,137 @@
       {
         "name": "Greenart",
         "image": { "desktop": "/projects/greenart/desktop.webp", "tablet": "/projects/greenart/tablet.webp", "mobile": "/projects/greenart/mobile.webp" },
+        "eyebrow": { "ka": "Greenart-ის ახალი ვებსაიტი", "en": "Greenart's new website" },
         "description": {
-          "ka": "მცენარეების პროფესიონალური მოვლის სერვისი ბიზნესებისთვის — სასტუმროები, რესტორნები, ოფისები და კომერციული სივრცეები. სრული ციკლი: კონსულტაციიდან რეგულარულ მოვლამდე.",
-          "en": "A professional plant-care service platform for businesses — hotels, restaurants, offices and commercial spaces in Tbilisi. Full cycle from consultation to ongoing maintenance."
+          "ka": "Greenart ბიზნესებისთვის მცენარეების მოვლის სერვისებს გთავაზობთ. ჩვენ შევქმენით მარტივი, ვიზუალური ვებსაიტი, რომელიც სერვისებს გასაგებად აჩვენებს და პოტენციურ კლიენტს კომპანიასთან დაკავშირებას უადვილებს.",
+          "en": "Greenart offers plant-care services for businesses. We built a simple, visual website that presents the services clearly and makes it easy for potential clients to get in touch."
         },
-        "tech": ["Landing Page", "Lead-gen ფორმა"],
+        "tags": ["Web Design", "Development", "Lead Generation"],
         "link": "https://www.greenart.ge/"
       },
       {
         "name": "NCODE Development",
         "image": { "desktop": "/projects/ncode/desktop.webp", "tablet": "/projects/ncode/tablet.webp", "mobile": "/projects/ncode/mobile.webp" },
+        "eyebrow": { "ka": "საცხოვრებელი კომპლექსის გაყიდვების პლატფორმა", "en": "Sales platform for a residential complex" },
         "description": {
-          "ka": "პრემიუმ საცხოვრებელი კომპლექსის (NCODE შატბერაშვილი, ვაკე) გაყიდვების საიტი — ინტერაქტიული სართულების/ბინების სელექტორი, ფასები, 3D ვიზუალები და საბანკო დაფინანსების ინფორმაცია.",
-          "en": "Sales site for a premium residential development (NCODE Shatberashvili, Vake) — interactive floor/unit selector, pricing, 3D visuals and bank financing details."
+          "ka": "NCODE შატბერაშვილის, ვაკის პროექტისთვის შევქმენით ვებსაიტი, სადაც მომხმარებელს შეუძლია დაათვალიეროს შენობა, სართულები და ბინები, გაეცნოს ფასებსა და დაფინანსების პირობებს.",
+          "en": "For NCODE's Shatberashvili project in Vake, we built a website where visitors can explore the building, floors and apartments, and review pricing and financing terms."
         },
-        "tech": ["Real Estate", "Interactive UI"],
+        "tags": ["Web Design", "Development", "Interactive UI"],
         "link": "https://ncode-development.ge/"
       },
       {
         "name": "Rufus the Churchill",
         "image": { "desktop": "/projects/rufus/desktop.webp", "tablet": "/projects/rufus/tablet.webp", "mobile": "/projects/rufus/mobile.webp" },
+        "eyebrow": { "ka": "დახმარება, რომელიც კონკრეტულ ცხოველამდე მიდის", "en": "Help that reaches a specific animal" },
         "description": {
-          "ka": "ცხოველების დახმარების საქველმოქმედო პლატფორმა — მომხმარებელი კონკრეტულ ცხოველს ირჩევს და საკვების/მოვლის დაფინანსებაში ეხმარება progress-tracking-ით.",
-          "en": "An animal-welfare donation platform — users choose a specific animal and fund its food and care with live progress tracking."
+          "ka": "Rufus the Churchill არის ცხოველების დახმარების პლატფორმა. მომხმარებელს შეუძლია კონკრეტული ცხოველის არჩევა და მისი საკვებისა და მოვლის დაფინანსება.\n\nჩვენ შევქმენით პლატფორმის სტრუქტურა და donation flow ისე, რომ დახმარების პროცესი მარტივი და გასაგები ყოფილიყო.",
+          "en": "Rufus the Churchill is an animal-welfare platform. Visitors can choose a specific animal and fund its food and care.\n\nWe built the platform's structure and donation flow to make the process of helping simple and clear."
         },
-        "tech": ["Charity Platform", "Donation Flow"],
+        "tags": ["Product Design", "Development", "Donation Flow"],
         "link": "https://rufusthechurchill.org/"
       },
       {
         "name": "ABM",
         "image": { "desktop": "/projects/abm/desktop.webp", "tablet": "/projects/abm/tablet.webp", "mobile": "/projects/abm/mobile.webp" },
+        "eyebrow": { "ka": "ABM-ის ახალი კორპორატიული ვებსაიტი", "en": "ABM's new corporate website" },
         "description": {
-          "ka": "სამედიცინო/გენომიკის კომპანიის კორპორატიული საიტი — სიახლეების, კონფერენციებისა და პროფესიული აქტივობების საინფორმაციო ფიდით.",
-          "en": "Corporate site for a medical genomics company, featuring a news feed of conferences and professional activities."
+          "ka": "ABM-ისთვის შევქმენით კორპორატიული ვებსაიტი, რომელიც ორგანიზაციის საქმიანობას, სიახლეებს, კონფერენციებსა და პროფესიულ აქტივობებს ერთ სივრცეში აერთიანებს.",
+          "en": "For ABM, we built a corporate website that brings the organization's work, news, conferences and professional activity together in one place."
         },
-        "tech": ["Corporate Site", "News/Blog"],
+        "tags": ["Web Design", "Development", "Content Structure"],
         "link": "https://abm.org.ge/"
       },
       {
         "name": "Peter Moennig Foundation",
         "image": { "desktop": "/projects/pmfinfo/desktop.webp", "tablet": "/projects/pmfinfo/tablet.webp", "mobile": "/projects/pmfinfo/mobile.webp" },
+        "eyebrow": { "ka": "ფონდის ვებსაიტი ხელოვნებისა და კულტურისთვის", "en": "A foundation site for art and culture" },
         "description": {
-          "ka": "საქველმოქმედო სამხატვრო ფონდის საიტი — გამოფენები, გრანტების Open Call განცხადებები და ხელოვანების მხარდაჭერის პროგრამები.",
-          "en": "Site for an art foundation — exhibitions, grant open-calls and artist-support programs."
+          "ka": "Peter Moennig Foundation ხელოვანებს სხვადასხვა პროგრამით, გრანტითა და ინიციატივით უჭერს მხარს. საიტი აერთიანებს გამოფენებს, Open Call-ებსა და ფონდის საქმიანობას.",
+          "en": "The Peter Moennig Foundation supports artists through programs, grants and initiatives. The site brings together exhibitions, open calls and the foundation's activity."
         },
-        "tech": ["Foundation Site"],
+        "tags": ["Web Design", "Development", "CMS"],
         "link": "https://pmfinfo.com/"
       },
       {
         "name": "Around Caucasus",
         "image": { "desktop": "/projects/around-caucasus/desktop.webp", "tablet": "/projects/around-caucasus/tablet.webp", "mobile": "/projects/around-caucasus/mobile.webp" },
+        "eyebrow": { "ka": "კავკასიის აღმოჩენა ერთი საიტიდან", "en": "Discover the Caucasus from one site" },
         "description": {
-          "ka": "ტურისტული სააგენტოს საიტი თბილისსა და კავკასიაში — ტურების კატეგორიები (თავგადასავლური, კულინარიული, საველოსიპედო, ლაშქრობა და სხვ.) მარტივი დათვალიერებით.",
-          "en": "Tour operator site for Tbilisi and the Caucasus — browsable tour categories (adventure, culinary, biking, hiking and more)."
+          "ka": "Around Caucasus-ისთვის შევქმენით მრავალგვერდიანი ტურისტული ვებსაიტი, სადაც მომხმარებელს მარტივად შეუძლია სხვადასხვა ტიპის ტურის დათვალიერება — ლაშქრობებიდან და ველოტურებიდან კულინარიულ გამოცდილებებამდე.",
+          "en": "For Around Caucasus, we built a multi-page tourism website where visitors can easily browse different kinds of tours — from hiking and biking to culinary experiences."
         },
-        "tech": ["Tourism", "Multi-page Site"],
+        "tags": ["Web Design", "Development", "Content Structure"],
         "link": "https://around-caucasus.com/"
       },
       {
         "name": "Asomtavari",
         "image": { "desktop": "/projects/asomtavari/desktop.webp", "tablet": "/projects/asomtavari/tablet.webp", "mobile": "/projects/asomtavari/mobile.webp" },
+        "eyebrow": { "ka": "ქართული ანბანი, როგორც პერსონალური ნივთი", "en": "The Georgian alphabet, as a personal object" },
         "description": {
-          "ka": "ხელნაკეთი ხელოვნების ონლაინ მაღაზია, შთაგონებული ქართული ანბანით — ინიციალები, ზოდიაქოს ნიშნები და პერსონალიზებული ასო-ნიშნები.",
-          "en": "An online shop for handcrafted art inspired by the Georgian alphabet — initials, zodiac signs and personalized letter pieces."
+          "ka": "Asomtavari ქმნის ხელნაკეთ ნივთებს ქართული ანბანის მოტივებით. ჩვენ შევქმენით ონლაინ მაღაზია, სადაც მომხმარებელს შეუძლია პროდუქტების დათვალიერება, პერსონალიზაცია და შეკვეთა.",
+          "en": "Asomtavari makes handcrafted pieces inspired by the Georgian alphabet. We built an online store where customers can browse, personalize and order products."
         },
-        "tech": ["E-commerce", "WordPress / WooCommerce"],
-        "link": "https://asomtavari.com/"
+        "tags": ["E-commerce", "WordPress", "WooCommerce"],
+        "link": "https://asomtavari.com/",
+        "ctaLabel": { "ka": "მაღაზიის ნახვა", "en": "View Shop" }
       },
       {
         "name": "Blades.GE",
         "image": { "desktop": "/projects/blades/desktop.webp", "tablet": "/projects/blades/tablet.webp", "mobile": "/projects/blades/mobile.webp" },
+        "eyebrow": { "ka": "ონლაინ მაღაზია სპეციალიზებული პროდუქტებისთვის", "en": "An online store for specialized products" },
         "description": {
-          "ka": "პრემიუმ დანებისა და ტყავის აქსესუარების ონლაინ მაღაზია — სრული კატალოგი, ფასდაკლებები, კალათა და checkout ნაკადი.",
-          "en": "An online store for premium knives and leather accessories — full catalog, sales, cart and checkout flow."
+          "ka": "Blades.GE-სთვის შევქმენით სრულფასოვანი e-commerce გამოცდილება პროდუქტების კატალოგით, ფასდაკლებებით, კალათითა და შეკვეთის პროცესით.",
+          "en": "For Blades.GE, we built a full e-commerce experience with a product catalog, sales, cart and checkout flow."
         },
-        "tech": ["E-commerce", "WordPress / WooCommerce"],
-        "link": "https://blades.ge/"
+        "tags": ["E-commerce", "WordPress", "WooCommerce"],
+        "link": "https://blades.ge/",
+        "ctaLabel": { "ka": "მაღაზიის ნახვა", "en": "View Shop" }
       }
     ]
   },
 
   "contact": {
-    "title": { "ka": "დამიკავშირდით", "en": "Get in Touch" },
-    "body": {
-      "ka": "დაინტერესებული ხართ თანამშრომლობით? მოგვწერეთ პირდაპირ.",
-      "en": "Interested in working together? Reach out directly."
+    "title": { "ka": "კონტაქტი", "en": "Contact" },
+    "heading": {
+      "ka": "გაქვთ პროექტი, რომლის გაკეთებაც გინდათ?",
+      "en": "Have a project you want to build?"
     },
-    "email": "skup@gmail.com",
+    "body": {
+      "ka": "მოგვწერეთ რამდენიმე სიტყვით რას გეგმავთ. დანარჩენს ერთად გავარკვევთ.",
+      "en": "Tell us a few words about what you're planning. We'll figure out the rest together."
+    },
+    "ctaLabel": { "ka": "მოგვწერეთ", "en": "Message Us" },
+    "infoLabel": { "ka": "საკონტაქტო ინფორმაცია", "en": "Contact Information" },
+    "email": "hello@skup.ge",
     "phone": "+995 571 77 99 31",
+    "location": { "ka": "თბილისი, საქართველო", "en": "Tbilisi, Georgia" },
     "links": [
       { "label": "GitHub", "url": "" },
       { "label": "LinkedIn", "url": "" },
       { "label": "Telegram", "url": "" }
-    ]
+    ],
+    "form": {
+      "nameLabel": { "ka": "თქვენი სახელი", "en": "Your Name" },
+      "namePlaceholder": { "ka": "სახელი", "en": "Name" },
+      "emailLabel": { "ka": "ელფოსტა", "en": "Email" },
+      "messageLabel": { "ka": "რას გეგმავთ?", "en": "What are you planning?" },
+      "messagePlaceholder": { "ka": "მოგვიყევით მოკლედ პროექტის შესახებ...", "en": "Tell us briefly about the project..." },
+      "typeLabel": { "ka": "რა ტიპის პროექტია?", "en": "What type of project is it?" },
+      "types": [
+        { "value": "website", "label": { "ka": "ვებსაიტი", "en": "Website" } },
+        { "value": "webapp", "label": { "ka": "Web აპლიკაცია", "en": "Web App" } },
+        { "value": "mobile", "label": { "ka": "მობაილ აპლიკაცია", "en": "Mobile App" } },
+        { "value": "desktop", "label": { "ka": "დესკტოპ პროგრამა", "en": "Desktop Software" } },
+        { "value": "ecommerce", "label": { "ka": "ონლაინ მაღაზია", "en": "E-commerce" } },
+        { "value": "other", "label": { "ka": "სხვა", "en": "Other" } }
+      ],
+      "submit": { "ka": "შეტყობინების გაგზავნა", "en": "Send Message" }
+    }
   },
 
   "footer": {
+    "tagline": { "ka": "ციფრული სტუდია თბილისიდან.", "en": "Digital studio based in Tbilisi." },
     "text": { "ka": "ყველა უფლება დაცულია.", "en": "All rights reserved." }
   }
 }

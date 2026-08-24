@@ -32,9 +32,16 @@ export default function Services() {
                 <h3 className="font-display text-lg font-medium text-fg md:text-xl">
                   {t(service.title)}
                 </h3>
-                <p className="col-start-2 max-w-xl text-[14px] leading-relaxed text-muted md:col-start-3">
-                  {t(service.description)}
-                </p>
+                <div className="col-start-2 max-w-xl md:col-start-3">
+                  <p className="text-[14px] leading-relaxed text-muted">
+                    {t(service.description)}
+                  </p>
+                  {service.tags.length > 0 && (
+                    <p className="mt-3 text-[12px] tracking-[0.02em] text-subtle">
+                      {service.tags.join(" · ")}
+                    </p>
+                  )}
+                </div>
               </div>
             </Reveal>
           ))}

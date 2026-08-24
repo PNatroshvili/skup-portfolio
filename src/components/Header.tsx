@@ -6,9 +6,9 @@ import { useLanguage } from "./LanguageProvider";
 import { siteContent } from "@/lib/content";
 
 const navItems = [
-  { key: "about", href: "#about" },
-  { key: "services", href: "#services" },
   { key: "projects", href: "#projects" },
+  { key: "services", href: "#services" },
+  { key: "about", href: "#about" },
   { key: "contact", href: "#contact" },
 ] as const;
 

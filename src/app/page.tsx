@@ -3,9 +3,10 @@ import { LanguageProvider } from "@/components/LanguageProvider";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
-import About from "@/components/About";
-import Services from "@/components/Services";
 import Projects from "@/components/Projects";
+import Services from "@/components/Services";
+import HowWeWork from "@/components/HowWeWork";
+import About from "@/components/About";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import { siteContent } from "@/lib/content";
@@ -47,9 +48,10 @@ export default function Home() {
       <Header />
       <main className="flex-1">
         <Hero />
-        <About />
-        <Services />
         <Projects />
+        <Services />
+        <HowWeWork />
+        <About />
         <Contact />
       </main>
       <Footer />
