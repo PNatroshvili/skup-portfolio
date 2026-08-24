@@ -91,6 +91,20 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           src="https://static.cloudflareinsights.com/beacon.min.js"
           data-cf-beacon='{"token": "3777c4832eb743baa79dcbfa2b2ebe6f"}'
         />
+        {/* Google Analytics 4 (GA4) — property "SKUP Studio". */}
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-X73CPR3LMM"
+        />
+        <script
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-X73CPR3LMM');`,
+          }}
+        />
       </head>
       <body className="flex min-h-full flex-col bg-bg text-fg">
         {children}
