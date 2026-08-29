@@ -56,7 +56,7 @@ export default function DeviceShowcase({
   name: string;
 }) {
   return (
-    <div className="relative w-full pb-[9%]">
+    <div className="relative w-full pb-[9%] transition-transform duration-500 ease-out hover:scale-[1.015]">
       <div className="ml-auto w-[78%]">
         <Laptop src={images.desktop} alt={`${name} — desktop`} />
       </div>
