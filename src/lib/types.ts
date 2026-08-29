@@ -2,8 +2,12 @@ export type Locale = "ka" | "en";
 
 export type LocalizedText = Record<Locale, string>;
 
+/** Keys map to the icon set in Services.tsx — kept out of content as JSX,
+ * so content/site.json stays plain data with no markup or emoji in it. */
+export type ServiceIconKey = "web" | "apps" | "design" | "growth";
+
 export interface ServiceItem {
-  icon: string;
+  icon: ServiceIconKey;
   title: LocalizedText;
   description: LocalizedText;
   /** Short capability tags, rendered as a single "A · B · C" line. */
@@ -21,6 +25,10 @@ export interface ProjectItem {
   image: ProjectImages | "";
   eyebrow: LocalizedText;
   description: LocalizedText;
+  /** Optional case-study depth. Only set on a few flagship projects — Projects.tsx
+   * falls back to the plain `description` alone when these are omitted. */
+  challenge?: LocalizedText;
+  approach?: LocalizedText;
   /** e.g. "Web Design · Development · Lead Generation" — split on render. */
   tags: string[];
   link: string;
@@ -71,6 +79,7 @@ export interface SiteContent {
   };
   services: {
     title: LocalizedText;
+    intro: LocalizedText;
     items: ServiceItem[];
   };
   howWeWork: {
@@ -81,6 +90,12 @@ export interface SiteContent {
   projects: {
     title: LocalizedText;
     items: ProjectItem[];
+  };
+  trust: {
+    title: LocalizedText;
+    heading: LocalizedText;
+    body: LocalizedText;
+    items: { name: string; url: string }[];
   };
   contact: {
     title: LocalizedText;
@@ -100,6 +115,10 @@ export interface SiteContent {
       messagePlaceholder: LocalizedText;
       typeLabel: LocalizedText;
       types: { value: string; label: LocalizedText }[];
+      budgetLabel: LocalizedText;
+      budgetPlaceholder: LocalizedText;
+      timelineLabel: LocalizedText;
+      timelinePlaceholder: LocalizedText;
       submit: LocalizedText;
     };
   };

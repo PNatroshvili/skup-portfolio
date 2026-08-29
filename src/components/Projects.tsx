@@ -58,6 +58,31 @@ export default function Projects() {
                       {t(project.description)}
                     </p>
 
+                    {(project.challenge || project.approach) && (
+                      <dl className="mt-5 space-y-4 border-t border-line pt-5">
+                        {project.challenge && (
+                          <div>
+                            <dt className="text-[11px] font-medium tracking-[0.1em] text-subtle">
+                              {t({ ka: "გამოწვევა", en: "Challenge" })}
+                            </dt>
+                            <dd className="mt-1.5 text-[13px] leading-relaxed text-muted">
+                              {t(project.challenge)}
+                            </dd>
+                          </div>
+                        )}
+                        {project.approach && (
+                          <div>
+                            <dt className="text-[11px] font-medium tracking-[0.1em] text-subtle">
+                              {t({ ka: "მიდგომა", en: "Approach" })}
+                            </dt>
+                            <dd className="mt-1.5 text-[13px] leading-relaxed text-muted">
+                              {t(project.approach)}
+                            </dd>
+                          </div>
+                        )}
+                      </dl>
+                    )}
+
                     {project.tags.length > 0 && (
                       <p className="mt-5 text-[12px] tracking-[0.02em] text-subtle">
                         {project.tags.join(" · ")}

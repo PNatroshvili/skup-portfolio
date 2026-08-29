@@ -25,12 +25,12 @@
 
   "hero": {
     "title": {
-      "ka": "ციფრულ პროდუქტებს ვქმნით, რომლებიც რეალურად მუშაობს.",
-      "en": "We build digital products that actually work."
+      "ka": "ციფრული პროდუქტები, რომლებიც ბიზნესს წინ სწევს.",
+      "en": "Digital products that move your business forward."
     },
     "subtitle": {
-      "ka": "SKUP არის ციფრული სტუდია თბილისიდან. ვქმნით ვებსაიტებს, web აპლიკაციებსა და პროგრამულ პროდუქტებს — დიზაინიდან და განვითარებიდან საბოლოო გაშვებამდე.",
-      "en": "SKUP is a digital studio from Tbilisi. We build websites, web apps and software products — from design and development through to launch."
+      "ka": "SKUP არის პატარა გუნდი თბილისიდან — სამი დეველოპერი, პირდაპირი კომუნიკაცია და გადაწყვეტილებები იმავე დღეს. ვქმნით ვებსაიტებს, აპლიკაციებსა და პროგრამულ პროდუქტებს, რომლებიც რეალურ საქმეს აკეთებენ.",
+      "en": "SKUP is a small studio from Tbilisi — three developers, direct communication, decisions made the same day. We build websites, apps and software products that do real work."
     },
     "ctaPrimary": { "ka": "პროექტების ნახვა", "en": "View Projects" },
     "ctaSecondary": { "ka": "დავიწყოთ საუბარი", "en": "Let's Talk" }
@@ -39,12 +39,12 @@
   "about": {
     "title": { "ka": "შესახებ", "en": "About" },
     "heading": {
-      "ka": "პატარა სტუდია. რეალური პროექტები.",
-      "en": "A small studio. Real projects."
+      "ka": "პატარა გუნდი. სერიოზული პროდუქტის აზროვნება.",
+      "en": "A small team. Serious product thinking."
     },
     "body": {
-      "ka": "SKUP არის ციფრული სტუდია თბილისში.\n\nვქმნით ვებსაიტებს, web აპლიკაციებსა და პროგრამულ პროდუქტებს სხვადასხვა სფეროს ბიზნესებისა და ორგანიზაციებისთვის.\n\nზოგი პროექტი ნულიდან იწყება. ზოგჯერ კი უკვე არსებული პროდუქტის გაუმჯობესება ან თავიდან აწყობაა საჭირო. ორივე შემთხვევაში ჩვენი მიზანი ერთია — გავაკეთოთ პროდუქტი, რომელიც კარგად გამოიყურება, მარტივად გამოიყენება და რეალურ საქმეს აკეთებს.\n\nპროექტზე კლიენტთან ახლოს ვმუშაობთ. არ გვიყვარს ზედმეტი ბიუროკრატია და რთული პროცესები — გვირჩევნია პირდაპირი კომუნიკაცია, მკაფიო გადაწყვეტილებები და კარგი შედეგი.",
-      "en": "SKUP is a digital studio in Tbilisi.\n\nWe build websites, web applications and software products for businesses and organizations across different fields.\n\nSome projects start from zero. Sometimes it's about improving or rebuilding an existing product. Either way, our goal is the same — make a product that looks good, is easy to use, and does real work.\n\nWe work closely with the client on every project. We don't like unnecessary bureaucracy or complicated processes — we prefer direct communication, clear decisions and a good result."
+      "ka": "SKUP არის ციფრული სტუდია თბილისში — სამი დეველოპერი, ერთი გუნდი.\n\nვქმნით ვებსაიტებს, web აპლიკაციებსა და პროგრამულ პროდუქტებს სხვადასხვა სფეროს ბიზნესებისა და ორგანიზაციებისთვის.\n\nზოგი პროექტი ნულიდან იწყება. ზოგჯერ კი უკვე არსებული პროდუქტის გაუმჯობესება ან თავიდან აწყობაა საჭირო. ორივე შემთხვევაში ჩვენი მიზანი ერთია — გავაკეთოთ პროდუქტი, რომელიც კარგად გამოიყურება, მარტივად გამოიყენება და რეალურ საქმეს აკეთებს.\n\nჩვენი ზომა შეგნებული არჩევანია, არა შეზღუდვა. პატარა გუნდი ნიშნავს პირდაპირ კომუნიკაციას თქვენთან — არა მენეჯერების ჯაჭვს. არ გვიყვარს ზედმეტი ბიუროკრატია და რთული პროცესები — გვირჩევნია მკაფიო გადაწყვეტილებები და კარგი შედეგი.",
+      "en": "SKUP is a digital studio in Tbilisi — three developers, one team.\n\nWe build websites, web applications and software products for businesses and organizations across different fields.\n\nSome projects start from zero. Sometimes it's about improving or rebuilding an existing product. Either way, our goal is the same — make a product that looks good, is easy to use, and does real work.\n\nOur size is a deliberate choice, not a limitation. A small team means direct communication with you — not a chain of account managers. We don't like unnecessary bureaucracy or complicated processes — we prefer clear decisions and a good result."
     },
     "statement": {
       "heading": "We don't build for the sake of building.",
@@ -57,9 +57,13 @@
 
   "services": {
     "title": { "ka": "სერვისები", "en": "Services" },
+    "intro": {
+      "ka": "სტრატეგია, დიზაინი და ტექნოლოგია — არა ოთხი ცალკეული სერვისი, არამედ ერთი პროცესი, რომელიც იდეას რეალურ პროდუქტამდე მიჰყავს.",
+      "en": "Strategy, design and technology — not four separate services, but one process that takes an idea to a real product."
+    },
     "items": [
       {
-        "icon": "🌐",
+        "icon": "web",
         "title": { "ka": "ვებსაიტები და Web აპლიკაციები", "en": "Websites & Web Apps" },
         "description": {
           "ka": "ვქმნით როგორც მარტივ ბიზნეს ვებსაიტებს, ისე უფრო რთულ web აპლიკაციებსა და პლატფორმებს.",
@@ -68,7 +72,7 @@
         "tags": ["Websites", "Web Apps", "Custom Platforms"]
       },
       {
-        "icon": "🖥️",
+        "icon": "apps",
         "title": { "ka": "პროგრამული პროდუქტები", "en": "Software Products" },
         "description": {
           "ka": "თუ გჭირდებათ კონკრეტულ ამოცანაზე მორგებული პროგრამა, ვქმნით desktop და mobile პროდუქტებს თქვენი საჭიროებების მიხედვით.",
@@ -77,7 +81,7 @@
         "tags": ["Desktop", "Mobile", "Custom Software"]
       },
       {
-        "icon": "🎨",
+        "icon": "design",
         "title": { "ka": "UI/UX და პროდუქტის დიზაინი", "en": "UI/UX & Product Design" },
         "description": {
           "ka": "ვაწყობთ პროდუქტის სტრუქტურას, მომხმარებლის გზას და ინტერფეისს ისე, რომ საბოლოო პროდუქტი უბრალოდ კარგად არ გამოიყურებოდეს — გამოყენებაც მარტივი იყოს.",
@@ -86,7 +90,7 @@
         "tags": ["UX", "UI", "Prototyping", "Design Systems"]
       },
       {
-        "icon": "🛠️",
+        "icon": "growth",
         "title": { "ka": "არსებული პროდუქტის განვითარება", "en": "Ongoing Product Development" },
         "description": {
           "ka": "პროექტის გაშვებით ჩვენი სამუშაო ყოველთვის არ მთავრდება. შეგვიძლია გავაგრძელოთ არსებული პროდუქტის მხარდაჭერა, დამატება, გაუმჯობესება და ინტეგრაციები.",
@@ -153,6 +157,14 @@
           "ka": "Greenart ბიზნესებისთვის მცენარეების მოვლის სერვისებს გთავაზობთ. ჩვენ შევქმენით მარტივი, ვიზუალური ვებსაიტი, რომელიც სერვისებს გასაგებად აჩვენებს და პოტენციურ კლიენტს კომპანიასთან დაკავშირებას უადვილებს.",
           "en": "Greenart offers plant-care services for businesses. We built a simple, visual website that presents the services clearly and makes it easy for potential clients to get in touch."
         },
+        "challenge": {
+          "ka": "Greenart-ს ჰქონდა სერვისი, მაგრამ არ ჰქონდა ადგილი, სადაც პოტენციურ კლიენტს ერთ წუთში დაერწმუნებინა, რომ საქმეს კარგად აკეთებენ.",
+          "en": "Greenart had the service, but no place where a potential client could be convinced in one minute that the work was done well."
+        },
+        "approach": {
+          "ka": "სტრუქტურა დავაწყვეთ არა კომპანიის გარშემო, არამედ კლიენტის კითხვების გარშემო — რას სთავაზობენ, რამდენი ღირს, როგორ დაუკავშირდე. ვიზუალს მივანდეთ ის, რასაც ტექსტი ვერ ეტევა.",
+          "en": "We structured the site around the client's questions, not the company's org chart — what's offered, what it costs, how to get in touch. We let the visuals carry what text couldn't."
+        },
         "tags": ["Web Design", "Development", "Lead Generation"],
         "link": "https://www.greenart.ge/"
       },
@@ -163,6 +175,14 @@
         "description": {
           "ka": "NCODE შატბერაშვილის, ვაკის პროექტისთვის შევქმენით ვებსაიტი, სადაც მომხმარებელს შეუძლია დაათვალიეროს შენობა, სართულები და ბინები, გაეცნოს ფასებსა და დაფინანსების პირობებს.",
           "en": "For NCODE's Shatberashvili project in Vake, we built a website where visitors can explore the building, floors and apartments, and review pricing and financing terms."
+        },
+        "challenge": {
+          "ka": "საცხოვრებელი კომპლექსის გაყიდვა ბევრ ინფორმაციას მოითხოვს — სართული, ფართობი, ფასი, დაფინანსება — ისე, რომ მომხმარებელი არ დაიბნეს.",
+          "en": "Selling a residential complex means surfacing a lot of information — floor, size, price, financing — without overwhelming the visitor."
+        },
+        "approach": {
+          "ka": "ავაწყეთ ინტერაქტიული ნავიგაცია შენობასა და ფართობებზე, სადაც მომხმარებელი თავად ირჩევს რა აინტერესებს — არა სქროლავს გრძელ სიაში, არამედ პირდაპირ პოულობს კონკრეტულ ბინას.",
+          "en": "We built interactive navigation across the building and units, letting visitors choose what interests them directly — instead of scrolling a long list, they find the specific apartment right away."
         },
         "tags": ["Web Design", "Development", "Interactive UI"],
         "link": "https://ncode-development.ge/"
@@ -238,6 +258,23 @@
     ]
   },
 
+  "trust": {
+    "title": { "ka": "მტკიცებულება", "en": "Proof" },
+    "heading": {
+      "ka": "დაპირების ნაცვლად — ცოცხალი პროექტები.",
+      "en": "Instead of promises — live projects."
+    },
+    "body": {
+      "ka": "ტესტიმონიალების ნაცვლად, უბრალოდ გადახედეთ საიტებს, რომლებიც უკვე მუშაობს. თითოეული ქვემოთ ცოცხალია — შეგიძლიათ თავად შეამოწმოთ.",
+      "en": "Instead of testimonials, take a look at sites that are already live. Each one below is real — you can check it yourself."
+    },
+    "items": [
+      { "name": "Greenart", "url": "https://www.greenart.ge/" },
+      { "name": "NCODE Development", "url": "https://ncode-development.ge/" },
+      { "name": "ABM", "url": "https://abm.org.ge/" }
+    ]
+  },
+
   "contact": {
     "title": { "ka": "კონტაქტი", "en": "Contact" },
     "heading": {
@@ -273,6 +310,10 @@
         { "value": "ecommerce", "label": { "ka": "ონლაინ მაღაზია", "en": "E-commerce" } },
         { "value": "other", "label": { "ka": "სხვა", "en": "Other" } }
       ],
+      "budgetLabel": { "ka": "სავარაუდო ბიუჯეტი (არასავალდებულო)", "en": "Estimated budget (optional)" },
+      "budgetPlaceholder": { "ka": "მაგ. 2000-4000 ₾", "en": "e.g. $1,000–3,000" },
+      "timelineLabel": { "ka": "სასურველი ვადა (არასავალდებულო)", "en": "Timeline (optional)" },
+      "timelinePlaceholder": { "ka": "მაგ. 1-2 თვეში", "en": "e.g. within 1–2 months" },
       "submit": { "ka": "შეტყობინების გაგზავნა", "en": "Send Message" }
     }
   },

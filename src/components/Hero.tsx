@@ -11,7 +11,7 @@ export default function Hero() {
   const serviceCount = siteContent.services.items.length;
 
   return (
-    <section id="top" className="relative overflow-hidden px-6 pt-24 pb-24 md:pt-32 md:pb-32">
+    <section id="top" className="relative overflow-hidden px-6 pt-24 pb-12 md:pt-32 md:pb-16">
       {/* Barely-there texture instead of a saturated gradient wash. */}
       <div
         aria-hidden

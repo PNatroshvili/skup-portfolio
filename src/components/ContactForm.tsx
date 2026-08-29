@@ -22,12 +22,16 @@ export default function ContactForm() {
     const name = String(data.get("name") ?? "");
     const email = String(data.get("email") ?? "");
     const message = String(data.get("message") ?? "");
+    const budget = String(data.get("budget") ?? "").trim();
+    const timeline = String(data.get("timeline") ?? "").trim();
     const typeLabel = form.types.find((tp) => tp.value === type)?.label;
 
     const subject = `New project inquiry from ${name || "website"}`;
     const bodyLines = [
       typeLabel ? `Project type: ${t(typeLabel)}` : null,
       `Email: ${email}`,
+      budget ? `Budget: ${budget}` : null,
+      timeline ? `Timeline: ${timeline}` : null,
       "",
       message,
     ].filter((l) => l !== null);
@@ -81,6 +85,33 @@ export default function ContactForm() {
           placeholder={t(form.messagePlaceholder)}
           className="mt-2 w-full resize-none border-0 border-b border-line bg-transparent py-2.5 text-[15px] leading-relaxed text-fg placeholder:text-subtle focus:border-fg focus:outline-none"
         />
+      </div>
+
+      <div className="grid gap-6 sm:grid-cols-2">
+        <div>
+          <label htmlFor="budget" className="block text-[11px] uppercase tracking-[0.1em] text-subtle">
+            {t(form.budgetLabel)}
+          </label>
+          <input
+            id="budget"
+            name="budget"
+            type="text"
+            placeholder={t(form.budgetPlaceholder)}
+            className="mt-2 w-full border-0 border-b border-line bg-transparent py-2.5 text-[15px] text-fg placeholder:text-subtle focus:border-fg focus:outline-none"
+          />
+        </div>
+        <div>
+          <label htmlFor="timeline" className="block text-[11px] uppercase tracking-[0.1em] text-subtle">
+            {t(form.timelineLabel)}
+          </label>
+          <input
+            id="timeline"
+            name="timeline"
+            type="text"
+            placeholder={t(form.timelinePlaceholder)}
+            className="mt-2 w-full border-0 border-b border-line bg-transparent py-2.5 text-[15px] text-fg placeholder:text-subtle focus:border-fg focus:outline-none"
+          />
+        </div>
       </div>
 
       <div>
