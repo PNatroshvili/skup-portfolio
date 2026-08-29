@@ -52,11 +52,20 @@ body {
 
 /* Every interactive element gets the same branded keyboard-focus ring —
    nothing in the component files overrode the native outline, so keyboard
-   navigation was falling back to whatever the browser defaults to. */
+   navigation was falling back to whatever the browser defaults to. Eased in
+   rather than snapping on, so it reads as a small deliberate motion instead
+   of a hard flash. */
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: 2px;
+  transition: outline-color 0.2s ease-out, outline-offset 0.2s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :focus-visible {
+    transition: none;
+  }
 }
 
 /* ---- Scroll reveal ---------------------------------------------------- */
