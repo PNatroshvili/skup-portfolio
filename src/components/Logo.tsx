@@ -1,6 +1,8 @@
 /**
- * SKUP Studio mark — a terminal prompt (caret + cursor rule) inside a soft
- * square. Reads as "developer studio" without leaning on a literal code glyph.
+ * SKUP Studio mark — a terminal prompt (caret + cursor rule), unframed and
+ * thin. Refined from the original rounded-square version: dropping the
+ * frame and thinning the stroke reads as more precise at a glance and holds
+ * up better at favicon size.
  */
 export function LogoMark({ className = "" }: { className?: string }) {
   return (
@@ -10,27 +12,17 @@ export function LogoMark({ className = "" }: { className?: string }) {
       aria-hidden="true"
       className={className}
     >
-      <rect
-        x="0.9"
-        y="0.9"
-        width="34.2"
-        height="34.2"
-        rx="10.5"
-        stroke="currentColor"
-        strokeOpacity="0.28"
-        strokeWidth="1.2"
-      />
       <path
-        d="M12 13.5 16.8 18 12 22.5"
+        d="M13 13 19 18 13 23"
         stroke="currentColor"
-        strokeWidth="2.1"
+        strokeWidth="1.7"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       <path
-        d="M19.6 22.6h5.2"
+        d="M22 23h5"
         stroke="var(--accent)"
-        strokeWidth="2.1"
+        strokeWidth="1.7"
         strokeLinecap="round"
       />
     </svg>
