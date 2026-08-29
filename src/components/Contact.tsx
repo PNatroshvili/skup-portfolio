@@ -119,7 +119,7 @@ export default function Contact() {
         </div>
 
         <Reveal delay={160}>
-          <div className="mt-20 max-w-xl border-t border-line pt-14">
+          <div className="mt-20 border-t border-line pt-14">
             <ContactForm />
           </div>
         </Reveal>

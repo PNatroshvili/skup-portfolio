@@ -44,33 +44,35 @@ export default function ContactForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <label htmlFor="name" className="block text-[11px] uppercase tracking-[0.1em] text-subtle">
-          {t(form.nameLabel)}
-        </label>
-        <input
-          id="name"
-          name="name"
-          type="text"
-          required
-          placeholder={t(form.namePlaceholder)}
-          className="mt-2 w-full border-0 border-b border-line bg-transparent py-2.5 text-[15px] text-fg placeholder:text-subtle focus:border-fg focus:outline-none"
-        />
-      </div>
+    <form onSubmit={handleSubmit} className="max-w-3xl space-y-6">
+      <div className="grid gap-6 sm:grid-cols-2">
+        <div>
+          <label htmlFor="name" className="block text-[11px] uppercase tracking-[0.1em] text-subtle">
+            {t(form.nameLabel)}
+          </label>
+          <input
+            id="name"
+            name="name"
+            type="text"
+            required
+            placeholder={t(form.namePlaceholder)}
+            className="mt-2 w-full border-0 border-b border-line bg-transparent py-2.5 text-[15px] text-fg placeholder:text-subtle focus:border-fg focus:outline-none"
+          />
+        </div>
 
-      <div>
-        <label htmlFor="email" className="block text-[11px] uppercase tracking-[0.1em] text-subtle">
-          {t(form.emailLabel)}
-        </label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          required
-          placeholder="you@example.com"
-          className="mt-2 w-full border-0 border-b border-line bg-transparent py-2.5 text-[15px] text-fg placeholder:text-subtle focus:border-fg focus:outline-none"
-        />
+        <div>
+          <label htmlFor="email" className="block text-[11px] uppercase tracking-[0.1em] text-subtle">
+            {t(form.emailLabel)}
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            required
+            placeholder="you@example.com"
+            className="mt-2 w-full border-0 border-b border-line bg-transparent py-2.5 text-[15px] text-fg placeholder:text-subtle focus:border-fg focus:outline-none"
+          />
+        </div>
       </div>
 
       <div>

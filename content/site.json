@@ -195,6 +195,14 @@
           "ka": "Rufus the Churchill არის ცხოველების დახმარების პლატფორმა. მომხმარებელს შეუძლია კონკრეტული ცხოველის არჩევა და მისი საკვებისა და მოვლის დაფინანსება.\n\nჩვენ შევქმენით პლატფორმის სტრუქტურა და donation flow ისე, რომ დახმარების პროცესი მარტივი და გასაგები ყოფილიყო.",
           "en": "Rufus the Churchill is an animal-welfare platform. Visitors can choose a specific animal and fund its food and care.\n\nWe built the platform's structure and donation flow to make the process of helping simple and clear."
         },
+        "challenge": {
+          "ka": "დონაციის პლატფორმებში ადვილია დაკარგო კონკრეტულობა — მომხმარებელს უნდა სცოდნოდა ზუსტად ვის ეხმარება, არა აბსტრაქტულ ფონდს.",
+          "en": "Donation platforms easily lose specificity — a visitor needs to know exactly who they're helping, not an abstract fund."
+        },
+        "approach": {
+          "ka": "დონაციის flow კონკრეტულ ცხოველზე ავაწყეთ, არა ზოგად გადახდის ფორმაზე — თითოეული ნაბიჯი აჩვენებს, ვისთვის მუშაობს დახმარება.",
+          "en": "We built the donation flow around a specific animal, not a generic payment form — every step shows who the help is actually for."
+        },
         "tags": ["Product Design", "Development", "Donation Flow"],
         "link": "https://rufusthechurchill.org/"
       },
@@ -205,6 +213,14 @@
         "description": {
           "ka": "ABM-ისთვის შევქმენით კორპორატიული ვებსაიტი, რომელიც ორგანიზაციის საქმიანობას, სიახლეებს, კონფერენციებსა და პროფესიულ აქტივობებს ერთ სივრცეში აერთიანებს.",
           "en": "For ABM, we built a corporate website that brings the organization's work, news, conferences and professional activity together in one place."
+        },
+        "challenge": {
+          "ka": "ABM-ს ჰქონდა ბევრი განცალკევებული აქტივობა — კონფერენციები, სიახლეები, პროფესიული პროგრამები — მაგრამ არცერთი ცენტრალური ადგილი, სადაც ეს ყველაფერი ერთად და გასაგებად ჩანდა.",
+          "en": "ABM had a lot of separate activity — conferences, news, professional programs — but no central place where all of it came together clearly."
+        },
+        "approach": {
+          "ka": "კონტენტის ტიპები ერთ თანმიმდევრულ სტრუქტურაში დავალაგეთ, რომ ორგანიზაციის საქმიანობა დროთა განმავლობაში იზრდებოდეს დაბნეულობის გარეშე.",
+          "en": "We organized the content types into one consistent structure, so the organization's activity could keep growing over time without becoming confusing."
         },
         "tags": ["Web Design", "Development", "Content Structure"],
         "link": "https://abm.org.ge/"
@@ -217,6 +233,14 @@
           "ka": "Peter Moennig Foundation ხელოვანებს სხვადასხვა პროგრამით, გრანტითა და ინიციატივით უჭერს მხარს. საიტი აერთიანებს გამოფენებს, Open Call-ებსა და ფონდის საქმიანობას.",
           "en": "The Peter Moennig Foundation supports artists through programs, grants and initiatives. The site brings together exhibitions, open calls and the foundation's activity."
         },
+        "challenge": {
+          "ka": "ფონდს სჭირდებოდა სივრცე, სადაც ხელოვანები Open Call-ებს იპოვიდნენ ისეთივე მარტივად, როგორც სტუმრები — გამოფენებს.",
+          "en": "The foundation needed a space where artists could find open calls as easily as visitors could find exhibitions."
+        },
+        "approach": {
+          "ka": "CMS ისე ავაწყეთ, რომ ფონდს თავად შეეძლოს ახალი გამოფენების, გრანტებისა და Open Call-ების დამატება — ჩვენზე დამოკიდებულების გარეშე.",
+          "en": "We built the CMS so the foundation can add new exhibitions, grants and open calls themselves — without depending on us."
+        },
         "tags": ["Web Design", "Development", "CMS"],
         "link": "https://pmfinfo.com/"
       },
@@ -227,6 +251,14 @@
         "description": {
           "ka": "Around Caucasus-ისთვის შევქმენით მრავალგვერდიანი ტურისტული ვებსაიტი, სადაც მომხმარებელს მარტივად შეუძლია სხვადასხვა ტიპის ტურის დათვალიერება — ლაშქრობებიდან და ველოტურებიდან კულინარიულ გამოცდილებებამდე.",
           "en": "For Around Caucasus, we built a multi-page tourism website where visitors can easily browse different kinds of tours — from hiking and biking to culinary experiences."
+        },
+        "challenge": {
+          "ka": "ტურისტული საიტები ხშირად ყველაფერს ერთ გვერდზე აგროვებენ — მომხმარებელს უჭირს იპოვოს ზუსტად ის ტური, რაც მას აინტერესებს.",
+          "en": "Tourism sites often dump everything onto one page — visitors struggle to find the specific kind of tour they actually want."
+        },
+        "approach": {
+          "ka": "ტურები კატეგორიების მიხედვით დავყავით (ლაშქრობა, ველოტური, კულინარია) და თითოეულს ცალკე სივრცე მივეცით — მომხმარებელი პირდაპირ თავის ინტერესამდე მიდის.",
+          "en": "We split tours by category (hiking, biking, culinary) and gave each its own space — visitors go straight to what interests them."
         },
         "tags": ["Web Design", "Development", "Content Structure"],
         "link": "https://around-caucasus.com/"
@@ -239,6 +271,14 @@
           "ka": "Asomtavari ქმნის ხელნაკეთ ნივთებს ქართული ანბანის მოტივებით. ჩვენ შევქმენით ონლაინ მაღაზია, სადაც მომხმარებელს შეუძლია პროდუქტების დათვალიერება, პერსონალიზაცია და შეკვეთა.",
           "en": "Asomtavari makes handcrafted pieces inspired by the Georgian alphabet. We built an online store where customers can browse, personalize and order products."
         },
+        "challenge": {
+          "ka": "ხელნაკეთი, პერსონალიზებადი პროდუქტის გაყიდვა სტანდარტულ e-commerce ნიმუშში არ ეტევა — მომხმარებელს უნდა შეეძლოს პროდუქტის მორგება შეკვეთამდე.",
+          "en": "Selling a handcrafted, personalizable product doesn't fit a standard e-commerce template — customers need to be able to customize before ordering."
+        },
+        "approach": {
+          "ka": "WooCommerce-ზე პერსონალიზაციის ნაბიჯი პირდაპირ პროდუქტის გვერდზე ავაწყეთ, რომ მომხმარებელს კალათამდე მისვლისას უკვე ჰქონდეს ზუსტად ის, რაც უნდოდა.",
+          "en": "We built the personalization step into WooCommerce right on the product page, so by the time a customer reaches the cart, they already have exactly what they wanted."
+        },
         "tags": ["E-commerce", "WordPress", "WooCommerce"],
         "link": "https://asomtavari.com/",
         "ctaLabel": { "ka": "მაღაზიის ნახვა", "en": "View Shop" }
@@ -250,6 +290,14 @@
         "description": {
           "ka": "Blades.GE-სთვის შევქმენით სრულფასოვანი e-commerce გამოცდილება პროდუქტების კატალოგით, ფასდაკლებებით, კალათითა და შეკვეთის პროცესით.",
           "en": "For Blades.GE, we built a full e-commerce experience with a product catalog, sales, cart and checkout flow."
+        },
+        "challenge": {
+          "ka": "სპეციალიზებულ პროდუქტებს (დანები) სჭირდება კატალოგი, რომელიც ტექნიკურ დეტალებს ისე აჩვენებს, რომ არ დაღალოს მომხმარებელი.",
+          "en": "Specialized products (knives) need a catalog that surfaces technical detail without overwhelming the shopper."
+        },
+        "approach": {
+          "ka": "სრული e-commerce ნაკადი ავაწყეთ ნულიდან — კატალოგი, ფასდაკლებები, კალათა და checkout — WooCommerce-ის საფუძველზე, მაგრამ პროდუქტის სპეციფიკაზე მორგებული.",
+          "en": "We built the full e-commerce flow from the ground up — catalog, sales, cart and checkout — on WooCommerce, but tailored to the specifics of the product."
         },
         "tags": ["E-commerce", "WordPress", "WooCommerce"],
         "link": "https://blades.ge/",
