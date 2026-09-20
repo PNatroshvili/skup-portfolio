@@ -22,6 +22,8 @@ export const CLIENT_COPY = {
     sending: "იგზავნება...", send: "მოთხოვნის გაგზავნა", sent: "მოთხოვნა გაიგზავნა", thank: "გმადლობთ",
     sentText: "თქვენი პროექტის მოთხოვნა წარმატებით მივიღეთ. ჩვენი გუნდი გაეცნობა დეტალებს და საჭიროების შემთხვევაში დაგიკავშირდებათ.",
     received: "თქვენ მიერ მოწოდებული ინფორმაცია უკვე მიღებულია და გადაეცა პროექტის შიდა სამუშაო სივრცეს.",
+    footer1: "SKUP Studio • პროექტის მოთხოვნა",
+    footer2: "ტექნიკური მოთხოვნები • დაგეგმვა • შეფასება",
     invalid: "მოთხოვნის ბმული არასწორია", invalidText: "გთხოვთ, გამომგზავნელს სთხოვოთ ახალი მოთხოვნის ბმულის შექმნა.",
     requiredError: "გთხოვთ, შეავსოთ ყველა აუცილებელი ველი.", tokenError: "ამ ბმულს მოთხოვნის ტოკენი აკლია.",
     types: {
@@ -45,7 +47,9 @@ export const CLIENT_COPY = {
     other: "Anything else we should know?", otherPlaceholder: "References, competitors, preferred technology, existing systems, constraints or other useful context.",
     ready: "Ready to send?", readyText: "Your answers will be used to prepare the project's technical brief.", sending: "Sending...", send: "Send request", sent: "Request sent", thank: "Thank you",
     sentText: "We have received your project request. Our team will review the details and contact you if needed.",
-    received: "The information you provided has been received and added to the internal project workspace.", invalid: "Invalid request link",
+    received: "The information you provided has been received and added to the internal project workspace.",
+    footer1: "SKUP Studio • Project request",
+    footer2: "Technical requirements • Planning • Estimation", invalid: "Invalid request link",
     invalidText: "Please ask the sender to generate a new project request link.", requiredError: "Please fill in all required fields.", tokenError: "This link is missing its request token.",
     types: {
       Web: ["Web application", "SaaS, website, portal or platform"], Mobile: ["Mobile application", "iOS, Android or cross-platform"],
