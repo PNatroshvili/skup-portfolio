@@ -3,9 +3,9 @@
 import { Check, Layers3, Languages, Send, ShieldCheck, Smartphone, Store, Globe, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { analyzeClientRequest, type ClientProjectType } from "../src/lib/requestAnalysis";
-import { submitClientRequest } from "../src/lib/clientRequests";
-import { CLIENT_COPY, type ClientLanguage } from "../src/lib/clientCopy";
+import { analyzeClientRequest, type ClientProjectType } from "../lib/requestAnalysis";
+import { submitClientRequest } from "../lib/clientRequests";
+import { CLIENT_COPY, type ClientLanguage } from "../lib/clientCopy";
 
 function Logo() {
   return (
