@@ -38,6 +38,7 @@ export default function ClientRequestForm() {
   const [notes, setNotes] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const [invalidFields, setInvalidFields] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -63,8 +64,28 @@ export default function ClientRequestForm() {
   const submit = async () => {
     setError("");
     if (!token) { setError(t.tokenError); return; }
-    if (!projectName.trim() || !clientName.trim() || !email.trim() || !description.trim()) { setError(t.requiredError); return; }
 
+    const missing = [
+      !clientName.trim() ? "clientName" : "",
+      !email.trim() ? "email" : "",
+      !projectName.trim() ? "projectName" : "",
+      !description.trim() ? "description" : "",
+    ].filter(Boolean);
+
+    if (missing.length) {
+      setInvalidFields(missing);
+      setError(t.requiredError);
+
+      requestAnimationFrame(() => {
+        const first = document.querySelector<HTMLElement>('[data-request-field="' + missing[0] + '"]');
+        first?.scrollIntoView({ behavior: "smooth", block: "center" });
+        const control = first?.querySelector<HTMLElement>("input, textarea");
+        control?.focus();
+      });
+      return;
+    }
+
+    setInvalidFields([]);
     setLoading(true);
     try {
       const analysis = { ...analyzeClientRequest(type, description, features, flags), source: "rules" as const };
@@ -146,18 +167,18 @@ export default function ClientRequestForm() {
         <section className="client-request-card">
           <div className="client-request-card-head"><div><h2>{t.about}</h2><p>{t.aboutText}</p></div><span>01</span></div>
           <div className="client-request-two">
-            <label>{t.name} <b>*</b><input value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder={t.fullName} /></label>
+            <label data-request-field="clientName" className={invalidFields.includes("clientName") ? "is-invalid" : ""}>{t.name} <b>*</b><input value={clientName} onChange={(e) => { setClientName(e.target.value); clearFieldError("clientName"); }} placeholder={t.fullName} aria-invalid={invalidFields.includes("clientName")} /></label>
             <label>{t.company}<input value={company} onChange={(e) => setCompany(e.target.value)} placeholder={t.companyName} /></label>
           </div>
           <div className="client-request-two">
-            <label>{t.email} <b>*</b><input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder={t.emailPlaceholder} /></label>
+            <label data-request-field="email" className={invalidFields.includes("email") ? "is-invalid" : ""}>{t.email} <b>*</b><input value={email} onChange={(e) => { setEmail(e.target.value); clearFieldError("email"); }} type="email" placeholder={t.emailPlaceholder} aria-invalid={invalidFields.includes("email")} /></label>
             <label>{t.phone}<input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+995 ..." /></label>
           </div>
         </section>
 
         <section className="client-request-card">
           <div className="client-request-card-head"><div><h2>{t.projectBasics}</h2><p>{t.projectBasicsText}</p></div><span>02</span></div>
-          <label>{t.projectName} <b>*</b><input value={projectName} onChange={(e) => setProjectName(e.target.value)} placeholder={t.projectNamePlaceholder} /></label>
+          <label data-request-field="projectName" className={invalidFields.includes("projectName") ? "is-invalid" : ""}>{t.projectName} <b>*</b><input value={projectName} onChange={(e) => { setProjectName(e.target.value); clearFieldError("projectName"); }} placeholder={t.projectNamePlaceholder} aria-invalid={invalidFields.includes("projectName")} /></label>
           <div className="client-request-field-title">{t.building} <b>*</b></div>
           <div className="client-request-type-grid">
             {projectTypes.map((id) => {
@@ -166,7 +187,7 @@ export default function ClientRequestForm() {
               return <button key={id} type="button" className={"client-request-type " + (type === id ? "selected" : "")} onClick={() => setType(id)}><Icon /><div><strong>{title}</strong><small>{description}</small></div>{type === id && <Check className="client-request-type-check" />}</button>;
             })}
           </div>
-          <label>{t.description} <b>*</b><textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={8} placeholder={t.descriptionPlaceholder} /></label>
+          <label data-request-field="description" className={invalidFields.includes("description") ? "is-invalid" : ""}>{t.description} <b>*</b><textarea value={description} onChange={(e) => { setDescription(e.target.value); clearFieldError("description"); }} rows={8} placeholder={t.descriptionPlaceholder} aria-invalid={invalidFields.includes("description")} /></label>
         </section>
 
         <section className="client-request-card">
