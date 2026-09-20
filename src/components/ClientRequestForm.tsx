@@ -61,6 +61,11 @@ export default function ClientRequestForm() {
 
   const toggleFlag = (flag: string) => setFlags((current) => current.includes(flag) ? current.filter((item) => item !== flag) : [...current, flag]);
 
+  const clearFieldError = (field: string) => {
+    setInvalidFields((current) => current.filter((item) => item !== field));
+    if (error) setError("");
+  };
+
   const submit = async () => {
     setError("");
     if (!token) { setError(t.tokenError); return; }
