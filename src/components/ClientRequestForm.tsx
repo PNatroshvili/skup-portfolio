@@ -109,14 +109,14 @@ export default function ClientRequestForm() {
 
   if (!token) {
     return (
-      <main className="client-shell" lang={language}>
+      <main className="client-request-shell" lang={language}>
         <section className="client-request-error-card"><Logo /><h1>{t.invalid}</h1><p>{t.invalidText}</p></section>
       </main>
     );
   }
 
   return (
-    <main className="client-shell" lang={language}>
+    <main className="client-request-shell" lang={language}>
       <div className="client-request-container">
         <header className="client-request-header">
           <Logo />
@@ -149,38 +149,38 @@ export default function ClientRequestForm() {
             <label>{t.name} <b>*</b><input value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder={t.fullName} /></label>
             <label>{t.company}<input value={company} onChange={(e) => setCompany(e.target.value)} placeholder={t.companyName} /></label>
           </div>
-          <div className="client-two">
+          <div className="client-request-two">
             <label>{t.email} <b>*</b><input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder={t.emailPlaceholder} /></label>
             <label>{t.phone}<input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+995 ..." /></label>
           </div>
         </section>
 
-        <section className="client-card">
-          <div className="client-card-head"><div><h2>{t.projectBasics}</h2><p>{t.projectBasicsText}</p></div><span>02</span></div>
+        <section className="client-request-card">
+          <div className="client-request-card-head"><div><h2>{t.projectBasics}</h2><p>{t.projectBasicsText}</p></div><span>02</span></div>
           <label>{t.projectName} <b>*</b><input value={projectName} onChange={(e) => setProjectName(e.target.value)} placeholder={t.projectNamePlaceholder} /></label>
           <div className="client-request-field-title">{t.building} <b>*</b></div>
           <div className="client-request-type-grid">
             {projectTypes.map((id) => {
               const Icon = id === "Web" ? Globe : id === "Mobile" ? Smartphone : id === "WordPress" ? Store : Layers3;
               const [title, description] = t.types[id];
-              return <button key={id} type="button" className={"client-type " + (type === id ? "selected" : "")} onClick={() => setType(id)}><Icon /><div><strong>{title}</strong><small>{description}</small></div>{type === id && <Check className="client-request-type-check" />}</button>;
+              return <button key={id} type="button" className={"client-request-type " + (type === id ? "selected" : "")} onClick={() => setType(id)}><Icon /><div><strong>{title}</strong><small>{description}</small></div>{type === id && <Check className="client-request-type-check" />}</button>;
             })}
           </div>
           <label>{t.description} <b>*</b><textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={8} placeholder={t.descriptionPlaceholder} /></label>
         </section>
 
-        <section className="client-card">
-          <div className="client-card-head"><div><h2>{t.features}</h2><p>{t.featuresText}</p></div><span>03</span></div>
+        <section className="client-request-card">
+          <div className="client-request-card-head"><div><h2>{t.features}</h2><p>{t.featuresText}</p></div><span>03</span></div>
           <label>{t.mainFeatures}<textarea value={featuresText} onChange={(e) => setFeaturesText(e.target.value)} rows={6} placeholder={t.featurePlaceholder} /></label>
-          <div className="client-field-title">{t.scope}</div>
+          <div className="client-request-field-title">{t.scope}</div>
           <div className="client-request-check-grid">
-            {flagOptions.map((flag) => <button key={flag} type="button" className={"client-check " + (flags.includes(flag) ? "checked" : "")} onClick={() => toggleFlag(flag)}><span>{flags.includes(flag) ? <Check /> : null}</span>{t.flags[flag]}</button>)}
+            {flagOptions.map((flag) => <button key={flag} type="button" className={"client-request-check " + (flags.includes(flag) ? "checked" : "")} onClick={() => toggleFlag(flag)}><span>{flags.includes(flag) ? <Check /> : null}</span>{t.flags[flag]}</button>)}
           </div>
         </section>
 
-        <section className="client-card">
-          <div className="client-card-head"><div><h2>{t.timing}</h2><p>{t.timingText}</p></div><span>04</span></div>
-          <div className="client-two">
+        <section className="client-request-card">
+          <div className="client-request-card-head"><div><h2>{t.timing}</h2><p>{t.timingText}</p></div><span>04</span></div>
+          <div className="client-request-two">
             <label>{t.deadline}<input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} /></label>
             <label>{t.budget} <span className="optional">({t.optional})</span>
               <div className="client-request-budget">
@@ -200,7 +200,7 @@ export default function ClientRequestForm() {
 
         <div className="client-request-submit-bar">
           <div><strong>{t.ready}</strong><span>{t.readyText}</span></div>
-          <button className="primary client-submit" onClick={submit} disabled={loading}>{loading ? t.sending : t.send} <Send /></button>
+          <button className="client-request-submit" onClick={submit} disabled={loading}>{loading ? t.sending : t.send} <Send /></button>
         </div>
 
         <footer className="client-request-footer"><span>{t.footer1}</span><span>{t.footer2}</span></footer>
