@@ -362,3 +362,22 @@ body {
 
 /* BPG Nino Mtavruli — major Georgian/display headings */
 h1,h2,h3,h4,.heading h1,.np-top h1,.detail-title-row h1,.request-top h1,.request-modal-head h2,.client-request-form-head h1,.client-request-card-head h2,.client-request-success h1,.client-request-error-card h1{font-family:'BPG Nino Mtavruli',sans-serif;}
+
+
+.client-request-card label.is-invalid{
+  color:#c84d5c;
+}
+.client-request-card label.is-invalid b{
+  color:#c84d5c;
+}
+.client-request-card label.is-invalid input,
+.client-request-card label.is-invalid textarea{
+  border-color:#e16a76;
+  background:#fff9fa;
+  box-shadow:0 0 0 3px rgba(225,106,118,.10);
+}
+.client-request-card label.is-invalid input:focus,
+.client-request-card label.is-invalid textarea:focus{
+  border-color:#d75462;
+  box-shadow:0 0 0 3px rgba(215,84,98,.12);
+}
