@@ -1,3 +1,12 @@
+@font-face{
+  font-family:'BPG Nino Mtavruli';
+  src:url('https://cdn.jsdelivr.net/gh/web-fonts/bpg-nino-mtavruli@master/fonts/bpg-nino-mtavruli-webfont.woff2') format('woff2'),
+      url('https://cdn.jsdelivr.net/gh/web-fonts/bpg-nino-mtavruli@master/fonts/bpg-nino-mtavruli-webfont.woff') format('woff');
+  font-style:normal;
+  font-weight:400;
+  font-display:swap;
+}
+
 @import "tailwindcss";
 
 :root {
@@ -349,3 +358,7 @@ body {
   .client-request-submit-bar{align-items:stretch}
   .client-request-submit{width:100%;min-width:0}
 }
+
+
+/* BPG Nino Mtavruli — major Georgian/display headings */
+h1,h2,h3,h4,.heading h1,.np-top h1,.detail-title-row h1,.request-top h1,.request-modal-head h2,.client-request-form-head h1,.client-request-card-head h2,.client-request-success h1,.client-request-error-card h1{font-family:'BPG Nino Mtavruli',sans-serif;}
