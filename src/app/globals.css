@@ -230,3 +230,122 @@ body {
 @media(max-width:650px){
   .client-request-budget select{width:82px}
 }
+
+
+/* Final form controls — match the SKUP Studio light form */
+.client-request-check-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+  margin-top:8px;
+}
+.client-request-check{
+  min-height:48px;
+  height:auto;
+  border:1px solid #d9e3ef;
+  background:#ffffff;
+  color:#53637b;
+  border-radius:10px;
+  padding:10px 12px;
+  font-size:12px;
+  font-weight:500;
+  line-height:1.25;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  text-align:left;
+  cursor:pointer;
+  box-shadow:0 1px 2px rgba(36,57,88,.02);
+  transition:
+    color .22s ease,
+    background-color .22s ease,
+    border-color .22s ease,
+    box-shadow .22s ease,
+    transform .22s ease;
+}
+.client-request-check:hover{
+  border-color:#b8cae3;
+  background:#fbfdff;
+  transform:translateY(-1px);
+  box-shadow:0 6px 16px rgba(54,86,131,.06);
+}
+.client-request-check span{
+  width:20px;
+  height:20px;
+  flex:none;
+  display:grid;
+  place-items:center;
+  border:1.5px solid #c8d4e3;
+  border-radius:5px;
+  background:#fff;
+  color:#fff;
+}
+.client-request-check span svg{width:12px;height:12px}
+.client-request-check.checked{
+  border-color:#76a0ef;
+  background:#f4f8ff;
+  color:#355f9d;
+  box-shadow:0 5px 16px rgba(73,119,208,.08);
+}
+.client-request-check.checked span{
+  border-color:#4a7fe8;
+  background:#4a7fe8;
+}
+.client-request-submit-bar{
+  align-items:center;
+  padding:18px 20px;
+  border-radius:12px;
+}
+.client-request-submit-bar strong{
+  font-size:13px;
+  font-weight:700;
+  color:#1f2e45;
+}
+.client-request-submit-bar span{
+  font-size:11px;
+  color:#718097;
+  margin-top:5px;
+}
+.client-request-submit{
+  height:46px;
+  min-width:196px;
+  padding:0 18px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  border:0;
+  border-radius:10px;
+  background:#4b7ff0;
+  color:#fff;
+  font-size:12px;
+  font-weight:700;
+  box-shadow:0 8px 20px rgba(75,127,240,.18);
+  transition:background-color .22s ease,box-shadow .22s ease,transform .22s ease;
+}
+.client-request-submit:hover:not(:disabled){
+  background:#3f73e4;
+  transform:translateY(-1px);
+  box-shadow:0 11px 24px rgba(75,127,240,.22);
+}
+.client-request-submit:active:not(:disabled){
+  transform:translateY(1px);
+}
+.client-request-submit svg{width:16px;height:16px}
+.client-request-submit:disabled{
+  opacity:.62;
+  cursor:not-allowed;
+}
+.client-request-budget select{
+  appearance:auto;
+  font-size:12px;
+  font-weight:700;
+}
+@media(max-width:900px){
+  .client-request-check-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:650px){
+  .client-request-check-grid{grid-template-columns:1fr}
+  .client-request-submit-bar{align-items:stretch}
+  .client-request-submit{width:100%;min-width:0}
+}
