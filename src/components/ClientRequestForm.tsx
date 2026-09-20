@@ -33,6 +33,7 @@ export default function ClientRequestForm() {
   const [featuresText, setFeaturesText] = useState("");
   const [deadline, setDeadline] = useState("");
   const [budget, setBudget] = useState("");
+  const [budgetCurrency, setBudgetCurrency] = useState<"GEL" | "USD" | "EUR">("GEL");
   const [flags, setFlags] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -78,6 +79,7 @@ export default function ClientRequestForm() {
         features,
         deadline,
         budget,
+        budgetCurrency,
         flags,
         notes: notes.trim(),
         analysis,
@@ -180,7 +182,16 @@ export default function ClientRequestForm() {
           <div className="client-card-head"><div><h2>{t.timing}</h2><p>{t.timingText}</p></div><span>04</span></div>
           <div className="client-two">
             <label>{t.deadline}<input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} /></label>
-            <label>{t.budget} <span className="optional">({t.optional})</span><input type="number" min="0" value={budget} onChange={(e) => setBudget(e.target.value)} placeholder={t.optional} /></label>
+            <label>{t.budget} <span className="optional">({t.optional})</span>
+              <div className="client-request-budget">
+                <input type="number" min="0" value={budget} onChange={(e) => setBudget(e.target.value)} placeholder={t.optional} />
+                <select aria-label={language === "ka" ? "ბიუჯეტის ვალუტა" : "Budget currency"} value={budgetCurrency} onChange={(e) => setBudgetCurrency(e.target.value as "GEL" | "USD" | "EUR")}>
+                  <option value="GEL">GEL</option>
+                  <option value="USD">USD</option>
+                  <option value="EUR">EUR</option>
+                </select>
+              </div>
+            </label>
           </div>
           <label>{t.other}<textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={5} placeholder={t.otherPlaceholder} /></label>
         </section>
