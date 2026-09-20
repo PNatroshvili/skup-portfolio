@@ -8,5 +8,16 @@ export async function submitClientRequest(token: string, payload: {
 }) {
   const { data, error } = await supabase.rpc("submit_client_request", { p_token: token, p_payload: payload });
   if (error) throw error;
+
+  if (data) {
+    try {
+      await supabase.functions.invoke("send-request-email", {
+        body: { requestId: data, requestToken: token },
+      });
+    } catch {
+      // The request is already saved. Email delivery can be retried from the internal app.
+    }
+  }
+
   return data;
 }
