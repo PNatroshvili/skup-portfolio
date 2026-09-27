@@ -70,6 +70,7 @@ export default function SkupAccount() {
   const [name, setName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
+  const [profileEmail, setProfileEmail] = useState("");
   const [referralCode, setReferralCode] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -85,6 +86,7 @@ export default function SkupAccount() {
     setName(u?.name || "");
     setLastName(u?.lastName || "");
     setPhone(u?.phone || "");
+    setProfileEmail(u?.email || "");
   };
 
   useEffect(() => {
@@ -226,6 +228,7 @@ export default function SkupAccount() {
         name: name.trim() || undefined,
         lastName: lastName.trim(),
         phone: phone.trim(),
+        email: profileEmail.trim() || undefined,
       });
       if (result?.requiresVerification) {
         setAuthEmail(result.email);
@@ -367,7 +370,13 @@ export default function SkupAccount() {
         <div className="account-grid">
           <aside className="account-side">
             <div className="account-user"><div className="avatar">{(user?.name || "ლ").slice(0,1)}</div><div><strong>{user?.name || "LUKMA user"}</strong><span>{user?.email || user?.phone || ""}</span></div></div>
-            <nav><a className="active" href="#reservations"><CalendarDays size={16}/> ჯავშნები</a><a href="#favorites"><Heart size={16}/> ფავორიტები</a><a href="#loyalty"><Star size={16}/> Loyalty</a><a href="#profile"><UserRound size={16}/> პროფილი</a></nav>
+            <nav>
+              <a className="active" href="#reservations"><CalendarDays size={16}/> ჯავშნები</a>
+              <a href="#favorites"><Heart size={16}/> ფავორიტები</a>
+              <a href="#loyalty"><Star size={16}/> Loyalty</a>
+              <a href="#profile"><UserRound size={16}/> პროფილი</a>
+              {user?.role === "restaurant_manager" ? <a className="account-manager-link" href="https://rest.skup.ge">რესტორნის პანელი →</a> : null}
+            </nav>
           </aside>
 
           <div className="account-main">
@@ -400,7 +409,7 @@ export default function SkupAccount() {
                   <input value={name} onChange={e=>setName(e.target.value)} placeholder="სახელი" />
                   <input value={lastName} onChange={e=>setLastName(e.target.value)} placeholder="გვარი" />
                   <input value={phone} onChange={e=>setPhone(e.target.value)} placeholder="ტელეფონი" />
-                  <input value={user?.email || ""} disabled aria-label="ელფოსტა" />
+                  <input value={profileEmail} onChange={e=>setProfileEmail(e.target.value)} type="email" placeholder="ელფოსტა" />
                   <button className="green-btn" onClick={saveProfile} disabled={busy}><RefreshCw size={14}/> შენახვა</button>
                 </div>
               ) : (
