@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { MapPin, Star } from "lucide-react";
 import type { Restaurant } from "@/lib/skupApi";
+import { restaurantPhoto } from "@/lib/lukmaUtils";
 
 export default function RestaurantCard({
   restaurant,
@@ -22,7 +23,7 @@ export default function RestaurantCard({
       onMouseEnter={onHover}
     >
       <div className="restaurant-photo-wrap">
-        {restaurant.cover_photo ? <img src={restaurant.cover_photo} alt="" className="restaurant-photo" loading="lazy" /> : <div className="restaurant-photo-placeholder">LUKMA</div>}
+        <img src={restaurantPhoto(restaurant)} alt="" className="restaurant-photo" loading="lazy" />
         {restaurant.discountPercent ? <span className="restaurant-deal">-{restaurant.discountPercent}%</span> : null}
       </div>
       <div className="restaurant-card-body">
