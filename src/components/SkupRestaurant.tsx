@@ -203,7 +203,7 @@ export default function SkupRestaurant() {
     } catch {}
   }
 
-  if (loading) return <div className="skup-site"><SkupHeader/><div className="page-loading">იტვირთება...</div></div>;
+  if (loading) return <div className="skup-site"><SkupHeader/><div className="page-loading">Loading...</div></div>;
   if (!restaurant) return <div className="skup-site"><SkupHeader/><div className="page-loading"><h2>Restaurant not found</h2><Link href="/discover/">← Back to Discover</Link></div></div>;
 
   const currentPhoto = photos[photoIndex]?.url;
@@ -278,30 +278,30 @@ export default function SkupRestaurant() {
 
             <article id="menu" className="detail-section">
               <div className="section-title-small">Menu</div>
-              {menu.length ? <div className="menu-list">{menu.map(cat => <div key={cat.id} className="menu-category"><h3>{cat.name}</h3>{cat.items.map(item => <div key={item.id} className={"menu-item " + (item.isAvailable ? "" : "muted")}><div>{item.photoUrl ? <img src={item.photoUrl} alt="" /> : null}<div><strong>{item.name}</strong>{item.description ? <p>{item.description}</p> : null}</div></div><span>₾{Number(item.price).toFixed(0)}</span></div>)}</div>)}</div> : <p className="muted-copy">Menu ჯერ არ არის დამატებული.</p>}
+              {menu.length ? <div className="menu-list">{menu.map(cat => <div key={cat.id} className="menu-category"><h3>{cat.name}</h3>{cat.items.map(item => <div key={item.id} className={"menu-item " + (item.isAvailable ? "" : "muted")}><div>{item.photoUrl ? <img src={item.photoUrl} alt="" /> : null}<div><strong>{item.name}</strong>{item.description ? <p>{item.description}</p> : null}</div></div><span>₾{Number(item.price).toFixed(0)}</span></div>)}</div>)}</div> : <p className="muted-copy">Menu has not been added yet.</p>}
             </article>
 
             <article id="reviews" className="detail-section">
               <div className="section-title-small">Reviews <span>{restaurant.reviewsCount}</span></div>
               <div className="review-compose">
                 <div className="review-compose-head"><strong>Rate this place</strong><span>1–5 stars</span></div>
-                <div className="review-stars">{[1,2,3,4,5].map(value => <button key={value} type="button" aria-label={value + " ვარსკვლავი"} className={value <= reviewRating ? "active" : ""} onClick={() => setReviewRating(value)}><Star size={18} fill="currentColor"/></button>)}</div>
+                <div className="review-stars">{[1,2,3,4,5].map(value => <button key={value} type="button" aria-label={value + " stars"} className={value <= reviewRating ? "active" : ""} onClick={() => setReviewRating(value)}><Star size={18} fill="currentColor"/></button>)}</div>
                 <textarea value={reviewComment} onChange={e => setReviewComment(e.target.value.slice(0,1000))} placeholder="What did you like? What would you recommend to others?" />
                 {reviewMessage ? <div className="review-message">{reviewMessage}</div> : null}
                 <button className="green-btn small" onClick={submitReview} disabled={reviewBusy}>{reviewBusy ? "Sending…" : "Publish"}</button>
               </div>
-              {reviews.length ? <div className="reviews-list">{reviews.slice(0,8).map(rv => <div key={rv.id} className="review-row"><div className="review-avatar">{(rv.reviewerName || rv.user?.name || "S").slice(0,1)}</div><div><div className="review-head"><strong>{rv.reviewerName || rv.user?.name || "guest"}</strong><span><Star size={11} fill="currentColor"/> {rv.rating}</span></div><p>{rv.comment || ""}</p></div></div>)}</div> : <p className="muted-copy">ჯერ არ არის გამოქვეყნებული Reviews.</p>}
+              {reviews.length ? <div className="reviews-list">{reviews.slice(0,8).map(rv => <div key={rv.id} className="review-row"><div className="review-avatar">{(rv.reviewerName || rv.user?.name || "S").slice(0,1)}</div><div><div className="review-head"><strong>{rv.reviewerName || rv.user?.name || "guest"}</strong><span><Star size={11} fill="currentColor"/> {rv.rating}</span></div><p>{rv.comment || ""}</p></div></div>)}</div> : <p className="muted-copy">No published reviews yet.</p>}
             </article>
 
-            <article id="photos" className="detail-section"><div className="section-title-small">Photos</div>{photos.length ? <div className="detail-photo-grid">{photos.map(p => <img key={p.id} src={p.url} alt={restaurant.name} loading="lazy" />)}</div> : <p className="muted-copy">Photos ჯერ არ არის დამატებული.</p>}</article>
+            <article id="photos" className="detail-section"><div className="section-title-small">Photos</div>{photos.length ? <div className="detail-photo-grid">{photos.map(p => <img key={p.id} src={p.url} alt={restaurant.name} loading="lazy" />)}</div> : <p className="muted-copy">No photos have been added yet.</p>}</article>
 
             <article id="location" className="detail-section"><div className="section-title-small">Location</div><div className="location-card"><div><MapPin size={18}/><strong>{restaurant.address}</strong><span>{restaurant.city}{restaurant.district ? " · " + restaurant.district : ""}</span></div><a href={"https://www.google.com/maps/search/?api=1&query="+restaurant.latitude+","+restaurant.longitude} target="_blank" rel="noreferrer">Google Maps →</a></div></article>
           </div>
         </section>
       </main>
 
-      {bookingState==="login" ? <div className="modal-backdrop" onMouseDown={e => {if(e.target===e.currentTarget)setBookingState("idle")}}><div className="auth-modal"><button className="modal-close" onClick={() => setBookingState("idle")}>×</button><span className="kicker">დაჯავშნის Continue</span><h2>Log in to your LUKMA account</h2><p>You need to be logged in to submit a booking.</p><input value={loginIdentifier} onChange={e=>setLoginIdentifier(e.target.value)} placeholder="Email or phone"/><input value={loginPassword} onChange={e=>setLoginPassword(e.target.value)} type="password" placeholder="Password"/>{loginError ? <div className="inline-error">{loginError}</div> : null}<button className="booking-submit" onClick={submitLogin}>Log in and book <span>→</span></button><Link href="/account/?mode=register" className="modal-alt-link">Create an account</Link></div></div> : null}
-      {bookingState==="success" ? <div className="modal-backdrop"><div className="auth-modal success-modal"><div className="success-icon"><CheckCircle2 size={27}/></div><span className="kicker">Booking request sent</span><h2>Thank you!</h2><p>{restaurant.name} · {date} · {time} · {guests} guest</p><div className="success-note">რესტორანი მიიღებს მოთხოვნას და დადასტურებისთანავე გამოჩნდება შენს ჯავშნებში.</div><Link href="/account/" className="booking-submit>My bookings <span>→</span></Link><button className="modal-alt-link" onClick={() => setBookingState("idle")}>დარჩი აქ</button></div></div> : null}
+      {bookingState==="login" ? <div className="modal-backdrop" onMouseDown={e => {if(e.target===e.currentTarget)setBookingState("idle")}}><div className="auth-modal"><button className="modal-close" onClick={() => setBookingState("idle")}>×</button><span className="kicker">Continue booking</span><h2>Log in to your LUKMA account</h2><p>You need to be logged in to submit a booking.</p><input value={loginIdentifier} onChange={e=>setLoginIdentifier(e.target.value)} placeholder="Email or phone"/><input value={loginPassword} onChange={e=>setLoginPassword(e.target.value)} type="password" placeholder="Password"/>{loginError ? <div className="inline-error">{loginError}</div> : null}<button className="booking-submit" onClick={submitLogin}>Log in and book <span>→</span></button><Link href="/account/?mode=register" className="modal-alt-link">Create an account</Link></div></div> : null}
+      {bookingState==="success" ? <div className="modal-backdrop"><div className="auth-modal success-modal"><div className="success-icon"><CheckCircle2 size={27}/></div><span className="kicker">Booking request sent</span><h2>Thank you!</h2><p>{restaurant.name} · {date} · {time} · {guests} guest</p><div className="success-note">The restaurant will receive your request and it will appear in your bookings once confirmed.</div><Link href="/account/" className="booking-submit>My bookings <span>→</span></Link><button className="modal-alt-link" onClick={() => setBookingState("idle")}>Stay here</button></div></div> : null}
       {bookingState==="error" ? <div className="modal-backdrop"><div className="auth-modal"><button className="modal-close" onClick={() => setBookingState("idle")}>×</button><span className="kicker>Booking</span><h2>Could not send</h2><p>{availabilityError || "Please try again."}</p><button className="booking-submit" onClick={() => setBookingState("idle")}>OK</button></div></div> : null}
     </div>
   );
