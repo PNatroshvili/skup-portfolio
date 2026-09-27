@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, ChevronLeft, ChevronRight, Clock3, Heart, MapPin, Share2, Star, Users } from "lucide-react";
+import { ArrowLeft, CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, Clock3, Heart, MapPin, QrCode, Share2, Star, Users } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
   addFavorite,
@@ -23,6 +23,7 @@ import {
   type Review,
 } from "@/lib/skupApi";
 import SkupHeader from "./SkupHeader";
+import { addBookingToCalendar, bookingCountdown, bookingQrUrl, estimateWaitTime, restaurantPhoto, trackRecentlyViewed } from "@/lib/lukmaUtils";
 
 function todayISO() {
   return new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Tbilisi" });
@@ -57,6 +58,8 @@ export default function SkupRestaurant() {
   const [reviewComment, setReviewComment] = useState("");
   const [reviewBusy, setReviewBusy] = useState(false);
   const [reviewMessage, setReviewMessage] = useState("");
+  const [showQr, setShowQr] = useState(false);
+  const [countdown, setCountdown] = useState("");
 
   useEffect(() => {
     const nextId = new URLSearchParams(window.location.search).get("id") || "";
@@ -65,6 +68,7 @@ export default function SkupRestaurant() {
     Promise.all([getRestaurant(nextId), getMenu(nextId), getReviews(nextId), getEvents(nextId)])
       .then(([r,m,rv,ev]) => {
         setRestaurant(r);
+        trackRecentlyViewed(r);
         setMenu(m || []);
         setReviews(rv?.data || []);
         setEvents((ev || []).filter(x => x.isActive));
@@ -105,8 +109,8 @@ export default function SkupRestaurant() {
   const photos = useMemo(() => {
     if (!restaurant) return [];
     const all = (restaurant.photos || []).filter(p => p.url).sort((a,b) => Number(a.sortOrder||0) - Number(b.sortOrder||0));
-    if (!all.length && restaurant.cover_photo) return [{id:"cover",url:restaurant.cover_photo}];
-    return all;
+    if (all.length) return all;
+    return [{id:"cover",url:restaurantPhoto(restaurant)}];
   }, [restaurant]);
 
   const days = useMemo(() => {
@@ -210,6 +214,15 @@ export default function SkupRestaurant() {
   const avg = Number(restaurant.ratingAvg || 0);
   const isOpen = Boolean(restaurant.isOpen);
   const availableSlots = availability?.slots.filter(s => s.available) || [];
+  const waitTime = estimateWaitTime(restaurant);
+
+  useEffect(() => {
+    if (bookingState !== "success") return;
+    const tick = () => setCountdown(bookingCountdown(date, time));
+    tick();
+    const timer = window.setInterval(tick, 30000);
+    return () => window.clearInterval(timer);
+  }, [bookingState, date, time]);
 
   return (
     <div className="skup-site">
@@ -241,6 +254,7 @@ export default function SkupRestaurant() {
               <button className="outline-btn" onClick={shareRestaurant}><Share2 size={15}/> Share</button>
               <a className="outline-btn" href={"https://www.google.com/maps/search/?api=1&query="+restaurant.latitude+","+restaurant.longitude} target="_blank" rel="noreferrer"><MapPin size={15}/> Directions</a>
             </div>
+            {waitTime !== null ? <div className="live-wait"><Clock3 size={14}/><strong>~{waitTime} min wait</strong><span>Estimated from current demand</span><i style={{width:Math.min(100,waitTime*2.4)+"%"}}/></div> : null}
           </div>
 
           <aside className="booking-card">
@@ -301,7 +315,8 @@ export default function SkupRestaurant() {
       </main>
 
       {bookingState==="login" ? <div className="modal-backdrop" onMouseDown={e => {if(e.target===e.currentTarget)setBookingState("idle")}}><div className="auth-modal"><button className="modal-close" onClick={() => setBookingState("idle")}>×</button><span className="kicker">Continue booking</span><h2>Log in to your LUKMA account</h2><p>You need to be logged in to submit a booking.</p><input value={loginIdentifier} onChange={e=>setLoginIdentifier(e.target.value)} placeholder="Email or phone"/><input value={loginPassword} onChange={e=>setLoginPassword(e.target.value)} type="password" placeholder="Password"/>{loginError ? <div className="inline-error">{loginError}</div> : null}<button className="booking-submit" onClick={submitLogin}>Log in and book <span>→</span></button><Link href="/account/?mode=register" className="modal-alt-link">Create an account</Link></div></div> : null}
-      {bookingState==="success" ? <div className="modal-backdrop"><div className="auth-modal success-modal"><div className="success-icon"><CheckCircle2 size={27}/></div><span className="kicker">Booking request sent</span><h2>Thank you!</h2><p>{restaurant.name} · {date} · {time} · {guests} guest</p><div className="success-note">The restaurant will receive your request and it will appear in your bookings once confirmed.</div><Link href="/account/" className="booking-submit">My bookings <span>→</span></Link><button className="modal-alt-link" onClick={() => setBookingState("idle")}>Stay here</button></div></div> : null}
+      {bookingState==="success" ? <div className="modal-backdrop"><div className="auth-modal success-modal"><div className="success-icon"><CheckCircle2 size={27}/></div><span className="kicker">Booking request sent</span><h2>Thank you!</h2><p>{restaurant.name} · {date} · {time} · {guests} guest{guests===1?"":"s"}</p><div className="success-countdown"><Clock3 size={15}/><span>{countdown ? countdown + " until your table time" : "Reservation added to your account"}</span></div><div className="success-actions"><button className="outline-btn" onClick={() => setShowQr(true)}><QrCode size={14}/> Show check-in QR</button><button className="outline-btn" onClick={() => addBookingToCalendar({id:"pending-"+restaurant.id,date,time,restaurantName:restaurant.name,address:restaurant.address,guests})}><CalendarDays size={14}/> Add to calendar</button></div><div className="success-note">The restaurant will receive your request and it will appear in your bookings once confirmed.</div><Link href="/bookings/" className="booking-submit">My bookings <span>→</span></Link><button className="modal-alt-link" onClick={() => setBookingState("idle")}>Stay here</button></div></div> : null}
+      {showQr ? <div className="modal-backdrop" onClick={() => setShowQr(false)}><div className="modal-card qr-modal" onClick={e=>e.stopPropagation()}><button className="modal-close" onClick={()=>setShowQr(false)}>×</button><div className="kicker">CHECK-IN QR</div><h2>Show this at the restaurant</h2><img className="booking-qr-image" src={bookingQrUrl({restaurantName:restaurant.name,date,time,guests})} alt="Booking check-in QR"/><div className="qr-details"><strong>{restaurant.name}</strong><span>{date} · {time}</span><span>{guests} guests</span></div></div></div> : null}
       {bookingState==="error" ? <div className="modal-backdrop"><div className="auth-modal"><button className="modal-close" onClick={() => setBookingState("idle")}>×</button><span className="kicker">Booking</span><h2>Could not send</h2><p>{availabilityError || "Please try again."}</p><button className="booking-submit" onClick={() => setBookingState("idle")}>OK</button></div></div> : null}
     </div>
   );
