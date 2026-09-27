@@ -20,8 +20,8 @@ const siteUrl = "https://lukma.skup.ge";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "LUKMA — აღმოაჩინე და დაჯავშნე საუკეთესო რესტორნები თბილისში",
-  description: "LUKMA — თბილისის რესტორნების აღმოჩენა, რუკა და მაგიდის დაჯავშნა ერთ სივრცეში.",
+  title: "LUKMA — Discover and book the best restaurants in Tbilisi",
+  description: "LUKMA — discover Tbilisi restaurants, explore the map, and book a table in one place.",
   alternates: { canonical: siteUrl },
   icons: { icon: "/icon.svg", apple: "/icon.svg" },
   manifest: "/site.webmanifest",
@@ -29,15 +29,15 @@ export const metadata: Metadata = {
     type: "website",
     url: siteUrl,
     siteName: "LUKMA",
-    title: "LUKMA — რესტორნები და ჯავშნები თბილისში",
-    description: "აღმოაჩინე, შეინახე და დაჯავშნე.",
+    title: "LUKMA — Restaurants and bookings in Tbilisi",
+    description: "Discover, save, and book.",
     images: [{url:"/og-image.svg",width:1200,height:630,alt:"LUKMA"}],
   },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ka" className={georgianSans.variable + " " + georgianSerif.variable}>
+    <html lang="en" className={georgianSans.variable + " " + georgianSerif.variable}>
       <body>{children}</body>
     </html>
   );
