@@ -9,7 +9,7 @@ export default function SkupHeader() {
   return (
     <header className="skup-header">
       <div className="skup-header-inner">
-        <Link href="/" className="skup-logo">ლუკმა<span>.</span></Link>
+        <Link href="/" className="skup-logo">LUKMA<span>.</span></Link>
         <nav className="skup-nav">
           <Link href="/discover/">Discover</Link>
           <Link href="/discover/#map">Map</Link>
