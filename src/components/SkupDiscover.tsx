@@ -7,8 +7,6 @@ import { getCuisines, getRestaurants, type Cuisine, type Restaurant } from "@/li
 import RestaurantCard from "./SkupRestaurantCard";
 import SkupHeader from "./SkupHeader";
 
-const BBOX = { west: 44.72, east: 44.92, north: 41.78, south: 41.64 };
-
 function mapPosition(r: Restaurant, zoom: number, center: { lat: number; lng: number }) {
   const span = 0.20 / zoom;
   const west = center.lng - span;
