@@ -208,7 +208,7 @@ export default function SkupRestaurant() {
 
   const currentPhoto = photos[photoIndex]?.url;
   const avg = Number(restaurant.ratingAvg || 0);
-  const isOpen = restaurant.isOpen !== false;
+  const isOpen = Boolean(restaurant.isOpen);
   const availableSlots = availability?.slots.filter(s => s.available) || [];
 
   return (
