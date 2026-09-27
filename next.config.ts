@@ -1,9 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Static export -> produces an /out folder that GitHub Pages can serve directly.
-  output: "export",
-  // next/image optimization needs a server; disable it for static hosting.
+  // LUKMA is deployed on Vercel. Keeping the app server-enabled lets us proxy
+  // the restaurant API through the same origin and avoid browser CORS issues.
   images: {
     unoptimized: true,
   },
