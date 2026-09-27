@@ -15,7 +15,7 @@ export default function SkupHeader() {
           <Link href="/discover/#map">რუკა</Link>
           <Link href="/discover/?is_open=true">დღეს</Link>
           <Link href="/discover/#collections">კოლექციები</Link>
-          <Link href="/discover/#journal">ჟურნალი</Link>
+          <Link href="/journal/">ჟურნალი</Link>
         </nav>
         <div className="skup-header-actions">
           <Link className="header-icon" href="/account/" aria-label="ჩემი LUKMA"><Heart size={18} /></Link>
