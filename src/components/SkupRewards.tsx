@@ -29,7 +29,7 @@ export default function SkupRewards() {
   const progress=loyalty?.progress ?? (next ? Math.round(((points-current.min)/(next.min-current.min))*100) : 100);
   return <div className="skup-site"><SkupHeader/><main className="shell account-page">
     <div className="account-header"><div><span className="kicker">REWARDS</span><h1>LUKMA Rewards</h1><p>Earn points from bookings, reviews and referrals.</p></div><Link href="/referral/" className="outline-btn"><Users size={14}/> Invite a friend</Link></div>
-    {!token ? <div className="account-login-card"><div className="account-mark">L</div><span className="kicker">MY LUKMA</span><h1>Rewards start<br/>with a booking.</h1><p>Log in to track points and unlock rewards.</p><Link className="green-btn" href="/account/">Log in</Link></div> :
+    {!token ? <div className="account-login-card"><div className="account-mark">L</div><span className="kicker">MY LUKMA</span><h1>Your rewards<br/>start here.</h1><p>Log in to track points and unlock rewards.</p><Link className="green-btn" href="/account/">Log in</Link></div> :
     <div className="rewards-shell">
       <section className="reward-points-card"><div className="reward-tier">{current.emoji} <strong>{current.name}</strong></div><div className="reward-points">{points}</div><span>points</span>{next ? <><div className="reward-progress"><i style={{width:Math.max(0,Math.min(100,Number(progress)))+"%"}}/></div><p>{Math.max(0,next.min-points)} points to {next.name} {next.emoji}</p></> : <p>You reached the highest tier.</p>}</section>
       <section className="account-section"><div className="section-head"><div><span className="kicker">EARN</span><h2>How to earn</h2></div></div><div className="reward-earn-grid">
