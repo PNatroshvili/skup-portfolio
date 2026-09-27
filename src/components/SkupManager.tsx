@@ -123,7 +123,7 @@ export default function SkupManager() {
         <div className="manager-login-card">
           <Store size={25}/>
           <span className="kicker">LUKMA FOR RESTAURANTS</span>
-          <h1>Restaurant management</h1>
+          <h1>Manage your restaurant.</h1>
           <p>Log in with the LUKMA account linked to your restaurant.</p>
           <Link href="/account/" className="green-btn">Log in →</Link>
         </div>
@@ -137,7 +137,7 @@ export default function SkupManager() {
         <div className="manager-login-card">
           <Store size={25}/>
           <span className="kicker">LUKMA FOR RESTAURANTS</span>
-          <h1>Restaurant not found</h1>
+          <h1>No restaurant is linked yet.</h1>
           <p>{error || "This account is not linked to a restaurant yet."}</p>
           <a href="mailto:hello@skup.ge?subject=LUKMA%20restaurant%20link" className="green-btn">Request help</a>
         </div>
