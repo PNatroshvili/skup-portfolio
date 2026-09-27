@@ -714,3 +714,36 @@ body{font-family:var(--sans);font-size:14px;line-height:1.5}
   .admin-head h1{font-size:36px}
   .chat-head h1{font-size:30px}
 }
+
+/* Final editorial tuning */
+h1,h2,h3{font-family:var(--sans)}
+h1{font-weight:600}
+h2{font-weight:600}
+h3{font-weight:600}
+.home-hero h1{font-size:clamp(40px,4.8vw,56px);font-weight:600}
+.section-head h2{font-size:30px;font-weight:600}
+.journal-copy h2{font-size:40px;font-weight:600}
+.journal-feature-copy h3{font-size:26px;font-weight:600}
+.discover-head h1{font-size:40px;font-weight:600}
+.restaurant-main-copy h1{font-size:46px;font-weight:600}
+.account-login-card h1,.account-header h1{font-size:40px;font-weight:600}
+.partner-hero h1{font-size:clamp(42px,5vw,56px);font-weight:600}
+.partner-bottom h2{font-size:44px;font-weight:600}
+.info-page h1,.legal-page h1{font-size:48px;font-weight:600}
+.chat-head h1{font-size:32px;font-weight:600}
+.admin-head h1{font-size:40px;font-weight:600}
+.tonight-banner h2{font-size:32px;font-weight:600}
+.booking-card h2,.admin-panel h2,.broadcast-card h2{font-weight:600}
+@media(max-width:820px){
+  .home-hero h1{font-size:36px}
+  .section-head h2{font-size:24px}
+  .journal-copy h2{font-size:32px}
+  .discover-head h1{font-size:34px}
+  .restaurant-main-copy h1{font-size:36px}
+  .account-header h1,.account-login-card h1{font-size:34px}
+  .partner-hero h1{font-size:38px}
+  .partner-bottom h2{font-size:34px}
+  .info-page h1,.legal-page h1{font-size:36px}
+  .admin-head h1{font-size:34px}
+  .chat-head h1{font-size:28px}
+}
