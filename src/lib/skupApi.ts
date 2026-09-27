@@ -49,6 +49,7 @@ export type Review = {
   reviewerAvatar?: string | null;
   createdAt: string;
   status: string;
+  user?: { name?: string | null; lastName?: string | null };
 };
 
 export type RestaurantEvent = {
