@@ -102,6 +102,14 @@ export async function getMenu(id: string) {
   return request<MenuCategory[]>("/restaurants/" + encodeURIComponent(id) + "/menu");
 }
 
+export async function createReview(token: string, payload: { restaurant_id: string; rating: number; comment?: string }) {
+  return request<any>("/reviews", {
+    method: "POST",
+    headers: { Authorization: "Bearer " + token },
+    body: JSON.stringify(payload),
+  });
+}
+
 export async function getReviews(id: string) {
   return request<{ data: Review[]; total: number; page: number; limit: number }>("/reviews?restaurant_id=" + encodeURIComponent(id) + "&page=1");
 }
