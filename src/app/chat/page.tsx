@@ -1,0 +1,1 @@
+import type { Metadata } from "next"; import SkupChat from "@/components/SkupChat"; export const metadata: Metadata={title:"LUKMA — Booking chat",description:"Message the restaurant about your reservation."}; export default function Page(){return <SkupChat/>;}
