@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import SkupAccount from "@/components/SkupAccount";
 
 export const metadata: Metadata = {
-  title: "ჩემი Skup — ჯავშნები და ფავორიტები",
-  description: "მართე შენი Skup ჯავშნები, ფავორიტები და loyalty.",
+  title: "LUKMA — My account",
+  description: "Manage LUKMA bookings, favorites and rewards.",
 };
 
 export default function AccountPage() {
