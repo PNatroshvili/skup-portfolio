@@ -38,6 +38,7 @@ export default function SkupDiscover(){
   const [collections,setCollections]=useState<any[]>([]);
   const [q,setQ]=useState("");
   const [cuisineId,setCuisineId]=useState("");
+  const [collectionId,setCollectionId]=useState("");
   const [isOpen,setIsOpen]=useState(false);
   const [minRating,setMinRating]=useState("");
   const [discountOnly,setDiscountOnly]=useState(false);
@@ -61,6 +62,7 @@ export default function SkupDiscover(){
     setCuisineId(params.get("cuisine_id")||"");
     setIsOpen(params.get("is_open")==="true");
     setMinRating(params.get("min_rating")||"");
+    setCollectionId(params.get("collection")||"");
     setHistory(readSearchHistory());
     Promise.all([getCuisines(),getCollections(),getRestaurants({city:"თბილისი",page:1,limit:200})])
       .then(([c,col,r])=>{
@@ -78,16 +80,25 @@ export default function SkupDiscover(){
     const params=new URLSearchParams();
     if(q.trim())params.set("q",q.trim());
     if(cuisineId)params.set("cuisine_id",cuisineId);
+    if(collectionId)params.set("collection",collectionId);
     if(isOpen)params.set("is_open","true");
     if(minRating)params.set("min_rating",minRating);
     window.history.replaceState(null,"",params.toString()?"/discover/?"+params.toString():"/discover/");
-  },[q,cuisineId,isOpen,minRating,discountOnly,priceLevel,dietary,sort,nearMe]);
+  },[q,cuisineId,collectionId,isOpen,minRating,discountOnly,priceLevel,dietary,sort,nearMe]);
 
   const filtered=useMemo(()=>{
     return restaurants.filter(r=>{
       const hay=(r.name+" "+(r.description||"")+" "+r.address+" "+(r.district||"")+" "+(r.cuisine?.name||"")).toLowerCase();
       if(q.trim()&&!hay.includes(q.toLowerCase()))return false;
       if(cuisineId&&r.cuisine?.id!==cuisineId)return false;
+      if(collectionId){
+        const collection=collections.find(x=>x.id===collectionId);
+        if(collection?.filterType==="is_open" && !r.isOpen)return false;
+        if((collection?.filterType==="cuisine_id" || collection?.filterType==="cuisine") && collection.filterValue && r.cuisine?.id!==collection.filterValue)return false;
+        if((collection?.filterType==="discount" || collection?.filterType==="offer") && !Number(r.discountPercent||0))return false;
+        if((collection?.filterType==="rating" || collection?.filterType==="min_rating") && collection.filterValue && Number(r.ratingAvg||0)<Number(collection.filterValue))return false;
+        if((collection?.filterType==="q" || collection?.filterType==="keyword") && collection.filterValue && !hay.includes(String(collection.filterValue).toLowerCase()))return false;
+      }
       if(isOpen&&!r.isOpen)return false;
       if(minRating&&Number(r.ratingAvg)<Number(minRating))return false;
       if(discountOnly&&!Number(r.discountPercent||0))return false;
@@ -95,7 +106,7 @@ export default function SkupDiscover(){
       if(dietary.length&&!dietary.every(key=>DIETARY[key].some(word=>hay.includes(word))))return false;
       return true;
     });
-  },[restaurants,q,cuisineId,isOpen,minRating,discountOnly,priceLevel,dietary]);
+  },[restaurants,q,cuisineId,collectionId,collections,isOpen,minRating,discountOnly,priceLevel,dietary]);
 
   const sorted=useMemo(()=>{
     const list=[...filtered];
@@ -120,7 +131,7 @@ export default function SkupDiscover(){
     navigator.geolocation.getCurrentPosition(pos=>{setUserLocation({lat:pos.coords.latitude,lng:pos.coords.longitude});setCenter({lat:pos.coords.latitude,lng:pos.coords.longitude});setNearMe(true);setSort("distance");},()=>setError("Could not access your location."),{enableHighAccuracy:false,timeout:8000});
   };
 
-  const clearFilters=()=>{setQ("");setCuisineId("");setIsOpen(false);setMinRating("");setDiscountOnly(false);setPriceLevel("");setDietary([]);setNearMe(false);setSort("rating");};
+  const clearFilters=()=>{setQ("");setCuisineId("");setCollectionId("");setIsOpen(false);setMinRating("");setDiscountOnly(false);setPriceLevel("");setDietary([]);setNearMe(false);setSort("rating");};
 
   const surprise=()=>{if(!sorted.length)return;const r=sorted[Math.floor(Math.random()*sorted.length)];selectRestaurant(r);};
 
