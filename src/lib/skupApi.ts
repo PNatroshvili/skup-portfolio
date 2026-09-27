@@ -411,6 +411,137 @@ export async function getLoyalty(token: string) {
   });
 }
 
+export async function getChatMessages(token: string, bookingId: string) {
+  return request<{ id: string; bookingId: string; senderId: string; senderRole: string; content: string; createdAt: string }[]>(
+    "/chat/" + encodeURIComponent(bookingId),
+    { headers: { Authorization: "Bearer " + token } },
+  );
+}
+
+export async function getAdminStats(token: string) {
+  return request<any>("/admin/stats", { headers: { Authorization: "Bearer " + token } });
+}
+
+export async function getAdminBookingsChart(token: string) {
+  return request<{ date: string; count: number }[]>("/admin/stats/bookings-chart", { headers: { Authorization: "Bearer " + token } });
+}
+
+export async function getAdminTopRestaurants(token: string) {
+  return request<{ name: string; bookings: number }[]>("/admin/stats/top-restaurants", { headers: { Authorization: "Bearer " + token } });
+}
+
+export async function getAdminRestaurants(token: string, params: { status?: string; q?: string; page?: number; limit?: number } = {}) {
+  const search = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => { if (value !== undefined && value !== "") search.set(key, String(value)); });
+  return request<{ data: any[]; total: number; page: number; limit: number }>("/admin/restaurants" + (search.toString() ? "?" + search.toString() : ""), {
+    headers: { Authorization: "Bearer " + token },
+  });
+}
+
+export async function updateAdminRestaurantStatus(token: string, restaurantId: string, status: string) {
+  return request<any>("/admin/restaurants/" + encodeURIComponent(restaurantId) + "/status", {
+    method: "PATCH", headers: { Authorization: "Bearer " + token }, body: JSON.stringify({ status }),
+  });
+}
+
+export async function deleteAdminRestaurant(token: string, restaurantId: string) {
+  return request<any>("/admin/restaurants/" + encodeURIComponent(restaurantId), {
+    method: "DELETE", headers: { Authorization: "Bearer " + token },
+  });
+}
+
+export async function getAdminUsers(token: string, params: { role?: string; q?: string; page?: number; limit?: number } = {}) {
+  const search = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => { if (value !== undefined && value !== "") search.set(key, String(value)); });
+  return request<{ data: any[]; total: number; page: number; limit: number }>("/admin/users" + (search.toString() ? "?" + search.toString() : ""), {
+    headers: { Authorization: "Bearer " + token },
+  });
+}
+
+export async function updateAdminUserStatus(token: string, userId: string, status: "active" | "blocked") {
+  return request<any>("/admin/users/" + encodeURIComponent(userId) + "/status", {
+    method: "PATCH", headers: { Authorization: "Bearer " + token }, body: JSON.stringify({ status }),
+  });
+}
+
+export async function updateAdminUserRole(token: string, userId: string, role: string) {
+  return request<any>("/admin/users/" + encodeURIComponent(userId) + "/role", {
+    method: "PATCH", headers: { Authorization: "Bearer " + token }, body: JSON.stringify({ role }),
+  });
+}
+
+export async function verifyAdminUserEmail(token: string, userId: string) {
+  return request<any>("/admin/users/" + encodeURIComponent(userId) + "/verify-email", {
+    method: "PATCH", headers: { Authorization: "Bearer " + token },
+  });
+}
+
+export async function deleteAdminUser(token: string, userId: string) {
+  return request<any>("/admin/users/" + encodeURIComponent(userId), {
+    method: "DELETE", headers: { Authorization: "Bearer " + token },
+  });
+}
+
+export async function getAdminBookings(token: string, params: { status?: string; page?: number; limit?: number } = {}) {
+  const search = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => { if (value !== undefined && value !== "") search.set(key, String(value)); });
+  return request<{ data: any[]; total: number; page: number; limit: number }>("/admin/bookings" + (search.toString() ? "?" + search.toString() : ""), {
+    headers: { Authorization: "Bearer " + token },
+  });
+}
+
+export async function getAdminReviews(token: string, params: { status?: string; page?: number; limit?: number } = {}) {
+  const search = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => { if (value !== undefined && value !== "") search.set(key, String(value)); });
+  return request<{ data: any[]; total: number; page: number; limit: number }>("/admin/reviews" + (search.toString() ? "?" + search.toString() : ""), {
+    headers: { Authorization: "Bearer " + token },
+  });
+}
+
+export async function updateAdminReviewStatus(token: string, reviewId: string, status: "approved" | "hidden") {
+  return request<any>("/admin/reviews/" + encodeURIComponent(reviewId) + "/status", {
+    method: "PATCH", headers: { Authorization: "Bearer " + token }, body: JSON.stringify({ status }),
+  });
+}
+
+export async function deleteAdminReview(token: string, reviewId: string) {
+  return request<any>("/admin/reviews/" + encodeURIComponent(reviewId), {
+    method: "DELETE", headers: { Authorization: "Bearer " + token },
+  });
+}
+
+export async function sendAdminBroadcast(token: string, title: string, body: string) {
+  return request<any>("/admin/notifications/send-all", {
+    method: "POST", headers: { Authorization: "Bearer " + token }, body: JSON.stringify({ title, body }),
+  });
+}
+
+export async function getAdminCollections(token: string) {
+  return request<any[]>("/admin/collections", { headers: { Authorization: "Bearer " + token } });
+}
+
+export async function updateAdminCollection(token: string, id: string, data: any) {
+  return request<any>("/admin/collections/" + encodeURIComponent(id), {
+    method: "PATCH", headers: { Authorization: "Bearer " + token }, body: JSON.stringify(data),
+  });
+}
+
+export async function deleteAdminCollection(token: string, id: string) {
+  return request<any>("/admin/collections/" + encodeURIComponent(id), {
+    method: "DELETE", headers: { Authorization: "Bearer " + token },
+  });
+}
+
+export async function getAdminHomeSections(token: string) {
+  return request<any[]>("/admin/home-sections", { headers: { Authorization: "Bearer " + token } });
+}
+
+export async function toggleAdminHomeSection(token: string, key: string) {
+  return request<any>("/admin/home-sections/" + encodeURIComponent(key) + "/toggle", {
+    method: "PATCH", headers: { Authorization: "Bearer " + token },
+  });
+}
+
 export async function addFavorite(token: string, restaurantId: string) {
   return request<any>("/favorites", {
     method: "POST",
