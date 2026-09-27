@@ -83,10 +83,10 @@ export default function SkupAccount() {
     setBookings((b || []) as Booking[]);
     setFavorites(f || []);
     setLoyalty(l);
-    setName(u?.name || "");
-    setLastName(u?.lastName || "");
-    setPhone(u?.phone || "");
-    setProfileEmail(u?.email || "");
+    setName(String(u?.name ?? ""));
+    setLastName(String(u?.lastName ?? ""));
+    setPhone(String(u?.phone ?? ""));
+    setProfileEmail(String(u?.email ?? ""));
   };
 
   useEffect(() => {
@@ -134,7 +134,13 @@ export default function SkupAccount() {
         setAuthEmail(identifier.includes("@") ? identifier.trim() : "");
         setMode("verify");
         setNotice("ელფოსტაზე გამოგზავნე ახალი კოდი ანგარიშის დასადასტურებლად.");
-        if (identifier.includes("@")) await resendVerificationCode(identifier.trim());
+        if (identifier.includes("@")) {
+          try {
+            await resendVerificationCode(identifier.trim());
+          } catch {
+            setError("კოდის ხელახლა გამოგზავნა ვერ მოხერხდა.");
+          }
+        }
       } else {
         setError(msg);
       }
