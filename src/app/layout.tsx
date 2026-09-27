@@ -16,7 +16,7 @@ const georgianSerif = Noto_Serif_Georgian({
   display: "swap",
 });
 
-const siteUrl = "https://skup.ge";
+const siteUrl = "https://lukma.skup.ge";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
