@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRight, CalendarDays, MapPin, Search, Sparkles, Users } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { getCollections, getCuisines, getRestaurants, type Cuisine, type Restaurant } from "@/lib/skupApi";
 import RestaurantCard from "./SkupRestaurantCard";
 import SkupHeader from "./SkupHeader";
@@ -32,7 +32,7 @@ export default function SkupHome() {
   const heroImage = restaurants[0]?.cover_photo || "";
   const top = useMemo(() => restaurants.slice(0, 4), [restaurants]);
 
-  const submitSearch = (event: React.FormEvent) => {
+  const submitSearch = (event: FormEvent) => {
     event.preventDefault();
     const value = search.trim();
     window.location.href = value ? "/discover/?q=" + encodeURIComponent(value) : "/discover/";
