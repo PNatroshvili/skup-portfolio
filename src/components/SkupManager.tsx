@@ -265,6 +265,7 @@ export default function SkupManager() {
                 <div className="manager-booking-actions">
                   {b.status === "pending" ? <><button className="green-mini" onClick={() => run(() => updateBookingStatus(token,b.id,"confirmed"), "Booking confirmed.")}>Confirm</button><button className="red-mini" onClick={() => run(() => updateBookingStatus(token,b.id,"rejected"), "Booking rejected.")}>Reject</button></> : null}
                   {b.status === "confirmed" ? <button className="red-mini" onClick={() => run(() => updateBookingStatus(token,b.id,"cancelled"), "Booking cancelled.")}>Cancel</button> : null}
+                  <Link className="green-mini" href={"/chat/?booking_id="+encodeURIComponent(b.id)+"&restaurant="+encodeURIComponent(restaurant.name)}>Chat</Link>
                 </div>
               </div>
             )) : <div className="empty-state">No bookings yet.</div>}
