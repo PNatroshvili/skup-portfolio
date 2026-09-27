@@ -351,7 +351,7 @@ export default function SkupAccount() {
 
             {mode === "login" ? (
               <>
-                <h1>Your tables,<br/>favorites and rewards.</h1>
+                <h1>Bookings, favorites,<br/>and rewards.</h1>
                 <p>Log in to manage your bookings, favorites, and rewards.</p>
                 <div className="google-login-wrap">
                   <div id="lukma-google-button"></div>
@@ -385,7 +385,7 @@ export default function SkupAccount() {
 
             {mode === "register" ? (
               <>
-                <h1>Create your<br/>LUKMA account.</h1>
+                <h1>Create your LUKMA<br/>account.</h1>
                 <p>Your bookings, favorites, and rewards in one place.</p>
                 <div className="account-login-form">
                   <input value={name} onChange={e=>setName(e.target.value)} placeholder="Name" />
@@ -403,7 +403,7 @@ export default function SkupAccount() {
 
             {mode === "verify" ? (
               <>
-                <h1>Verify your<br/>Email.</h1>
+                <h1>Verify your email.</h1>
                 <p>Enter the 6-digit code we sent to <strong>{authEmail}</strong>.</p>
                 <div className="account-login-form">
                   <input value={code} onChange={e=>setCode(e.target.value.replace(/\D/g, "").slice(0,6))} inputMode="numeric" placeholder="123456" />
@@ -417,7 +417,7 @@ export default function SkupAccount() {
 
             {mode === "forgot" ? (
               <>
-                <h1>Reset your<br/>password.</h1>
+                <h1>Reset your password.</h1>
                 <p>Enter the email linked to your account.</p>
                 <div className="account-login-form">
                   <input value={authEmail} onChange={e=>setAuthEmail(e.target.value)} type="email" placeholder="Email" />
@@ -431,7 +431,7 @@ export default function SkupAccount() {
 
             {mode === "reset" ? (
               <>
-                <h1>Set a<br/>new password.</h1>
+                <h1>Set a new password.</h1>
                 <p>Enter the 6-digit code sent to your email.</p>
                 <div className="account-login-form">
                   <input value={code} onChange={e=>setCode(e.target.value.replace(/\D/g, "").slice(0,6))} inputMode="numeric" placeholder="Code" />
@@ -454,7 +454,7 @@ export default function SkupAccount() {
       <SkupHeader />
       <main className="account-page shell">
         <div className="account-header">
-          <div><span className="kicker">MY LUKMA</span><h1>Hello, {user?.name || "Guest"}.</h1><p>Your LUKMA in one place.</p></div>
+          <div><span className="kicker">MY LUKMA</span><h1>Welcome back, {user?.name || "Guest"}.</h1><p>Your LUKMA in one place.</p></div>
           <button className="outline-btn" onClick={() => { clearSession(); setToken(null); setUser(null); }}><LogOut size={15}/> Log out</button>
         </div>
 
