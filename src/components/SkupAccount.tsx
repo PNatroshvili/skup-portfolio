@@ -149,6 +149,26 @@ export default function SkupAccount() {
     }
   };
 
+  const handleDemoLogin = async (demoIdentifier: string, demoPassword: string) => {
+    setBusy(true); setError(""); setNotice("");
+    try {
+      const result = await login(demoIdentifier, demoPassword);
+      saveSession(result);
+      setToken(result.tokens.access_token);
+      const role = String(result.user?.role || "user");
+      if (role === "restaurant_manager") {
+        window.location.assign("/for-restaurants/dashboard/");
+        return;
+      }
+      await loadAccount(result.tokens.access_token);
+      setNotice("Demo account loaded.");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Demo login failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const handleRegister = async () => {
     setBusy(true); setError(""); setNotice("");
     try {
@@ -290,6 +310,20 @@ export default function SkupAccount() {
                   {error ? <div className="inline-error">{error}</div> : null}
                   {notice ? <div className="account-notice">{notice}</div> : null}
                   <button className="green-btn" onClick={handleLogin} disabled={busy}><LogIn size={16}/> {busy ? "Loading…" : "Log in"}</button>
+                </div>
+                <div className="demo-access">
+                  <div className="demo-access-head"><strong>Demo access</strong><span>One-click test accounts</span></div>
+                  <div className="demo-access-grid">
+                    <button type="button" onClick={() => handleDemoLogin("guest@restaurant.ge", "guest123")} disabled={busy}>
+                      <span>Guest</span><small>guest@restaurant.ge</small>
+                    </button>
+                    <button type="button" onClick={() => handleDemoLogin("owner@restaurant.ge", "owner123")} disabled={busy}>
+                      <span>Restaurant manager</span><small>owner@restaurant.ge</small>
+                    </button>
+                    <button type="button" onClick={() => handleDemoLogin("admin@restaurant.ge", "admin123")} disabled={busy}>
+                      <span>Admin</span><small>admin@restaurant.ge</small>
+                    </button>
+                  </div>
                 </div>
                 <div className="account-auth-links"><button onClick={() => {setMode("register");setError("");setNotice("")}}>Create an account</button><button onClick={() => {setMode("forgot");setError("");setNotice("")}}>Forgot password?</button></div>
               </>
