@@ -164,15 +164,16 @@ export default function SkupRestaurant() {
     setReviewBusy(true);
     setReviewMessage("");
     try {
-      const saved = await createReview(token, {
+      await createReview(token, {
         restaurant_id: id,
         rating: reviewRating,
         comment: reviewComment.trim() || undefined,
       });
-      setReviews(prev => [saved, ...prev]);
+      const [freshReviews, freshRestaurant] = await Promise.all([getReviews(id), getRestaurant(id)]);
+      setReviews(freshReviews?.data || []);
+      setRestaurant(freshRestaurant);
       setReviewComment("");
       setReviewMessage("მიმოხილვა გამოქვეყნდა.");
-      setRestaurant(prev => prev ? { ...prev, ratingAvg: Number(saved?.rating || reviewRating), reviewsCount: Number(prev.reviewsCount || 0) + 1 } : prev);
     } catch (e) {
       setReviewMessage(e instanceof Error ? e.message : "მიმოხილვის გაგზავნა ვერ მოხერხდა.");
     } finally {
