@@ -1,18 +1,10 @@
 import type { Metadata } from "next";
-import { Noto_Sans_Georgian, Noto_Serif_Georgian } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import "./globals.css";
 
-const georgianSans = Noto_Sans_Georgian({
-  variable: "--font-georgian-sans",
-  subsets: ["georgian", "latin"],
+const siteFont = DM_Sans({
+  subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  display: "swap",
-});
-
-const georgianSerif = Noto_Serif_Georgian({
-  variable: "--font-georgian-serif",
-  subsets: ["georgian", "latin"],
-  weight: ["400", "500", "600"],
   display: "swap",
 });
 
@@ -37,7 +29,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={georgianSans.variable + " " + georgianSerif.variable}>
+    <html lang="en" className={siteFont.className}>
       <body>{children}</body>
     </html>
   );
