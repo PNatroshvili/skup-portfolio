@@ -76,7 +76,7 @@ export default function SkupDiscover() {
           setSelected(prev => (prev && r.data.some(x => x.id === prev)) ? prev : r.data?.[0]?.id || "");
         })
         .catch(() => {
-          if (!cancelled) setError("რესტორნების ჩატვირთვა ამ მომენტში ვერ მოხერხდა.");
+          if (!cancelled) setError("Restaurants could not be loaded right now.");
         })
         .finally(() => {
           if (!cancelled) setLoading(false);
@@ -108,7 +108,7 @@ export default function SkupDiscover() {
 
   const useMyLocation = () => {
     if (!navigator.geolocation) {
-      setError("ამ მოწყობილობაზე ლოკაცია მიუწვდომელია.");
+      setError("Location is not available on this device.");
       return;
     }
     setLocating(true);
@@ -120,7 +120,7 @@ export default function SkupDiscover() {
       },
       () => {
         setLocating(false);
-        setError("ლოკაციაზე წვდომა ვერ მოხერხდა.");
+        setError("Could not access your location.");
       },
       { enableHighAccuracy: false, timeout: 8000 },
     );
@@ -139,20 +139,20 @@ export default function SkupDiscover() {
       <main className="discover-page">
         <section className="discover-head shell">
           <div>
-            <span className="kicker">აღმოჩენა</span>
-            <h1>აღმოაჩინე რესტორნები<br/>თბილისში</h1>
-            <p>იპოვე ადგილი ნებისმიერი საღამოსთვის — ქალაქი, გემო და განწყობა ერთ სივრცეში.</p>
+            <span className="kicker">Discover</span>
+            <h1>Discover restaurants<br/>in Tbilisi</h1>
+            <p>Find the right place for any evening — city, flavor, and mood in one place.</p>
           </div>
           <div className="discover-search">
             <Search size={17}/>
-            <input value={q} onChange={e => setQ(e.target.value)} placeholder="რესტორანი, სამზარეულო ან კერძი..." />
-            {q ? <button aria-label="ძიების გასუფთავება" onClick={() => setQ("")}><X size={15}/></button> : null}
+            <input value={q} onChange={e => setQ(e.target.value)} placeholder="Restaurant, cuisine or dish..." />
+            {q ? <button aria-label="ძიების Clear" onClick={() => setQ("")}><X size={15}/></button> : null}
           </div>
         </section>
 
         <section className="discover-toolbar shell">
           <div className="filter-scroll">
-            <button className={!cuisineId ? "active" : ""} onClick={() => setCuisineId("")}>ყველა</button>
+            <button className={!cuisineId ? "active" : ""} onClick={() => setCuisineId("")}>All</button>
             {cuisines.slice(0, 10).map(c => (
               <button key={c.id} className={cuisineId === c.id ? "active" : ""} onClick={() => setCuisineId(cuisineId === c.id ? "" : c.id)}>
                 {c.icon || "•"} {c.name}
@@ -161,16 +161,16 @@ export default function SkupDiscover() {
           </div>
           <div className="filter-actions">
             <button className={minRating === "4.5" ? "active" : ""} onClick={() => setMinRating(minRating === "4.5" ? "" : "4.5")}><Star size={14}/> 4.5+</button>
-            <button className={isOpen ? "active" : ""} onClick={() => setIsOpen(!isOpen)}>ღიაა ახლა</button>
-            <button className="filter-more" onClick={clearFilters}><SlidersHorizontal size={14}/> გასუფთავება</button>
+            <button className={isOpen ? "active" : ""} onClick={() => setIsOpen(!isOpen)}>Open now</button>
+            <button className="filter-more" onClick={clearFilters}><SlidersHorizontal size={14}/> Clear</button>
           </div>
         </section>
 
         <section className="discover-layout shell" id="map">
           <aside className="discover-list">
             <div className="results-row">
-              <strong>{loading ? "…" : filtered.length}</strong> რესტორანი
-              <span>{(cuisineId || minRating || isOpen || q) ? <button className="results-clear" onClick={clearFilters}>ფილტრების გასუფთავება</button> : null}</span>
+              <strong>{loading ? "…" : filtered.length}</strong> restaurant
+              <span>{(cuisineId || minRating || isOpen || q) ? <button className="results-clear" onClick={clearFilters}>ფილტრების Clear</button> : null}</span>
             </div>
             {error ? <div className="inline-error">{error}</div> : null}
             {loading ? Array.from({length: 6}).map((_, i) => <div className="list-skeleton" key={i}/>) :
@@ -180,9 +180,9 @@ export default function SkupDiscover() {
             {!loading && !filtered.length ? (
               <div className="empty-state">
                 <Search size={22}/>
-                <h3>ვერაფერი ვიპოვეთ</h3>
-                <p>შეცვალე ძიება ან ფილტრები და სცადე თავიდან.</p>
-                <button className="green-btn small" onClick={clearFilters}>ფილტრების გასუფთავება</button>
+                <h3>Nothing found</h3>
+                <p>Change your search or filters and try again.</p>
+                <button className="green-btn small" onClick={clearFilters}>ფილტრების Clear</button>
               </div>
             ) : null}
           </aside>
@@ -203,9 +203,9 @@ export default function SkupDiscover() {
               ))}
             </div>
             <div className="map-controls">
-              <button aria-label="შემცირება" onClick={() => setZoom(z => Math.max(.75, +(z - .25).toFixed(2)))}>−</button>
-              <button aria-label="გაზრდა" onClick={() => setZoom(z => Math.min(3, +(z + .25).toFixed(2)))}>+</button>
-              <button aria-label="ჩემი ლოკაცია" onClick={useMyLocation} disabled={locating}><LocateFixed size={16}/></button>
+              <button aria-label="Zoom out" onClick={() => setZoom(z => Math.max(.75, +(z - .25).toFixed(2)))}>−</button>
+              <button aria-label="Zoom in" onClick={() => setZoom(z => Math.min(3, +(z + .25).toFixed(2)))}>+</button>
+              <button aria-label="My location" onClick={useMyLocation} disabled={locating}><LocateFixed size={16}/></button>
             </div>
             {selectedRestaurant ? (
               <Link href={"/restaurant/?id=" + encodeURIComponent(selectedRestaurant.id)} className="map-preview-card">
@@ -213,7 +213,7 @@ export default function SkupDiscover() {
                 <div><strong>{selectedRestaurant.name}</strong><span><Star size={11} fill="currentColor"/> {Number(selectedRestaurant.ratingAvg || 0).toFixed(1)} · {selectedRestaurant.district || selectedRestaurant.city}</span></div>
               </Link>
             ) : null}
-            <div className="map-label"><MapPin size={11}/> თბილისი · <strong>{filtered.length}</strong> ადგილი</div>
+            <div className="map-label"><MapPin size={11}/> თბილისი · <strong>{filtered.length}</strong> places</div>
           </div>
         </section>
       </main>
