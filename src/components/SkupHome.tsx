@@ -49,8 +49,8 @@ export default function SkupHome() {
           <div className="home-hero-image" style={{ backgroundImage: "linear-gradient(90deg, rgba(11,16,14,.9) 0%, rgba(11,16,14,.52) 48%, rgba(11,16,14,.16) 100%), url('" + heroImage + "')" }} />
           <div className="home-hero-content shell">
             <div className="eyebrow">Good food brings people together</div>
-            <h1>Find a place,<br/><em>you'll want to remember</em><br/>again.</h1>
-            <p>Discover Tbilisi restaurants, choose your evening, and request a table in seconds.</p>
+            <h1>Good food,<br/><em>good company.</em></h1>
+            <p>See where people are eating tonight, compare a few places, and book a table.</p>
             <form className="hero-search" onSubmit={submitSearch}>
               <div className="search-segment"><MapPin size={17}/><span>Tbilisi</span></div>
               <label className="search-segment wide"><Search size={17}/><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Restaurant, cuisine or dish" aria-label="Search restaurants" /></label>
@@ -63,7 +63,7 @@ export default function SkupHome() {
         </section>
 
         <section className="section shell">
-          <div className="section-head"><div><span className="kicker">In the city now</span><h2>Trending in Tbilisi</h2></div><Link href="/discover/">View all <ArrowRight size={15}/></Link></div>
+          <div className="section-head"><div><span className="kicker">In the city now</span><h2>Popular right now</h2></div><Link href="/discover/">View all <ArrowRight size={15}/></Link></div>
           <div className="restaurant-grid four">
             {loading ? Array.from({length:4}).map((_, i) => <div className="restaurant-skeleton" key={i}/>) : trending.map(r => <RestaurantCard key={r.id} restaurant={r}/>)}
           </div>
@@ -79,7 +79,7 @@ export default function SkupHome() {
           <div className="collection-grid">{collections.slice(0, 6).map(c => <Link key={c.id} href={"/discover/?collection=" + encodeURIComponent(c.id)} className="collection-card" style={{background:c.bg}}><div className="collection-glow" style={{background:c.accent}}/><div className="collection-copy"><span>{c.emoji}</span><h3>{c.titleKa}</h3><p>{c.subtitle}</p></div></Link>)}</div>
         </div></section>
 
-        <section className="section shell" id="tonight"><div className="tonight-banner"><div><span className="kicker">Tonight</span><h2>Where should we go tonight?</h2><p>Open Now, map nearby places, and book without leaving the flow.</p></div><Link href="/discover/?is_open=true" className="dark-btn">Open restaurants <ArrowRight size={15}/></Link></div></section>
+        <section className="section shell" id="tonight"><div className="tonight-banner"><div><span className="kicker">Tonight</span><h2>Looking for dinner?</h2><p>Open Now, map nearby places, and book without leaving the flow.</p></div><Link href="/discover/?is_open=true" className="dark-btn">Open restaurants <ArrowRight size={15}/></Link></div></section>
 
         <section className="section section-dark"><div className="shell journal-grid">
           <div className="journal-copy"><span className="kicker">LUKMA Journal</span><h2>Stories about<br/>great food.</h2><p>New places, guides, and curated recommendations from Tbilisi's food scene.</p><Link href="/journal/" className="light-outline-btn"><Sparkles size={15}/> Read the journal</Link></div>
