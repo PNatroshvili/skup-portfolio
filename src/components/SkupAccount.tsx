@@ -413,9 +413,11 @@ export default function SkupAccount() {
             <nav>
               <a className="active" href="#reservations"><CalendarDays size={16}/> Bookings</a>
               <a href="#favorites"><Heart size={16}/> Favorites</a>
-              <a href="#loyalty"><Star size={16}/> Rewards</a>
+              <a href="/rewards/"><Star size={16}/> Rewards center</a>
+              <a href="/referral/"><UserRound size={16}/> Refer a friend</a>
               <a href="#profile"><UserRound size={16}/> Profile</a>
               {user?.role === "restaurant_manager" ? <a className="account-manager-link" href="/for-restaurants/dashboard/">Restaurant portal →</a> : null}
+              {user?.role === "admin" ? <a className="account-manager-link" href="/admin/">Admin control center →</a> : null}
             </nav>
           </aside>
 
