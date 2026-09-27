@@ -12,6 +12,7 @@ export default function SkupHome() {
   const [cuisines, setCuisines] = useState<Cuisine[]>([]);
   const [collections, setCollections] = useState<Awaited<ReturnType<typeof getCollections>>>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     Promise.all([
@@ -31,6 +32,12 @@ export default function SkupHome() {
   const heroImage = restaurants[0]?.cover_photo || "";
   const top = useMemo(() => restaurants.slice(0, 4), [restaurants]);
 
+  const submitSearch = (event: React.FormEvent) => {
+    event.preventDefault();
+    const value = search.trim();
+    window.location.href = value ? "/discover/?q=" + encodeURIComponent(value) : "/discover/";
+  };
+
   return (
     <div className="skup-site">
       <SkupHeader />
@@ -41,16 +48,21 @@ export default function SkupHome() {
             <div className="eyebrow">კარგი საჭმელი ადამიანებს აერთიანებს</div>
             <h1>იპოვე ადგილი,<br/><em>რომლის გახსენებაც</em><br/>მოგინდება.</h1>
             <p>აღმოაჩინე თბილისის საუკეთესო რესტორნები, შეარჩიე საღამო და გააგზავნე ჯავშნის მოთხოვნა რამდენიმე წამში.</p>
-            <div className="hero-search">
+            <form className="hero-search" onSubmit={submitSearch}>
               <div className="search-segment"><MapPin size={17}/><span>თბილისი</span></div>
-              <div className="search-segment wide"><Search size={17}/><span>რესტორანი, სამზარეულო ან კერძი</span></div>
-              <div className="search-segment"><CalendarDays size={17}/><span>დღეს</span></div>
+              <label className="search-segment wide">
+                <Search size={17}/>
+                <input value={search} onChange={e => setSearch(e.target.value)} placeholder="რესტორანი, სამზარეულო ან კერძი" aria-label="რესტორნის ძებნა" />
+              </label>
+              <button type="button" className="search-segment button-segment" onClick={() => window.location.href="/discover/?is_open=true"}><CalendarDays size={17}/><span>დღეს</span></button>
               <div className="search-segment"><Users size={17}/><span>2</span></div>
-              <Link href="/discover/" className="hero-search-btn"><Search size={18}/></Link>
-            </div>
+              <button type="submit" className="hero-search-btn" aria-label="ძებნა"><Search size={18}/></button>
+            </form>
             <div className="hero-quick-links">
               {cuisines.slice(0, 7).map(c => (
-                <Link key={c.id} href={"/discover/?cuisine_id=" + encodeURIComponent(c.id)} className="hero-chip"><span>{c.icon || "•"}</span><span>{c.name}</span></Link>
+                <Link key={c.id} href={"/discover/?cuisine_id=" + encodeURIComponent(c.id)} className="hero-chip">
+                  <span>{c.icon || "•"}</span><span>{c.name}</span>
+                </Link>
               ))}
             </div>
           </div>
@@ -86,15 +98,15 @@ export default function SkupHome() {
 
         <section className="section section-dark" id="journal">
           <div className="shell journal-grid">
-            <div className="journal-copy"><span className="kicker">SKUP ჟურნალი</span><h2>ისტორიები კარგი<br/>საჭმლის შესახებ.</h2><p>ახალი ადგილები, გიდები და შერჩეული რეკომენდაციები თბილისის გასტრონომიული სცენიდან.</p><a href="#journal" className="light-outline-btn"><Sparkles size={15}/> მალე</a></div>
+            <div className="journal-copy"><span className="kicker">LUKMA ჟურნალი</span><h2>ისტორიები კარგი<br/>საჭმლის შესახებ.</h2><p>ახალი ადგილები, გიდები და შერჩეული რეკომენდაციები თბილისის გასტრონომიული სცენიდან.</p><a href="#journal" className="light-outline-btn"><Sparkles size={15}/> მალე</a></div>
             <div className="journal-feature">
               {top[1]?.cover_photo ? <img src={top[1].cover_photo} alt="" /> : <div className="journal-image-fallback" />}
-              <div className="journal-feature-copy"><span>გიდი</span><h3>10 ადგილი, რომელიც ამ კვირაში უნდა ნახო</h3><p>SKUP · 5 წუთი</p></div>
+              <div className="journal-feature-copy"><span>გიდი</span><h3>10 ადგილი, რომელიც ამ კვირაში უნდა ნახო</h3><p>LUKMA · 5 წუთი</p></div>
             </div>
           </div>
         </section>
       </main>
-      <footer className="skup-footer"><div className="shell"><div className="footer-brand">Skup<span>.</span></div><div>თბილისი, საქართველო</div><div>© {new Date().getFullYear()} Skup</div></div></footer>
+      <footer className="skup-footer"><div className="shell"><div className="footer-brand">ლუკმა<span>.</span></div><div>თბილისი, საქართველო</div><div>© {new Date().getFullYear()} LUKMA</div></div></footer>
     </div>
   );
 }
