@@ -302,6 +302,60 @@ export async function updateMenuItem(token: string, restaurantId: string, itemId
   });
 }
 
+async function uploadRequest<T>(path: string, token: string, form: FormData): Promise<T> {
+  const response = await fetch(API_BASE + path, {
+    method: "POST",
+    headers: { Authorization: "Bearer " + token },
+    body: form,
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    const raw = await response.text().catch(() => "");
+    let message = raw || "Upload failed: " + response.status;
+    try {
+      const parsed = JSON.parse(raw);
+      message = Array.isArray(parsed?.message) ? parsed.message.join(", ") : parsed?.message || message;
+    } catch {}
+    throw new Error(message);
+  }
+  return response.json();
+}
+
+export async function uploadRestaurantPhoto(token: string, restaurantId: string, file: File, isCover = false) {
+  const form = new FormData();
+  form.set("photo", file);
+  form.set("isCover", String(isCover));
+  return uploadRequest<any>("/restaurants/" + encodeURIComponent(restaurantId) + "/photos", token, form);
+}
+
+export async function setCoverPhoto(token: string, restaurantId: string, photoId: string) {
+  return request<any>("/restaurants/" + encodeURIComponent(restaurantId) + "/photos/" + encodeURIComponent(photoId) + "/cover", {
+    method: "PATCH",
+    headers: { Authorization: "Bearer " + token },
+  });
+}
+
+export async function deleteRestaurantPhoto(token: string, restaurantId: string, photoId: string) {
+  return request<any>("/restaurants/" + encodeURIComponent(restaurantId) + "/photos/" + encodeURIComponent(photoId), {
+    method: "DELETE",
+    headers: { Authorization: "Bearer " + token },
+  });
+}
+
+export async function deleteMenuCategory(token: string, restaurantId: string, categoryId: string) {
+  return request<any>("/restaurants/" + encodeURIComponent(restaurantId) + "/menu-categories/" + encodeURIComponent(categoryId), {
+    method: "DELETE",
+    headers: { Authorization: "Bearer " + token },
+  });
+}
+
+export async function deleteMenuItem(token: string, restaurantId: string, itemId: string) {
+  return request<any>("/restaurants/" + encodeURIComponent(restaurantId) + "/menu-items/" + encodeURIComponent(itemId), {
+    method: "DELETE",
+    headers: { Authorization: "Bearer " + token },
+  });
+}
+
 export async function createRestaurantEvent(token: string, restaurantId: string, payload: { title: string; description?: string; emoji?: string; eventDate?: string }) {
   return request<any>("/events/restaurant/" + encodeURIComponent(restaurantId), {
     method: "POST",
