@@ -1,222 +1,189 @@
 "use client";
 
 import Link from "next/link";
-import { LocateFixed, MapPin, Search, SlidersHorizontal, Star, X } from "lucide-react";
+import { LocateFixed, MapPin, Search, SlidersHorizontal, Star, X, Shuffle, ArrowDownUp } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { getCuisines, getRestaurants, type Cuisine, type Restaurant } from "@/lib/skupApi";
+import { getCollections, getCuisines, getRestaurants, type Cuisine, type Restaurant } from "@/lib/skupApi";
+import { restaurantPhoto } from "@/lib/lukmaUtils";
 import RestaurantCard from "./SkupRestaurantCard";
 import SkupHeader from "./SkupHeader";
 
-function mapPosition(r: Restaurant, zoom: number, center: { lat: number; lng: number }) {
-  const span = 0.20 / zoom;
-  const west = center.lng - span;
-  const east = center.lng + span;
-  const south = center.lat - span * 0.7;
-  const north = center.lat + span * 0.7;
-  const left = Math.max(2, Math.min(98, ((Number(r.longitude) - west) / (east - west)) * 100));
-  const top = Math.max(4, Math.min(96, ((north - Number(r.latitude)) / (north - south)) * 100));
-  return { left: left + "%", top: top + "%" };
+const DIETARY: Record<string,string[]> = {
+  vegan:["vegan","ვეგან"],
+  vegetarian:["vegetarian","ვეგეტარიან"],
+  halal:["halal","ჰალალ"],
+  glutenfree:["gluten","გლუტენ"],
+  seafood:["seafood","fish","ზღ","თევზ"],
+};
+
+function distanceKm(aLat:number,aLng:number,bLat:number,bLng:number){
+  const R=6371,dLat=(bLat-aLat)*Math.PI/180,dLng=(bLng-aLng)*Math.PI/180;
+  const x=Math.sin(dLat/2)**2+Math.cos(aLat*Math.PI/180)*Math.cos(bLat*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
 }
-
-function mapUrl(zoom: number, center: { lat: number; lng: number }) {
-  const span = 0.20 / zoom;
-  const west = center.lng - span;
-  const east = center.lng + span;
-  const south = center.lat - span * 0.7;
-  const north = center.lat + span * 0.7;
-  return "https://www.openstreetmap.org/export/embed.html?bbox=" +
-    [west, south, east, north].map(v => v.toFixed(5)).join("%2C") +
-    "&layer=mapnik&marker=" + center.lat + "%2C" + center.lng;
+function mapUrl(zoom:number,center:{lat:number;lng:number}){
+  const span=0.20/zoom,west=center.lng-span,east=center.lng+span,south=center.lat-span*.7,north=center.lat+span*.7;
+  return "https://www.openstreetmap.org/export/embed.html?bbox="+[west,south,east,north].map(v=>v.toFixed(5)).join("%2C")+"&layer=mapnik";
 }
+function mapPosition(r:Restaurant,zoom:number,center:{lat:number;lng:number}){
+  const span=0.20/zoom,west=center.lng-span,east=center.lng+span,south=center.lat-span*.7,north=center.lat+span*.7;
+  return {left:Math.max(4,Math.min(96,((Number(r.longitude)-west)/(east-west))*100))+"%",top:Math.max(7,Math.min(93,((north-Number(r.latitude))/(north-south))*100))+"%"};
+}
+function readSearchHistory(){try{return JSON.parse(localStorage.getItem("lukma_search_history")||"[]") as string[]}catch{return []}}
+function saveSearchHistory(q:string){try{const next=[q,...readSearchHistory().filter(x=>x!==q)].slice(0,6);localStorage.setItem("lukma_search_history",JSON.stringify(next));return next}catch{return []}}
 
-export default function SkupDiscover() {
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
-  const [cuisines, setCuisines] = useState<Cuisine[]>([]);
-  const [selected, setSelected] = useState<string>("");
-  const [q, setQ] = useState("");
-  const [cuisineId, setCuisineId] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
-  const [minRating, setMinRating] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [zoom, setZoom] = useState(1);
-  const [center, setCenter] = useState({ lat: 41.7151, lng: 44.8271 });
-  const [locating, setLocating] = useState(false);
+export default function SkupDiscover(){
+  const [restaurants,setRestaurants]=useState<Restaurant[]>([]);
+  const [cuisines,setCuisines]=useState<Cuisine[]>([]);
+  const [collections,setCollections]=useState<any[]>([]);
+  const [q,setQ]=useState("");
+  const [cuisineId,setCuisineId]=useState("");
+  const [isOpen,setIsOpen]=useState(false);
+  const [minRating,setMinRating]=useState("");
+  const [discountOnly,setDiscountOnly]=useState(false);
+  const [priceLevel,setPriceLevel]=useState("");
+  const [dietary,setDietary]=useState<string[]>([]);
+  const [sort,setSort]=useState<"rating"|"name"|"discount"|"distance">("rating");
+  const [nearMe,setNearMe]=useState(false);
+  const [userLocation,setUserLocation]=useState<{lat:number;lng:number}|null>(null);
+  const [center,setCenter]=useState({lat:41.7151,lng:44.8271});
+  const [zoom,setZoom]=useState(1);
+  const [selected,setSelected]=useState("");
+  const [history,setHistory]=useState<string[]>([]);
+  const [showFilters,setShowFilters]=useState(false);
+  const [loading,setLoading]=useState(true);
+  const [error,setError]=useState("");
+  const [visibleCount,setVisibleCount]=useState(20);
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const initialQ = params.get("q") || "";
-    const initialCuisine = params.get("cuisine_id") || "";
-    const initialOpen = params.get("is_open") === "true";
-    const initialRating = params.get("min_rating") || "";
-    setQ(initialQ);
-    setCuisineId(initialCuisine);
-    setIsOpen(initialOpen);
-    setMinRating(initialRating);
-    getCuisines().then(setCuisines).catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    const timer = window.setTimeout(() => {
-      setLoading(true);
-      setError("");
-      getRestaurants({
-        city: "თბილისი",
-        q: q.trim() || undefined,
-        cuisine_id: cuisineId || undefined,
-        is_open: isOpen || undefined,
-        min_rating: minRating || undefined,
-        page: 1,
-        limit: 50,
+  useEffect(()=>{
+    const params=new URLSearchParams(window.location.search);
+    setQ(params.get("q")||"");
+    setCuisineId(params.get("cuisine_id")||"");
+    setIsOpen(params.get("is_open")==="true");
+    setMinRating(params.get("min_rating")||"");
+    setHistory(readSearchHistory());
+    Promise.all([getCuisines(),getCollections(),getRestaurants({city:"თბილისი",page:1,limit:200})])
+      .then(([c,col,r])=>{
+        setCuisines((c||[]).sort((a,b)=>(a.name||"").localeCompare(b.name||"")));
+        setCollections((col||[]).filter(x=>x.isActive).sort((a,b)=>a.sortOrder-b.sortOrder));
+        setRestaurants(r.data||[]);
+        setSelected(r.data?.[0]?.id||"");
       })
-        .then(r => {
-          if (cancelled) return;
-          setRestaurants(r.data || []);
-          setSelected(prev => (prev && r.data.some(x => x.id === prev)) ? prev : r.data?.[0]?.id || "");
-        })
-        .catch(() => {
-          if (!cancelled) setError("Restaurants could not be loaded right now.");
-        })
-        .finally(() => {
-          if (!cancelled) setLoading(false);
-        });
-    }, 220);
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timer);
-    };
-  }, [q, cuisineId, isOpen, minRating]);
+      .catch(()=>setError("Restaurants could not be loaded right now."))
+      .finally(()=>setLoading(false));
+  },[]);
 
-  useEffect(() => {
-    const params = new URLSearchParams();
-    if (q.trim()) params.set("q", q.trim());
-    if (cuisineId) params.set("cuisine_id", cuisineId);
-    if (isOpen) params.set("is_open", "true");
-    if (minRating) params.set("min_rating", minRating);
-    const next = params.toString() ? "/discover/?" + params.toString() : "/discover/";
-    window.history.replaceState(null, "", next);
-  }, [q, cuisineId, isOpen, minRating]);
+  useEffect(()=>{
+    setVisibleCount(20);
+    const params=new URLSearchParams();
+    if(q.trim())params.set("q",q.trim());
+    if(cuisineId)params.set("cuisine_id",cuisineId);
+    if(isOpen)params.set("is_open","true");
+    if(minRating)params.set("min_rating",minRating);
+    window.history.replaceState(null,"",params.toString()?"/discover/?"+params.toString():"/discover/");
+  },[q,cuisineId,isOpen,minRating,discountOnly,priceLevel,dietary,sort,nearMe]);
 
-  const filtered = useMemo(() => restaurants.filter(r => {
-    const hay = (r.name + " " + (r.description || "") + " " + r.address + " " + (r.district || "") + " " + (r.cuisine?.name || "")).toLowerCase();
-    return !q || hay.includes(q.toLowerCase());
-  }), [restaurants, q]);
+  const filtered=useMemo(()=>{
+    return restaurants.filter(r=>{
+      const hay=(r.name+" "+(r.description||"")+" "+r.address+" "+(r.district||"")+" "+(r.cuisine?.name||"")).toLowerCase();
+      if(q.trim()&&!hay.includes(q.toLowerCase()))return false;
+      if(cuisineId&&r.cuisine?.id!==cuisineId)return false;
+      if(isOpen&&!r.isOpen)return false;
+      if(minRating&&Number(r.ratingAvg)<Number(minRating))return false;
+      if(discountOnly&&!Number(r.discountPercent||0))return false;
+      if(priceLevel&&String((r as any).priceLevel||"")!==priceLevel)return false;
+      if(dietary.length&&!dietary.every(key=>DIETARY[key].some(word=>hay.includes(word))))return false;
+      return true;
+    });
+  },[restaurants,q,cuisineId,isOpen,minRating,discountOnly,priceLevel,dietary]);
 
-  const visibleMap = filtered.slice(0, 18);
-  const selectedRestaurant = filtered.find(r => r.id === selected) || filtered[0];
+  const sorted=useMemo(()=>{
+    const list=[...filtered];
+    if(sort==="distance"&&userLocation)return list.sort((a,b)=>distanceKm(userLocation.lat,userLocation.lng,Number(a.latitude),Number(a.longitude))-distanceKm(userLocation.lat,userLocation.lng,Number(b.latitude),Number(b.longitude)));
+    if(sort==="name")return list.sort((a,b)=>a.name.localeCompare(b.name));
+    if(sort==="discount")return list.sort((a,b)=>Number(b.discountPercent||0)-Number(a.discountPercent||0));
+    return list.sort((a,b)=>Number(b.ratingAvg||0)-Number(a.ratingAvg||0));
+  },[filtered,sort,userLocation]);
 
-  const useMyLocation = () => {
-    if (!navigator.geolocation) {
-      setError("Location is not available on this device.");
-      return;
-    }
-    setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      position => {
-        setCenter({ lat: position.coords.latitude, lng: position.coords.longitude });
-        setZoom(1.7);
-        setLocating(false);
-      },
-      () => {
-        setLocating(false);
-        setError("Could not access your location.");
-      },
-      { enableHighAccuracy: false, timeout: 8000 },
-    );
+  const visible=sorted.slice(0,visibleCount);
+  const selectedRestaurant=sorted.find(r=>r.id===selected)||sorted[0];
+
+  const selectRestaurant=(r:Restaurant)=>{
+    setSelected(r.id);
+    setCenter({lat:Number(r.latitude),lng:Number(r.longitude)});
+    setZoom(2.7);
   };
 
-  const clearFilters = () => {
-    setQ("");
-    setCuisineId("");
-    setIsOpen(false);
-    setMinRating("");
+  const toggleNearMe=()=>{
+    if(nearMe){setNearMe(false);if(sort==="distance")setSort("rating");return;}
+    if(!navigator.geolocation){setError("Location is not available on this device.");return;}
+    navigator.geolocation.getCurrentPosition(pos=>{setUserLocation({lat:pos.coords.latitude,lng:pos.coords.longitude});setCenter({lat:pos.coords.latitude,lng:pos.coords.longitude});setNearMe(true);setSort("distance");},()=>setError("Could not access your location."),{enableHighAccuracy:false,timeout:8000});
   };
 
-  return (
-    <div className="skup-site">
-      <SkupHeader />
-      <main className="discover-page">
-        <section className="discover-head shell">
-          <div>
-            <span className="kicker">Discover</span>
-            <h1>Discover restaurants<br/>in Tbilisi</h1>
-            <p>Find the right place for any evening — city, flavor, and mood in one place.</p>
-          </div>
-          <div className="discover-search">
-            <Search size={17}/>
-            <input value={q} onChange={e => setQ(e.target.value)} placeholder="Restaurant, cuisine or dish..." />
-            {q ? <button aria-label="Clear search" onClick={() => setQ("")}><X size={15}/></button> : null}
-          </div>
-        </section>
+  const clearFilters=()=>{setQ("");setCuisineId("");setIsOpen(false);setMinRating("");setDiscountOnly(false);setPriceLevel("");setDietary([]);setNearMe(false);setSort("rating");};
 
-        <section className="discover-toolbar shell">
-          <div className="filter-scroll">
-            <button className={!cuisineId ? "active" : ""} onClick={() => setCuisineId("")}>All</button>
-            {cuisines.slice(0, 10).map(c => (
-              <button key={c.id} className={cuisineId === c.id ? "active" : ""} onClick={() => setCuisineId(cuisineId === c.id ? "" : c.id)}>
-                {c.icon || "•"} {c.name}
-              </button>
-            ))}
-          </div>
-          <div className="filter-actions">
-            <button className={minRating === "4.5" ? "active" : ""} onClick={() => setMinRating(minRating === "4.5" ? "" : "4.5")}><Star size={14}/> 4.5+</button>
-            <button className={isOpen ? "active" : ""} onClick={() => setIsOpen(!isOpen)}>Open now</button>
-            <button className="filter-more" onClick={clearFilters}><SlidersHorizontal size={14}/> Clear</button>
-          </div>
-        </section>
+  const surprise=()=>{if(!sorted.length)return;const r=sorted[Math.floor(Math.random()*sorted.length)];selectRestaurant(r);};
 
-        <section className="discover-layout shell" id="map">
-          <aside className="discover-list">
-            <div className="results-row">
-              <strong>{loading ? "…" : filtered.length}</strong> restaurant
-              <span>{(cuisineId || minRating || isOpen || q) ? <button className="results-clear" onClick={clearFilters}>Clear filters</button> : null}</span>
-            </div>
-            {error ? <div className="inline-error">{error}</div> : null}
-            {loading ? Array.from({length: 6}).map((_, i) => <div className="list-skeleton" key={i}/>) :
-              filtered.map(r => (
-                <RestaurantCard key={r.id} restaurant={r} compact selected={selected === r.id} onHover={() => setSelected(r.id)} />
-              ))}
-            {!loading && !filtered.length ? (
-              <div className="empty-state">
-                <Search size={22}/>
-                <h3>Nothing found</h3>
-                <p>Change your search or filters and try again.</p>
-                <button className="green-btn small" onClick={clearFilters}>Clear filters</button>
-              </div>
-            ) : null}
-          </aside>
+  return <div className="skup-site">
+    <SkupHeader/>
+    <main className="discover-page">
+      <section className="discover-head shell">
+        <div>
+          <span className="kicker">Discover</span>
+          <h1>Find your next<br/>great table.</h1>
+          <p>Search Tbilisi by place, cuisine, mood, rating, offers and distance.</p>
+        </div>
+        <div className="discover-search">
+          <Search size={17}/>
+          <input value={q} onChange={e=>setQ(e.target.value)} onBlur={()=>{if(q.trim())setHistory(saveSearchHistory(q.trim()))}} placeholder="Restaurant, cuisine or dish…"/>
+          {q?<button aria-label="Clear search" onClick={()=>setQ("")}><X size={15}/></button>:null}
+        </div>
+      </section>
 
-          <div className="map-panel">
-            <iframe title="Tbilisi map" src={mapUrl(zoom, center)} loading="lazy" />
-            <div className="map-overlay-pins">
-              {visibleMap.map(r => (
-                <Link
-                  key={r.id}
-                  href={"/restaurant/?id=" + encodeURIComponent(r.id)}
-                  className={"map-pin " + (selected === r.id ? "active" : "")}
-                  style={mapPosition(r, zoom, center)}
-                  onMouseEnter={() => setSelected(r.id)}
-                >
-                  <span><Star size={9} fill="currentColor"/>{Number(r.ratingAvg || 0).toFixed(1)}</span>
-                </Link>
-              ))}
-            </div>
-            <div className="map-controls">
-              <button aria-label="Zoom out" onClick={() => setZoom(z => Math.max(.75, +(z - .25).toFixed(2)))}>−</button>
-              <button aria-label="Zoom in" onClick={() => setZoom(z => Math.min(3, +(z + .25).toFixed(2)))}>+</button>
-              <button aria-label="My location" onClick={useMyLocation} disabled={locating}><LocateFixed size={16}/></button>
-            </div>
-            {selectedRestaurant ? (
-              <Link href={"/restaurant/?id=" + encodeURIComponent(selectedRestaurant.id)} className="map-preview-card">
-                {selectedRestaurant.cover_photo ? <img src={selectedRestaurant.cover_photo} alt="" /> : null}
-                <div><strong>{selectedRestaurant.name}</strong><span><Star size={11} fill="currentColor"/> {Number(selectedRestaurant.ratingAvg || 0).toFixed(1)} · {selectedRestaurant.district || selectedRestaurant.city}</span></div>
-              </Link>
-            ) : null}
-            <div className="map-label"><MapPin size={11}/> Tbilisi · <strong>{filtered.length}</strong> places</div>
-          </div>
-        </section>
-      </main>
-    </div>
-  );
+      <section className="discover-toolbar shell">
+        <div className="discover-filter-scroll">
+          <button className={"filter-chip "+(nearMe?"active":"")} onClick={toggleNearMe}><LocateFixed size={14}/>{nearMe?"Near me":"Near me"}</button>
+          <button className={"filter-chip "+(isOpen?"active":"")} onClick={()=>setIsOpen(!isOpen)}><span className={"filter-dot "+(isOpen?"on":"")}></span>Open now</button>
+          <button className={"filter-chip "+(minRating?"active":"")} onClick={()=>setMinRating(minRating?"":"4")}><Star size={13} fill="currentColor"/>{minRating?minRating+"+ rating":"Rating"}</button>
+          <button className={"filter-chip "+(discountOnly?"active":"")} onClick={()=>setDiscountOnly(!discountOnly)}>🏷️ Offers</button>
+          <button className={"filter-chip "+(showFilters?"active":"")} onClick={()=>setShowFilters(!showFilters)}><SlidersHorizontal size={14}/> Filters</button>
+          <button className="filter-chip surprise" onClick={surprise}><Shuffle size={13}/> Surprise me</button>
+          {(q||cuisineId||isOpen||minRating||discountOnly||priceLevel||dietary.length||nearMe)?<button className="filter-clear" onClick={clearFilters}><X size={13}/> Clear</button>:null}
+        </div>
+        <div className="discover-toolbar-right">
+          <span>{sorted.length} restaurants</span>
+          <button className="sort-button" onClick={()=>setSort(sort==="rating"?"name":sort==="name"?"discount":sort==="discount"?(nearMe?"distance":"rating"):"rating")}><ArrowDownUp size={13}/>{sort==="rating"?"Rating":sort==="name"?"Name":sort==="discount"?"Offers":"Distance"}</button>
+        </div>
+      </section>
+
+      {showFilters?<section className="discover-filter-panel shell">
+        <div><span className="filter-panel-label">Cuisine</span><div className="filter-options">{cuisines.map(c=><button key={c.id} className={cuisineId===c.id?"selected":""} onClick={()=>setCuisineId(cuisineId===c.id?"":c.id)}>{c.icon||"•"} {c.name}</button>)}</div></div>
+        <div><span className="filter-panel-label">Price</span><div className="filter-options">{["1","2","3"].map(v=><button key={v} className={priceLevel===v?"selected":""} onClick={()=>setPriceLevel(priceLevel===v?"":v)}>{"₾".repeat(Number(v))} <small>{v==="1"?"Everyday":v==="2"?"Mid-range":"Premium"}</small></button>)}</div></div>
+        <div><span className="filter-panel-label">Dietary</span><div className="filter-options">{Object.keys(DIETARY).map(v=><button key={v} className={dietary.includes(v)?"selected":""} onClick={()=>setDietary(prev=>prev.includes(v)?prev.filter(x=>x!==v):[...prev,v])}>{v==="vegan"?"🌱":v==="vegetarian"?"🥗":v==="halal"?"☪️":v==="glutenfree"?"🌾":"🦐"} {v}</button>)}</div></div>
+      </section>:null}
+
+      {history.length&&q.length===0?<section className="shell search-history"><span>Recent searches</span>{history.map(x=><button key={x} onClick={()=>setQ(x)}>{x}</button>)}</section>:null}
+
+      {error?<div className="shell inline-error discover-error">{error}</div>:null}
+
+      <section className="discover-layout shell" id="map">
+        <aside className="discover-list">
+          <div className="discover-results-head"><strong>{sorted.length}</strong> restaurants {selectedRestaurant?<span>· {selectedRestaurant.name}</span>:null}</div>
+          {loading?<div className="discover-loading-list">{Array.from({length:6}).map((_,i)=><div key={i} className="restaurant-skeleton"/>)}</div>:
+            visible.length?<div className="discover-cards">{visible.map(r=><div key={r.id} onMouseEnter={()=>setSelected(r.id)} onClick={()=>selectRestaurant(r)} className={"discover-card-wrap "+(r.id===selectedRestaurant?.id?"selected":"")}><RestaurantCard restaurant={r}/></div>)}</div>:
+            <div className="discover-empty"><Search size={28}/><h3>Nothing found</h3><p>Change your search or filters and try again.</p><button className="green-btn" onClick={clearFilters}>Clear filters</button></div>}
+          {visible.length<sorted.length?<button className="discover-load-more" onClick={()=>setVisibleCount(v=>v+20)}>Show more · {sorted.length-visible.length} left</button>:null}
+        </aside>
+        <div className="discover-map-card">
+          <iframe title="Tbilisi restaurant map" src={mapUrl(zoom,center)} loading="lazy"/>
+          <div className="map-overlay-top"><span>{sorted.length} places</span><button onClick={()=>{setCenter({lat:41.7151,lng:44.8271});setZoom(1)}}>Reset</button></div>
+          <div className="map-controls"><button onClick={()=>setZoom(z=>Math.max(.7,z-.3))}>−</button><button onClick={()=>setZoom(z=>Math.min(4,z+.3))}>+</button></div>
+          {visible.slice(0,60).map(r=><button key={r.id} className={"map-pin "+(r.id===selectedRestaurant?.id?"selected":"")} style={mapPosition(r,zoom,center)} onClick={()=>selectRestaurant(r)} aria-label={"Open "+r.name}><span>{Number(r.ratingAvg||0).toFixed(1)}</span>{r.discountPercent?<em>-{r.discountPercent}%</em>:null}</button>)}
+          {selectedRestaurant?<div className="map-selected-card"><img src={restaurantPhoto(selectedRestaurant)} alt=""/><div><strong>{selectedRestaurant.name}</strong><span>{selectedRestaurant.cuisine?.name||"Restaurant"} · {selectedRestaurant.district||selectedRestaurant.city}</span><small><Star size={11} fill="currentColor"/> {Number(selectedRestaurant.ratingAvg||0).toFixed(1)} · {selectedRestaurant.address}</small></div><Link href={"/restaurant/?id="+encodeURIComponent(selectedRestaurant.id)}>View</Link></div>:null}
+        </div>
+      </section>
+
+      {collections.length?<section className="section section-soft discover-collections"><div className="shell"><div className="section-head"><div><span className="kicker">Curated</span><h2>Collections</h2></div></div><div className="collection-grid">{collections.slice(0,6).map(c=><Link key={c.id} href={"/discover/?collection="+encodeURIComponent(c.id)} className="collection-card" style={{background:c.bg}}><div className="collection-glow" style={{background:c.accent}}/><div className="collection-copy"><span>{c.emoji}</span><h3>{c.titleKa}</h3><p>{c.subtitle}</p></div></Link>)}</div></div></section>:null}
+    </main>
+  </div>;
 }
