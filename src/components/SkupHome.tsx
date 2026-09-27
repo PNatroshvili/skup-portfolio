@@ -47,7 +47,7 @@ export default function SkupHome() {
           <div className="home-hero-content shell">
             <div className="eyebrow">Good food brings people together</div>
             <h1>Find a place,<br/><em>you'll want to remember</em><br/>again.</h1>
-            <p>აღმოაჩინე Tbilisiს საუკეთესო რესტორნები, შეარჩიე საღამო და გააგზავნე ჯავშნის მოთხოვნა რამდენიმე წამში.</p>
+            <p>Discover Tbilisi's best restaurants, choose your evening, and request a table in seconds.</p>
             <form className="hero-search" onSubmit={submitSearch}>
               <div className="search-segment"><MapPin size={17}/><span>Tbilisi</span></div>
               <label className="search-segment wide">
@@ -91,22 +91,22 @@ export default function SkupHome() {
 
         <section className="section shell" id="tonight">
           <div className="tonight-banner">
-            <div><span className="kicker">Tonight</span><h2>სად წავიდეთ Tonight?</h2><p>Find open restaurants in Tbilisi and move straight to booking.</p></div>
+            <div><span className="kicker">Tonight</span><h2>Where should we go tonight?</h2><p>Find open restaurants in Tbilisi and move straight to booking.</p></div>
             <Link href="/discover/?is_open=true" className="dark-btn">Open restaurants <ArrowRight size={15}/></Link>
           </div>
         </section>
 
         <section className="section section-dark" id="journal">
           <div className="shell journal-grid">
-            <div className="journal-copy"><span className="kicker">LUKMA Journal</span><h2>Stories about<br/>great food.</h2><p>ახალი ადგილები, გიდები და შერჩეული რეკომენდაციები Tbilisiს გასტრონომიული სცენიდან.</p><a href="#journal" className="light-outline-btn"><Sparkles size={15}/> Coming soon</a></div>
+            <div className="journal-copy"><span className="kicker">LUKMA Journal</span><h2>Stories about<br/>great food.</h2><p>New places, guides, and curated recommendations from Tbilisi's food scene.</p><a href="#journal" className="light-outline-btn"><Sparkles size={15}/> Coming soon</a></div>
             <div className="journal-feature">
               {top[1]?.cover_photo ? <img src={top[1].cover_photo} alt="" /> : <div className="journal-image-fallback" />}
-              <div className="journal-feature-copy"><span>Guide</span><h3>10 places to discover this week</h3><p>LUKMA · 5 წუთი</p></div>
+              <div className="journal-feature-copy"><span>Guide</span><h3>10 places to discover this week</h3><p>LUKMA · 5 min</p></div>
             </div>
           </div>
         </section>
       </main>
-      <footer className="skup-footer"><div className="shell"><div className="footer-brand">ლუკმა<span>.</span></div><div>Tbilisi, საქართველო</div><div>© {new Date().getFullYear()} LUKMA</div></div></footer>
+      <footer className="skup-footer"><div className="shell"><div className="footer-brand">LUKMA<span>.</span></div><div>Tbilisi, Georgia</div><div>© {new Date().getFullYear()} LUKMA</div></div></footer>
     </div>
   );
 }
