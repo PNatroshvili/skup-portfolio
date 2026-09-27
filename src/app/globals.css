@@ -11,7 +11,7 @@
   --green-dark:#0e5b3c;
   --cream:#efe8dc;
   --dark:#0f1915;
-  --sans:var(--font-dm-sans), "DM Sans", Arial, sans-serif;
+  --sans:"DM Sans", Arial, sans-serif;
   --serif:var(--sans);
 }
 
