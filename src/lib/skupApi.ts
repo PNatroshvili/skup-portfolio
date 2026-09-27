@@ -21,6 +21,7 @@ export type Restaurant = {
   ratingAvg: number;
   reviewsCount: number;
   status: string;
+  isOpen?: boolean;
   cuisine?: Cuisine | null;
   cover_photo?: string | null;
   photos?: { id: string; url: string; isCover?: boolean; sortOrder?: number }[];
@@ -112,6 +113,91 @@ export async function getCollections() {
 
 export async function getHomeConfig() {
   return request<{ id: number; sectionKey: string; titleKa: string; isActive: boolean; sortOrder: number }[]>("/home-config");
+}
+
+export type AvailabilitySlot = { time: string; available: boolean };
+export type Availability = {
+  date: string;
+  open: boolean;
+  openTime?: string;
+  closeTime?: string;
+  reason?: string;
+  slots: AvailabilitySlot[];
+};
+
+export async function getAvailability(restaurantId: string, date: string, guests = 2) {
+  return request<Availability>(
+    "/bookings/availability?restaurant_id=" +
+      encodeURIComponent(restaurantId) +
+      "&date=" +
+      encodeURIComponent(date) +
+      "&guests=" +
+      encodeURIComponent(String(guests)),
+  );
+}
+
+export async function register(payload: {
+  name: string;
+  lastName: string;
+  phone: string;
+  email: string;
+  password: string;
+  referralCode?: string;
+}) {
+  return request<{ requiresVerification: boolean; email: string }>("/auth/register", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function verifyEmail(email: string, code: string) {
+  return request<{ user: Record<string, unknown>; tokens: { access_token: string; refresh_token: string } }>("/auth/verify-email", {
+    method: "POST",
+    body: JSON.stringify({ email, code }),
+  });
+}
+
+export async function resendVerificationCode(email: string) {
+  return request<{ ok: boolean }>("/auth/resend-code", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
+export async function forgotPassword(email: string) {
+  return request<{ ok: boolean }>("/auth/forgot-password", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
+export async function resetPassword(email: string, code: string, newPassword: string) {
+  return request<{ ok: boolean }>("/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify({ email, code, newPassword }),
+  });
+}
+
+export async function refreshAccessToken(refreshToken: string) {
+  return request<{ access_token: string; refresh_token: string }>("/auth/refresh", {
+    method: "POST",
+    body: JSON.stringify({ refresh_token: refreshToken }),
+  });
+}
+
+export async function updateProfile(token: string, payload: {
+  name?: string;
+  lastName?: string;
+  phone?: string;
+  email?: string;
+  currentPassword?: string;
+  newPassword?: string;
+}) {
+  return request<any>("/auth/me", {
+    method: "PATCH",
+    headers: { Authorization: "Bearer " + token },
+    body: JSON.stringify(payload),
+  });
 }
 
 export async function login(identifier: string, password: string) {
