@@ -7,10 +7,10 @@ import { getLoyalty } from "@/lib/skupApi";
 import SkupHeader from "./SkupHeader";
 
 const tiers = [
-  { name:"Bronze", min:0, max:499, emoji:"🥉" },
-  { name:"Silver", min:500, max:1499, emoji:"🥈" },
-  { name:"Gold", min:1500, max:2999, emoji:"🏅" },
-  { name:"Platinum", min:3000, max:Infinity, emoji:"💎" },
+  { name:"Bronze", min:0, max:999, emoji:"🥉" },
+  { name:"Silver", min:1000, max:4999, emoji:"🥈" },
+  { name:"Gold", min:5000, max:9999, emoji:"🏅" },
+  { name:"Platinum", min:10000, max:Infinity, emoji:"💎" },
 ];
 const rewards = [
   { points:200, label:"5% discount" },
