@@ -23,6 +23,7 @@ import {
   type RestaurantEvent,
   updateBookingStatus,
   updateMenuItem,
+  uploadMenuItemPhoto,
   updateRestaurantDiscount,
   updateRestaurantHours,
   updateRestaurantInfo,
@@ -281,8 +282,16 @@ export default function SkupManager() {
                 <div className="manager-menu-category" key={cat.id}>
                   <div className="manager-category-head"><div><UtensilsCrossed size={15}/><strong>{cat.name}</strong></div><div className="manager-category-actions"><span>{cat.items?.length || 0} dish</span><button className="red-mini" onClick={() => run(() => deleteMenuCategory(token,restaurant.id,cat.id), "Category deleted.")}><Trash2 size={12}/></button></div></div>
                   {cat.items?.map(item => <div className="manager-menu-item" key={item.id}>
-                    <div><strong>{item.name}</strong><span>₾{Number(item.price).toFixed(0)}</span></div>
+                    <div className="manager-menu-item-main">
+                      {item.photoUrl ? <img src={item.photoUrl} alt="" className="manager-menu-item-photo"/> : <div className="manager-menu-item-photo placeholder">L</div>}
+                      <div className="manager-menu-item-fields">
+                        <input defaultValue={item.name} aria-label="Dish name" onBlur={e => { const value=e.currentTarget.value.trim(); if(value && value!==item.name) run(() => updateMenuItem(token,restaurant.id,item.id,{name:value}), "Dish updated."); }} />
+                        <input defaultValue={Number(item.price).toFixed(0)} inputMode="decimal" aria-label="Dish price" onBlur={e => { const value=Number(e.currentTarget.value); if(value>0 && value!==Number(item.price)) run(() => updateMenuItem(token,restaurant.id,item.id,{price:value}), "Dish price updated."); }} />
+                        <input defaultValue={item.description || ""} aria-label="Dish description" placeholder="Description" onBlur={e => { const value=e.currentTarget.value.trim(); if(value!==String(item.description||"")) run(() => updateMenuItem(token,restaurant.id,item.id,{description:value}), "Dish description updated."); }} />
+                      </div>
+                    </div>
                     <div className="manager-menu-actions">
+                      <label className="menu-photo-mini">Photo<input type="file" accept="image/jpeg,image/png,image/webp" onChange={e => { const file=e.currentTarget.files?.[0]; if(file) run(() => uploadMenuItemPhoto(token,restaurant.id,item.id,file), "Dish photo updated."); e.currentTarget.value=""; }} /></label>
                       <label className="switch-line"><input type="checkbox" checked={item.isAvailable} onChange={e => run(() => updateMenuItem(token,restaurant.id,item.id,{isAvailable:e.target.checked}), e.target.checked ? "Dish is available." : "Dish is unavailable.")}/><span>Available</span></label>
                       <button className="red-mini" onClick={() => run(() => deleteMenuItem(token,restaurant.id,item.id), "Dish deleted.")}><Trash2 size={12}/></button>
                     </div>
