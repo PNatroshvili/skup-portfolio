@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 const articles = [
   { tag: "Guide", title: "10 places to discover this week", text: "Handpicked places for a Tbilisi evening — from quick bites to long dinners." },
   { tag: "Food", title: "How to choose a restaurant for your mood", text: "Birthday, first date, or a late dinner with friends — choosing is easier when you know the occasion." },
-  { tag: "City", title: "Tbilisi food in one map", text: "ქართული კლასიკის გარდა აღმოაჩინე იტალიური, იაპონური, აზიური და ხმელთაშუაზღვიური Foodები." },
+  { tag: "City", title: "Tbilisi food in one map", text: "Beyond Georgian classics, discover Italian, Japanese, Asian, and Mediterranean flavors." },
 ];
 
 export default function JournalPage() {
@@ -21,7 +21,7 @@ export default function JournalPage() {
         <section className="journal-page-hero shell">
           <span className="kicker">LUKMA Journal</span>
           <h1>Stories about<br/><em>great food.</em></h1>
-          <p>ადგილები, Foodები და პატარა გზამკვლევები, რომლებიც შემდეგ საღამოს დაგეგმვაში დაგეხმარება.</p>
+          <p>Places, flavors, and small guides to help you plan your next evening.</p>
         </section>
         <section className="section shell">
           <div className="journal-article-grid">
