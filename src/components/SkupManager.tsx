@@ -8,7 +8,12 @@ import {
   addMenuCategory,
   addMenuItem,
   createRestaurantEvent,
+  deleteMenuCategory,
+  deleteMenuItem,
   deleteRestaurantEvent,
+  deleteRestaurantPhoto,
+  setCoverPhoto,
+  uploadRestaurantPhoto,
   getMe,
   getMyRestaurant,
   getMyRestaurantBookings,
@@ -47,7 +52,7 @@ export default function SkupManager() {
   const [restaurant, setRestaurant] = useState<ManagedRestaurant | null>(null);
   const [bookings, setBookings] = useState<ManagerBooking[]>([]);
   const [events, setEvents] = useState<RestaurantEvent[]>([]);
-  const [tab, setTab] = useState<"overview"|"bookings"|"menu"|"hours"|"events">("overview");
+  const [tab, setTab] = useState<"overview"|"bookings"|"menu"|"hours"|"events"|"photos">("overview");
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
@@ -59,6 +64,7 @@ export default function SkupManager() {
   const [newItemCategory, setNewItemCategory] = useState("");
   const [newItem, setNewItem] = useState({ name:"", description:"", price:"", available:true });
   const [eventForm, setEventForm] = useState({ title:"", description:"", emoji:"✦", eventDate:"" });
+  const [photoBusy, setPhotoBusy] = useState(false);
 
   const reload = async (t: string) => {
     const [r,b,e] = await Promise.all([
@@ -166,6 +172,19 @@ export default function SkupManager() {
     ).then(() => setNewItem({ name:"", description:"", price:"", available:true }));
   };
 
+  const uploadPhoto = async (file: File, isCover: boolean) => {
+    setPhotoBusy(true); setError(""); setMessage("");
+    try {
+      await uploadRestaurantPhoto(token, restaurant.id, file, isCover);
+      setMessage(isCover ? "მთავარი ფოტო განახლდა." : "ფოტო დაემატა.");
+      await reload(token);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "ფოტოს ატვირთვა ვერ მოხერხდა.");
+    } finally {
+      setPhotoBusy(false);
+    }
+  };
+
   const addEvent = () => {
     if (!eventForm.title.trim()) return;
     run(
@@ -205,6 +224,7 @@ export default function SkupManager() {
             ["menu","მენიუ"],
             ["hours","სამუშაო საათები"],
             ["events","ივენთები"],
+    ["photos","ფოტოები"],
           ].map(([key,label]) => <button key={key} className={tab===key ? "active" : ""} onClick={() => setTab(key as typeof tab)}>{label}</button>)}
         </nav>
 
@@ -257,11 +277,12 @@ export default function SkupManager() {
             <div className="manager-menu-list">
               {(restaurant.menuCategories || []).map(cat => (
                 <div className="manager-menu-category" key={cat.id}>
-                  <div className="manager-category-head"><div><UtensilsCrossed size={15}/><strong>{cat.name}</strong></div><span>{cat.items?.length || 0} კერძი</span></div>
+                  <div className="manager-category-head"><div><UtensilsCrossed size={15}/><strong>{cat.name}</strong></div><div className="manager-category-actions"><span>{cat.items?.length || 0} კერძი</span><button className="red-mini" onClick={() => run(() => deleteMenuCategory(token,restaurant.id,cat.id), "კატეგორია წაიშალა.")}><Trash2 size={12}/></button></div></div>
                   {cat.items?.map(item => <div className="manager-menu-item" key={item.id}>
                     <div><strong>{item.name}</strong><span>₾{Number(item.price).toFixed(0)}</span></div>
                     <div className="manager-menu-actions">
                       <label className="switch-line"><input type="checkbox" checked={item.isAvailable} onChange={e => run(() => updateMenuItem(token,restaurant.id,item.id,{isAvailable:e.target.checked}), e.target.checked ? "კერძი ხელმისაწვდომია." : "კერძი მიუწვდომელია.")}/><span>ხელმისაწვდომი</span></label>
+                      <button className="red-mini" onClick={() => run(() => deleteMenuItem(token,restaurant.id,item.id), "კერძი წაიშალა.")}><Trash2 size={12}/></button>
                     </div>
                   </div>)}
                 </div>
@@ -286,6 +307,42 @@ export default function SkupManager() {
                 const h=hours.find(x=>x.day===day) || {day,open:"10:00",close:"23:00",isClosed:false};
                 return <div className="manager-hour-row" key={day}><strong>{DAYS[day]}</strong><input type="time" value={h.open || "10:00"} disabled={h.isClosed} onChange={e=>updateHour(day,{open:e.target.value})}/><span>—</span><input type="time" value={h.close || "23:00"} disabled={h.isClosed} onChange={e=>updateHour(day,{close:e.target.value})}/><label><input type="checkbox" checked={!!h.isClosed} onChange={e=>updateHour(day,{isClosed:e.target.checked})}/> დაკეტილია</label></div>;
               })}
+            </div>
+          </section>
+        ) : null}
+
+
+        {tab === "photos" ? (
+          <section className="manager-panel">
+            <div className="section-head"><div><span className="kicker">GALLERY</span><h2>ფოტოების მართვა</h2></div></div>
+            <div className="manager-photo-upload">
+              <label className="photo-upload-button">+ ფოტოს დამატება
+                <input type="file" accept="image/jpeg,image/png,image/webp" disabled={photoBusy} onChange={e => {
+                  const file = e.target.files?.[0];
+                  if (file) uploadPhoto(file, false);
+                  e.currentTarget.value = "";
+                }} />
+              </label>
+              <label className="photo-upload-button">+ მთავარი ფოტოს შეცვლა
+                <input type="file" accept="image/jpeg,image/png,image/webp" disabled={photoBusy} onChange={e => {
+                  const file = e.target.files?.[0];
+                  if (file) uploadPhoto(file, true);
+                  e.currentTarget.value = "";
+                }} />
+              </label>
+              <span className="photo-upload-note">JPG, PNG ან WebP · მაქს. ზომა დამოკიდებულია სერვერის ლიმიტზე.</span>
+            </div>
+            <div className="manager-photo-grid">
+              {(restaurant.photos || []).map(photo => (
+                <div className={"manager-photo-card " + (photo.isCover ? "cover" : "")} key={photo.id}>
+                  <img src={photo.url} alt="" loading="lazy" />
+                  <div className="manager-photo-actions">
+                    {photo.isCover ? <span className="photo-cover-label">მთავარი</span> : <button className="green-mini" onClick={() => run(() => setCoverPhoto(token,restaurant.id,photo.id), "მთავარი ფოტო შეიცვალა.")}>მთავარად დაყენება</button>}
+                    <button className="red-mini" onClick={() => run(() => deleteRestaurantPhoto(token,restaurant.id,photo.id), "ფოტო წაიშალა.")}><Trash2 size={12}/></button>
+                  </div>
+                </div>
+              ))}
+              {!restaurant.photos?.length ? <div className="empty-state">ფოტოები ჯერ არ არის დამატებული.</div> : null}
             </div>
           </section>
         ) : null}
