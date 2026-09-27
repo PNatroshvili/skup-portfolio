@@ -1,0 +1,1 @@
+import type { Metadata } from "next"; import SkupSubscription from "@/components/SkupSubscription"; export const metadata: Metadata={title:"LUKMA — Subscription",description:"Restaurant partner subscription and plan information."}; export default function Page(){return <SkupSubscription/>;}
