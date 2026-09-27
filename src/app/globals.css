@@ -368,3 +368,39 @@ button{cursor:pointer}
   .partner-bottom{align-items:flex-start;flex-direction:column}
   .partner-bottom h2{font-size:48px}
 }
+
+
+/* LUKMA production interactions */
+.results-clear{border:0;background:none;color:var(--green);font-size:10px;padding:0;cursor:pointer}
+.search-segment.wide input{min-width:0;width:100%;border:0;outline:0;background:transparent;color:inherit;font:inherit}
+.search-segment.button-segment{cursor:pointer}
+.search-segment.button-segment:hover{background:#fbfaf7}
+.hero-search .search-segment.button-segment{border:0;border-right:1px solid rgba(29,39,32,.09)}
+.badge-open.closed{background:#f2e8e6;color:#8d554c}
+.badge-open.closed span{background:#b56d63}
+.time-loading,.time-empty{border:1px dashed #d7ddd8;background:#fbfaf6;border-radius:11px;padding:13px;font-size:10px;color:#7b847e;margin-top:7px}
+.time-grid button:disabled{opacity:.38;cursor:not-allowed;text-decoration:line-through}
+.booking-inline-error{margin-top:9px;padding:9px 10px;border-radius:10px;background:#fff0ef;border:1px solid #efc6c1;color:#9b5148;font-size:9px;line-height:1.45}
+.hours-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:18px}
+.hours-grid>div{border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px}
+.hours-grid span{display:block;font-size:9px;color:var(--muted);margin-bottom:5px}
+.hours-grid strong{display:block;font-size:10px}
+.account-auth-links{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:12px}
+.account-auth-links button,.modal-alt-link{border:0;background:none;color:var(--green);font-size:10px;padding:0;cursor:pointer}
+.account-auth-links button:disabled{opacity:.5}
+.account-notice{padding:10px 12px;background:#edf7f1;border:1px solid #cfe5d8;border-radius:10px;color:#286a4e;font-size:10px;line-height:1.45;margin-top:10px}
+.account-global-error,.account-global-notice{margin-bottom:14px}
+.profile-edit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.profile-edit-grid input{height:44px;border:1px solid var(--line);border-radius:11px;background:#fbf9f4;padding:0 12px;outline:0;font-size:11px}
+.profile-edit-grid input:disabled{opacity:.65}
+.profile-edit-grid .green-btn{border:0}
+.booking-cancel{border:1px solid #e4c9c5;background:#fff;color:#99564e;border-radius:9px;padding:7px 9px;font-size:9px;cursor:pointer}
+.booking-cancel:disabled{opacity:.5}
+.partner-actions{display:flex;gap:9px;flex-wrap:wrap}
+.partner-actions a{text-decoration:none}
+@media(max-width:820px){
+  .hours-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .profile-edit-grid{grid-template-columns:1fr}
+  .booking-row{grid-template-columns:75px minmax(0,1fr);align-items:start}
+  .booking-row .status,.booking-row .booking-cancel{grid-column:2;justify-self:start}
+}
