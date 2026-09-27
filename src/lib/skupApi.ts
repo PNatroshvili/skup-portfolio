@@ -72,9 +72,16 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     cache: "no-store",
   });
   if (!response.ok) {
-    const message = await response.text().catch(() => "");
-    throw new Error(message || "Request failed: " + response.status);
+    const raw = await response.text().catch(() => "");
+    let message = raw || "Request failed: " + response.status;
+    try {
+      const parsed = JSON.parse(raw);
+      const detail = parsed?.message;
+      message = Array.isArray(detail) ? detail.join(", ") : detail || message;
+    } catch {}
+    throw new Error(message);
   }
+  if (response.status === 204) return undefined as T;
   return response.json();
 }
 
@@ -230,6 +237,14 @@ export async function createBooking(token: string, payload: {
     method: "POST",
     headers: { Authorization: "Bearer " + token },
     body: JSON.stringify(payload),
+  });
+}
+
+export async function updateBookingStatus(token: string, bookingId: string, status: "cancelled" | "confirmed" | "rejected") {
+  return request<any>("/bookings/" + encodeURIComponent(bookingId) + "/status", {
+    method: "PATCH",
+    headers: { Authorization: "Bearer " + token },
+    body: JSON.stringify({ status }),
   });
 }
 
