@@ -5,7 +5,7 @@ import type { MetadataRoute } from "next";
 export const dynamic = "force-static";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = "https://skup.ge";
+  const base = "https://lukma.skup.ge";
   const lastModified = new Date();
 
   // Two real, separately indexable pages: "/" (ka) and "/en/" (en). #anchor
