@@ -302,9 +302,15 @@ export async function updateMenuItem(token: string, restaurantId: string, itemId
   });
 }
 
-async function uploadRequest<T>(path: string, token: string, form: FormData): Promise<T> {
+export async function uploadMenuItemPhoto(token: string, restaurantId: string, itemId: string, file: File) {
+  const form = new FormData();
+  form.set("photo", file);
+  return uploadRequest<any>("/restaurants/" + encodeURIComponent(restaurantId) + "/menu-items/" + encodeURIComponent(itemId), token, form, "PATCH");
+}
+
+async function uploadRequest<T>(path: string, token: string, form: FormData, method = "POST"): Promise<T> {
   const response = await fetch(API_BASE + path, {
-    method: "POST",
+    method,
     headers: { Authorization: "Bearer " + token },
     body: form,
     cache: "no-store",
