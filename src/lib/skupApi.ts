@@ -228,6 +228,95 @@ export async function getMe(token: string) {
   });
 }
 
+export async function getMyRestaurant(token: string) {
+  return request<Restaurant & { menuCategories?: MenuCategory[] } & { workingHours?: Restaurant["workingHours"] }>("/restaurants/mine", {
+    headers: { Authorization: "Bearer " + token },
+  });
+}
+
+export async function getMyRestaurantBookings(token: string) {
+  return request<any[]>("/bookings/my-restaurant", {
+    headers: { Authorization: "Bearer " + token },
+  });
+}
+
+export async function getMyRestaurantEvents(token: string) {
+  return request<RestaurantEvent[]>("/events/my", {
+    headers: { Authorization: "Bearer " + token },
+  });
+}
+
+export async function updateRestaurantInfo(token: string, restaurantId: string, payload: Partial<Pick<Restaurant, "name" | "description" | "address" | "city" | "district" | "phone">>) {
+  return request<any>("/restaurants/" + encodeURIComponent(restaurantId) + "/info", {
+    method: "PATCH",
+    headers: { Authorization: "Bearer " + token },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateRestaurantDiscount(token: string, restaurantId: string, discountPercent: number | null) {
+  return request<any>("/restaurants/" + encodeURIComponent(restaurantId) + "/discount", {
+    method: "PATCH",
+    headers: { Authorization: "Bearer " + token },
+    body: JSON.stringify({ discountPercent }),
+  });
+}
+
+export async function updateRestaurantHours(token: string, restaurantId: string, hours: NonNullable<Restaurant["workingHours"]>) {
+  return request<any>("/restaurants/" + encodeURIComponent(restaurantId) + "/working-hours", {
+    method: "PUT",
+    headers: { Authorization: "Bearer " + token },
+    body: JSON.stringify({ hours }),
+  });
+}
+
+export async function addMenuCategory(token: string, restaurantId: string, name: string) {
+  return request<any>("/restaurants/" + encodeURIComponent(restaurantId) + "/menu-categories", {
+    method: "POST",
+    headers: { Authorization: "Bearer " + token },
+    body: JSON.stringify({ name }),
+  });
+}
+
+export async function updateMenuCategory(token: string, restaurantId: string, categoryId: string, name: string) {
+  return request<any>("/restaurants/" + encodeURIComponent(restaurantId) + "/menu-categories/" + encodeURIComponent(categoryId), {
+    method: "PATCH",
+    headers: { Authorization: "Bearer " + token },
+    body: JSON.stringify({ name }),
+  });
+}
+
+export async function addMenuItem(token: string, restaurantId: string, categoryId: string, payload: { name: string; description?: string; price: number; isAvailable?: boolean }) {
+  return request<any>("/restaurants/" + encodeURIComponent(restaurantId) + "/menu-categories/" + encodeURIComponent(categoryId) + "/items", {
+    method: "POST",
+    headers: { Authorization: "Bearer " + token },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateMenuItem(token: string, restaurantId: string, itemId: string, payload: { name?: string; description?: string; price?: number; isAvailable?: boolean }) {
+  return request<any>("/restaurants/" + encodeURIComponent(restaurantId) + "/menu-items/" + encodeURIComponent(itemId), {
+    method: "PATCH",
+    headers: { Authorization: "Bearer " + token },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function createRestaurantEvent(token: string, restaurantId: string, payload: { title: string; description?: string; emoji?: string; eventDate?: string }) {
+  return request<any>("/events/restaurant/" + encodeURIComponent(restaurantId), {
+    method: "POST",
+    headers: { Authorization: "Bearer " + token },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteRestaurantEvent(token: string, eventId: string) {
+  return request<any>("/events/" + encodeURIComponent(eventId), {
+    method: "DELETE",
+    headers: { Authorization: "Bearer " + token },
+  });
+}
+
 export async function getMyBookings(token: string) {
   return request<any[]>("/bookings/my", {
     headers: { Authorization: "Bearer " + token },
