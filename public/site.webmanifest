@@ -1,0 +1,9 @@
+{
+  "name": "LUKMA",
+  "short_name": "ლუკმა",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f4ee",
+  "theme_color": "#13241c",
+  "lang": "ka"
+}
