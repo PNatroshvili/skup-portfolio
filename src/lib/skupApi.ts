@@ -95,7 +95,7 @@ export async function getMenu(id: string) {
 }
 
 export async function getReviews(id: string) {
-  return request<Review[]>("/reviews?restaurant_id=" + encodeURIComponent(id) + "&page=1");
+  return request<{ data: Review[]; total: number; page: number; limit: number }>("/reviews?restaurant_id=" + encodeURIComponent(id) + "&page=1");
 }
 
 export async function getEvents(id: string) {
