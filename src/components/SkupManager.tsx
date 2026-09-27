@@ -45,7 +45,7 @@ type ManagerBooking = {
   user?: { name?: string; email?: string; phone?: string };
 };
 
-const DAYS = ["კვირა","ორშაბათი","სამშაბათი","ოთხშაბათი","ხუთშაბათი","პარასკევი","შაბათი"];
+const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 
 export default function SkupManager() {
   const [token, setToken] = useState<string | null>(null);
@@ -94,7 +94,7 @@ export default function SkupManager() {
     }
     setToken(t);
     reload(t).catch(() => {
-      setError("რესტორნის მენეჯერის მონაცემები ვერ ჩაიტვირთა.");
+      setError("Could not load restaurant manager data.");
     }).finally(() => setLoading(false));
   }, []);
 
@@ -114,7 +114,7 @@ export default function SkupManager() {
     }
   };
 
-  if (loading) return <div className="skup-site"><SkupHeader/><div className="page-loading">იტვირთება...</div></div>;
+  if (loading) return <div className="skup-site"><SkupHeader/><div className="page-loading">Loading...</div></div>;
 
   if (!token) {
     return (
@@ -124,7 +124,7 @@ export default function SkupManager() {
           <span className="kicker">LUKMA FOR RESTAURANTS</span>
           <h1>Restaurant management</h1>
           <p>Log in with the LUKMA account linked to your restaurant.</p>
-          <Link href="/account/" className="green-btn">შესვლა →</Link>
+          <Link href="/account/" className="green-btn">Log in →</Link>
         </div>
       </main></div>
     );
@@ -157,18 +157,18 @@ export default function SkupManager() {
 
   const addCategory = () => {
     if (!newCategory.trim()) return;
-    run(() => addMenuCategory(token, restaurant.id, newCategory.trim()), "Category დაემატა.").then(() => setNewCategory(""));
+    run(() => addMenuCategory(token, restaurant.id, newCategory.trim()), "Category added.").then(() => setNewCategory(""));
   };
 
   const addItem = () => {
     const categoryId = newItemCategory || restaurant.menuCategories?.[0]?.id || "";
     if (!categoryId || !newItem.name.trim() || Number(newItem.price) <= 0) {
-      setError("dishს სახელი, Category და Price აუცილებელია.");
+      setError("Dish name, category, and price are required.");
       return;
     }
     run(
       () => addMenuItem(token, restaurant.id, categoryId, { name:newItem.name.trim(), description:newItem.description.trim() || undefined, price:Number(newItem.price), isAvailable:newItem.available }),
-      "dish დაემატა."
+      "Dish added."
     ).then(() => setNewItem({ name:"", description:"", price:"", available:true }));
   };
 
@@ -179,7 +179,7 @@ export default function SkupManager() {
       setMessage(isCover ? "Cover photo updated." : "Photo added.");
       await reload(token);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "ფოტოს ატვირთვა ვერ მოხერხდა.");
+      setError(e instanceof Error ? e.message : "Could not upload the photo.");
     } finally {
       setPhotoBusy(false);
     }
@@ -220,7 +220,7 @@ export default function SkupManager() {
         <nav className="manager-tabs">
           {[
             ["overview","Overview"],
-            ["bookings","ჯავშნები"],
+            ["bookings","Bookings"],
             ["menu","Menu"],
             ["hours","Opening hours"],
             ["events","Events"],
@@ -247,8 +247,8 @@ export default function SkupManager() {
               </div>
             </section>
             <section className="manager-panel">
-              <div className="section-head"><div><span className="kicker">OFFER</span><h2>Offer</h2></div><button className="green-btn small" onClick={() => run(() => updateRestaurantDiscount(token, restaurant.id, discount === "" ? null : Math.max(0, Math.min(100, Number(discount)))), "Offer განახლდა.")}><Save size={14}/> Save</button></div>
-              <div className="discount-editor"><input value={discount} onChange={e=>setDiscount(e.target.value.replace(/\D/g,"").slice(0,3))} inputMode="numeric" placeholder="10"/><span>%</span><p>მომხმარებლისთვის გამოჩნდება რესტორნის Offerდ.</p></div>
+              <div className="section-head"><div><span className="kicker">OFFER</span><h2>Offer</h2></div><button className="green-btn small" onClick={() => run(() => updateRestaurantDiscount(token, restaurant.id, discount === "" ? null : Math.max(0, Math.min(100, Number(discount)))), "Offer updated.")}><Save size={14}/> Save</button></div>
+              <div className="discount-editor"><input value={discount} onChange={e=>setDiscount(e.target.value.replace(/\D/g,"").slice(0,3))} inputMode="numeric" placeholder="10"/><span>%</span><p>This will appear as an offer to customers.</p></div>
             </section>
           </>
         ) : null}
@@ -259,11 +259,11 @@ export default function SkupManager() {
             {bookings.length ? bookings.map(b => (
               <div className="manager-booking-row" key={b.id}>
                 <div className="manager-booking-date"><strong>{b.date}</strong><span>{b.time}</span></div>
-                <div><strong>{b.user?.name || "სტუმარი"}</strong><span>{b.guestsCount || b.guests_count || 0} სტუმარი · {b.user?.phone || b.user?.email || ""}</span>{b.comment ? <small>{b.comment}</small> : null}</div>
+                <div><strong>{b.user?.name || "guest"}</strong><span>{b.guestsCount || b.guests_count || 0} guest · {b.user?.phone || b.user?.email || ""}</span>{b.comment ? <small>{b.comment}</small> : null}</div>
                 <span className={"status status-"+b.status}>{b.status}</span>
                 <div className="manager-booking-actions">
                   {b.status === "pending" ? <><button className="green-mini" onClick={() => run(() => updateBookingStatus(token,b.id,"confirmed"), "Booking confirmed.")}>Confirm</button><button className="red-mini" onClick={() => run(() => updateBookingStatus(token,b.id,"rejected"), "Booking rejected.")}>Reject</button></> : null}
-                  {b.status === "confirmed" ? <button className="red-mini" onClick={() => run(() => updateBookingStatus(token,b.id,"cancelled"), "ჯავშანი გაუქმდა.")}>გაუქმება</button> : null}
+                  {b.status === "confirmed" ? <button className="red-mini" onClick={() => run(() => updateBookingStatus(token,b.id,"cancelled"), "Booking cancelled.")}>გაუქმება</button> : null}
                 </div>
               </div>
             )) : <div className="empty-state">No bookings yet.</div>}
@@ -277,19 +277,19 @@ export default function SkupManager() {
             <div className="manager-menu-list">
               {(restaurant.menuCategories || []).map(cat => (
                 <div className="manager-menu-category" key={cat.id}>
-                  <div className="manager-category-head"><div><UtensilsCrossed size={15}/><strong>{cat.name}</strong></div><div className="manager-category-actions"><span>{cat.items?.length || 0} dish</span><button className="red-mini" onClick={() => run(() => deleteMenuCategory(token,restaurant.id,cat.id), "Category წაიშალა.")}><Trash2 size={12}/></button></div></div>
+                  <div className="manager-category-head"><div><UtensilsCrossed size={15}/><strong>{cat.name}</strong></div><div className="manager-category-actions"><span>{cat.items?.length || 0} dish</span><button className="red-mini" onClick={() => run(() => deleteMenuCategory(token,restaurant.id,cat.id), "Category deleted.")}><Trash2 size={12}/></button></div></div>
                   {cat.items?.map(item => <div className="manager-menu-item" key={item.id}>
                     <div><strong>{item.name}</strong><span>₾{Number(item.price).toFixed(0)}</span></div>
                     <div className="manager-menu-actions">
-                      <label className="switch-line"><input type="checkbox" checked={item.isAvailable} onChange={e => run(() => updateMenuItem(token,restaurant.id,item.id,{isAvailable:e.target.checked}), e.target.checked ? "dish Availableა." : "dish მიუწვდომელია.")}/><span>Available</span></label>
-                      <button className="red-mini" onClick={() => run(() => deleteMenuItem(token,restaurant.id,item.id), "dish წაიშალა.")}><Trash2 size={12}/></button>
+                      <label className="switch-line"><input type="checkbox" checked={item.isAvailable} onChange={e => run(() => updateMenuItem(token,restaurant.id,item.id,{isAvailable:e.target.checked}), e.target.checked ? "Dish is available." : "Dish is unavailable.")}/><span>Available</span></label>
+                      <button className="red-mini" onClick={() => run(() => deleteMenuItem(token,restaurant.id,item.id), "Dish deleted.")}><Trash2 size={12}/></button>
                     </div>
                   </div>)}
                 </div>
               ))}
             </div>
             <div className="manager-add-item">
-              <span className="kicker">ახალი dish</span>
+              <span className="kicker">New dish</span>
               <select value={newItemCategory} onChange={e=>setNewItemCategory(e.target.value)}><option value="">Category</option>{(restaurant.menuCategories || []).map(cat=><option key={cat.id} value={cat.id}>{cat.name}</option>)}</select>
               <input value={newItem.name} onChange={e=>setNewItem({...newItem,name:e.target.value})} placeholder="dishს სახელი"/>
               <input value={newItem.price} onChange={e=>setNewItem({...newItem,price:e.target.value.replace(/[^0-9.]/g,"")})} placeholder="Price" inputMode="decimal"/>
@@ -314,7 +314,7 @@ export default function SkupManager() {
 
         {tab === "photos" ? (
           <section className="manager-panel">
-            <div className="section-head"><div><span className="kicker">GALLERY</span><h2>Photosს მართვა</h2></div></div>
+            <div className="section-head"><div><span className="kicker">GALLERY</span><h2>Gallery management</h2></div></div>
             <div className="manager-photo-upload">
               <label className="photo-upload-button">+ + Add photo
                 <input type="file" accept="image/jpeg,image/png,image/webp" disabled={photoBusy} onChange={e => {
@@ -330,19 +330,19 @@ export default function SkupManager() {
                   e.currentTarget.value = "";
                 }} />
               </label>
-              <span className="photo-upload-note">JPG, PNG ან WebP · Maximum size depends on the server limit.</span>
+              <span className="photo-upload-note">JPG, PNG or WebP · Maximum size depends on the server limit.</span>
             </div>
             <div className="manager-photo-grid">
               {(restaurant.photos || []).map(photo => (
                 <div className={"manager-photo-card " + (photo.isCover ? "cover" : "")} key={photo.id}>
                   <img src={photo.url} alt="" loading="lazy" />
                   <div className="manager-photo-actions">
-                    {photo.isCover ? <span className="photo-cover-label">Cover</span> : <button className="green-mini" onClick={() => run(() => setCoverPhoto(token,restaurant.id,photo.id), "Cover ფოტო შეიცვალა.")}>Set as cover</button>}
+                    {photo.isCover ? <span className="photo-cover-label">Cover</span> : <button className="green-mini" onClick={() => run(() => setCoverPhoto(token,restaurant.id,photo.id), "Cover photo changed.")}>Set as cover</button>}
                     <button className="red-mini" onClick={() => run(() => deleteRestaurantPhoto(token,restaurant.id,photo.id), "Photo deleted.")}><Trash2 size={12}/></button>
                   </div>
                 </div>
               ))}
-              {!restaurant.photos?.length ? <div className="empty-state">Photos ჯერ არ არის დამატებული.</div> : null}
+              {!restaurant.photos?.length ? <div className="empty-state">No photos have been added yet.</div> : null}
             </div>
           </section>
         ) : null}
@@ -355,11 +355,11 @@ export default function SkupManager() {
               <input value={eventForm.emoji} onChange={e=>setEventForm({...eventForm,emoji:e.target.value})} placeholder="✦"/>
               <input value={eventForm.eventDate} onChange={e=>setEventForm({...eventForm,eventDate:e.target.value})} placeholder="2026-10-10 20:00"/>
               <textarea value={eventForm.description} onChange={e=>setEventForm({...eventForm,description:e.target.value})} placeholder="Description"/>
-              <button className="green-btn small" onClick={addEvent}><Plus size={14}/> ივენთის Add</button>
+              <button className="green-btn small" onClick={addEvent}><Plus size={14}/> Add event</button>
             </div>
             <div className="manager-events-list">
               {events.map(ev => <div className="manager-event-row" key={ev.id}><span>{ev.emoji || "✦"}</span><div><strong>{ev.title}</strong><p>{ev.description || ""}</p><small>{ev.eventDate || ""}</small></div><button className="red-mini" onClick={() => run(() => deleteRestaurantEvent(token,ev.id), "Event deleted.")}><Trash2 size={13}/></button></div>)}
-              {!events.length ? <div className="empty-state">აქტიური Events ჯერ არ არის.</div> : null}
+              {!events.length ? <div className="empty-state">No active events yet.</div> : null}
             </div>
           </section>
         ) : null}
