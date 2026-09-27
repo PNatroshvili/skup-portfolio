@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Heart, MapPin, Star } from "lucide-react";
+import { MapPin, Star } from "lucide-react";
 import type { Restaurant } from "@/lib/skupApi";
 
 export default function RestaurantCard({
@@ -22,8 +22,7 @@ export default function RestaurantCard({
       onMouseEnter={onHover}
     >
       <div className="restaurant-photo-wrap">
-        {restaurant.cover_photo ? <img src={restaurant.cover_photo} alt="" className="restaurant-photo" loading="lazy" /> : <div className="restaurant-photo-placeholder">SKUP</div>}
-        <span className="restaurant-heart"><Heart size={16} /></span>
+        {restaurant.cover_photo ? <img src={restaurant.cover_photo} alt="" className="restaurant-photo" loading="lazy" /> : <div className="restaurant-photo-placeholder">ლუკმა</div>}
         {restaurant.discountPercent ? <span className="restaurant-deal">-{restaurant.discountPercent}%</span> : null}
       </div>
       <div className="restaurant-card-body">
