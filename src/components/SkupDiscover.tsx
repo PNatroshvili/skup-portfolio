@@ -141,8 +141,8 @@ export default function SkupDiscover(){
       <section className="discover-head shell">
         <div>
           <span className="kicker">Discover</span>
-          <h1>Find your next<br/>great table.</h1>
-          <p>Search Tbilisi by place, cuisine, mood, rating, offers and distance.</p>
+          <h1>Restaurants worth<br/>going to.</h1>
+          <p>Search by restaurant, cuisine, rating, offers or distance.</p>
         </div>
         <div className="discover-search">
           <Search size={17}/>
