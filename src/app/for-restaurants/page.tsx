@@ -20,7 +20,7 @@ export default function ForRestaurants() {
             <h1>Grow your<br/><em>restaurant</em> with LUKMA.</h1>
             <p>Reach new guests, manage bookings, and control your restaurant's digital profile from one platform.</p>
             <div className="partner-actions">
-              <a href="https://rest.skup.ge" className="green-btn">Restaurant portal →</a>
+              <a href="/for-restaurants/dashboard/" className="green-btn">Restaurant portal →</a>
               <a href="mailto:hello@skup.ge?subject=LUKMA%20restaurant%20partner" className="outline-btn">Contact us</a>
             </div>
           </div>
