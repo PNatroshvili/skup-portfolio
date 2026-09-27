@@ -192,7 +192,7 @@ export default function SkupAccount() {
       setMode("reset");
       setNotice("If this email is registered, a code has been sent.");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "მოთხოვნა ვერ შესრულდა");
+      setError(e instanceof Error ? e.message : "Request failed");
     } finally {
       setBusy(false);
     }
@@ -277,7 +277,7 @@ export default function SkupAccount() {
         <SkupHeader />
         <main className="account-page shell">
           <div className="account-login-card">
-            <div className="account-mark">ლ</div>
+            <div className="account-mark">L</div>
             <span className="kicker">MY LUKMA</span>
 
             {mode === "login" ? (
@@ -307,7 +307,7 @@ export default function SkupAccount() {
                   <input value={password} onChange={e=>setPassword(e.target.value)} type="password" placeholder="Password (min. 6)" />
                   <input value={referralCode} onChange={e=>setReferralCode(e.target.value.toUpperCase())} placeholder="Referral code (optional)" />
                   {error ? <div className="inline-error">{error}</div> : null}
-                  <button className="green-btn" onClick={handleRegister} disabled={busy}>{busy ? "იქმნება…" : "Create account"}</button>
+                  <button className="green-btn" onClick={handleRegister} disabled={busy}>{busy ? "Creating…" : "Create account"}</button>
                 </div>
                 <div className="account-auth-links"><button onClick={() => setMode("login")}>I already have an account</button></div>
               </>
@@ -391,7 +391,7 @@ export default function SkupAccount() {
               {upcoming.length ? upcoming.map(b => (
                 <div key={b.id} className="booking-row">
                   <div className="booking-date"><strong>{b.date}</strong><span>{b.time}</span></div>
-                  <div><strong>{b.restaurant?.name || "რესტორანი"}</strong><span>{b.guestsCount || b.guests_count || 0} guest(s)</span></div>
+                  <div><strong>{b.restaurant?.name || "Restaurant"}</strong><span>{b.guestsCount || b.guests_count || 0} guest(s)</span></div>
                   <span className={"status status-"+b.status}>{statusLabel(b.status)}</span>
                   {b.status !== "cancelled" ? <button className="booking-cancel" onClick={() => cancelBooking(b.id)} disabled={busy}>Cancel</button> : null}
                 </div>
