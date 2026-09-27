@@ -381,7 +381,7 @@ export default function SkupAccount() {
               <a href="#favorites"><Heart size={16}/> ფავორიტები</a>
               <a href="#loyalty"><Star size={16}/> Loyalty</a>
               <a href="#profile"><UserRound size={16}/> პროფილი</a>
-              {user?.role === "restaurant_manager" ? <a className="account-manager-link" href="https://rest.skup.ge">რესტორნის პანელი →</a> : null}
+              {user?.role === "restaurant_manager" ? <a className="account-manager-link" href="/for-restaurants/dashboard/">რესტორნის პანელი →</a> : null}
             </nav>
           </aside>
 
