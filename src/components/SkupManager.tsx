@@ -263,7 +263,7 @@ export default function SkupManager() {
                 <span className={"status status-"+b.status}>{b.status}</span>
                 <div className="manager-booking-actions">
                   {b.status === "pending" ? <><button className="green-mini" onClick={() => run(() => updateBookingStatus(token,b.id,"confirmed"), "Booking confirmed.")}>Confirm</button><button className="red-mini" onClick={() => run(() => updateBookingStatus(token,b.id,"rejected"), "Booking rejected.")}>Reject</button></> : null}
-                  {b.status === "confirmed" ? <button className="red-mini" onClick={() => run(() => updateBookingStatus(token,b.id,"cancelled"), "Booking cancelled.")}>გაუქმება</button> : null}
+                  {b.status === "confirmed" ? <button className="red-mini" onClick={() => run(() => updateBookingStatus(token,b.id,"cancelled"), "Booking cancelled.")}>Cancel</button> : null}
                 </div>
               </div>
             )) : <div className="empty-state">No bookings yet.</div>}
@@ -291,7 +291,7 @@ export default function SkupManager() {
             <div className="manager-add-item">
               <span className="kicker">New dish</span>
               <select value={newItemCategory} onChange={e=>setNewItemCategory(e.target.value)}><option value="">Category</option>{(restaurant.menuCategories || []).map(cat=><option key={cat.id} value={cat.id}>{cat.name}</option>)}</select>
-              <input value={newItem.name} onChange={e=>setNewItem({...newItem,name:e.target.value})} placeholder="dishს სახელი"/>
+              <input value={newItem.name} onChange={e=>setNewItem({...newItem,name:e.target.value})} placeholder="Dish name"/>
               <input value={newItem.price} onChange={e=>setNewItem({...newItem,price:e.target.value.replace(/[^0-9.]/g,"")})} placeholder="Price" inputMode="decimal"/>
               <input value={newItem.description} onChange={e=>setNewItem({...newItem,description:e.target.value})} placeholder="Description"/>
               <button className="green-btn small" onClick={addItem} disabled={busy}><Plus size={14}/> Add</button>
@@ -301,7 +301,7 @@ export default function SkupManager() {
 
         {tab === "hours" ? (
           <section className="manager-panel">
-            <div className="section-head"><div><span className="kicker">HOURS</span><h2>Opening hours</h2></div><button className="green-btn small" onClick={() => run(() => updateRestaurantHours(token,restaurant.id,hours), "Opening hours განახლდა.")}><Save size={14}/> Save</button></div>
+            <div className="section-head"><div><span className="kicker">HOURS</span><h2>Opening hours</h2></div><button className="green-btn small" onClick={() => run(() => updateRestaurantHours(token,restaurant.id,hours), "Opening hours updated.")}><Save size={14}/> Save</button></div>
             <div className="manager-hours-list">
               {Array.from({length:7},(_,day) => {
                 const h=hours.find(x=>x.day===day) || {day,open:"10:00",close:"23:00",isClosed:false};
