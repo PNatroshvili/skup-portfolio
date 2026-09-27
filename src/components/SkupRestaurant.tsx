@@ -251,7 +251,7 @@ export default function SkupRestaurant() {
             <label>სასურველი დრო</label>
             {availabilityLoading ? <div className="time-loading">თავისუფალი დროები იტვირთება…</div> :
               availability?.open === false ? <div className="time-empty">ამ დღეს რესტორანი დაკეტილია.</div> :
-              availableSlots.length ? <div className="time-grid">{availability.slots.map(slot => <button key={slot.time} disabled={!slot.available} onClick={() => setTime(slot.time)} className={slot.time===time ? "active":""}>{slot.time}</button>)}</div> :
+              availableSlots.length && availability ? <div className="time-grid">{availability.slots.map(slot => <button key={slot.time} disabled={!slot.available} onClick={() => setTime(slot.time)} className={slot.time===time ? "active":""}>{slot.time}</button>)}</div> :
               <div className="time-empty">ამ თარიღზე თავისუფალი დრო აღარ არის.</div>}
             {availabilityError ? <div className="booking-inline-error">{availabilityError}</div> : null}
             <label className="booking-comment">შენიშვნა<textarea value={comment} onChange={e => setComment(e.target.value.slice(0,200))} placeholder="ალერგია, დაბადების დღე, სპეციალური მოთხოვნა..." /></label>
