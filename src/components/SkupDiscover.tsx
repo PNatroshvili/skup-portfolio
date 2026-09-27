@@ -146,7 +146,7 @@ export default function SkupDiscover() {
           <div className="discover-search">
             <Search size={17}/>
             <input value={q} onChange={e => setQ(e.target.value)} placeholder="Restaurant, cuisine or dish..." />
-            {q ? <button aria-label="ძიების Clear" onClick={() => setQ("")}><X size={15}/></button> : null}
+            {q ? <button aria-label="Clear search" onClick={() => setQ("")}><X size={15}/></button> : null}
           </div>
         </section>
 
@@ -170,7 +170,7 @@ export default function SkupDiscover() {
           <aside className="discover-list">
             <div className="results-row">
               <strong>{loading ? "…" : filtered.length}</strong> restaurant
-              <span>{(cuisineId || minRating || isOpen || q) ? <button className="results-clear" onClick={clearFilters}>ფილტრების Clear</button> : null}</span>
+              <span>{(cuisineId || minRating || isOpen || q) ? <button className="results-clear" onClick={clearFilters}>Clear filters</button> : null}</span>
             </div>
             {error ? <div className="inline-error">{error}</div> : null}
             {loading ? Array.from({length: 6}).map((_, i) => <div className="list-skeleton" key={i}/>) :
@@ -182,13 +182,13 @@ export default function SkupDiscover() {
                 <Search size={22}/>
                 <h3>Nothing found</h3>
                 <p>Change your search or filters and try again.</p>
-                <button className="green-btn small" onClick={clearFilters}>ფილტრების Clear</button>
+                <button className="green-btn small" onClick={clearFilters}>Clear filters</button>
               </div>
             ) : null}
           </aside>
 
           <div className="map-panel">
-            <iframe title="თბილისის რუკა" src={mapUrl(zoom, center)} loading="lazy" />
+            <iframe title="Tbilisi map" src={mapUrl(zoom, center)} loading="lazy" />
             <div className="map-overlay-pins">
               {visibleMap.map(r => (
                 <Link
@@ -213,7 +213,7 @@ export default function SkupDiscover() {
                 <div><strong>{selectedRestaurant.name}</strong><span><Star size={11} fill="currentColor"/> {Number(selectedRestaurant.ratingAvg || 0).toFixed(1)} · {selectedRestaurant.district || selectedRestaurant.city}</span></div>
               </Link>
             ) : null}
-            <div className="map-label"><MapPin size={11}/> თბილისი · <strong>{filtered.length}</strong> places</div>
+            <div className="map-label"><MapPin size={11}/> Tbilisi · <strong>{filtered.length}</strong> places</div>
           </div>
         </section>
       </main>
