@@ -47,13 +47,13 @@ export default function SkupAdmin(){
   useEffect(()=>{loadOverview();},[token]);
   useEffect(()=>{if(tab!=="overview")loadTab(tab);},[tab]);
 
-  if(!token)return <div className="skup-site"><SkupHeader/><main className="shell account-page"><div className="account-login-card"><div className="account-mark">L</div><span className="kicker">ADMIN</span><h1>Sign in to the<br/>control center.</h1><p>Use the admin demo account from My LUKMA.</p><Link className="green-btn" href="/account/">Open login</Link></div></main></div>;
+  if(!token)return <div className="skup-site"><SkupHeader/><main className="shell account-page"><div className="account-login-card"><div className="account-mark">L</div><span className="kicker">ADMIN</span><h1>Open the admin<br/>control center.</h1><p>Use the admin demo account from My LUKMA.</p><Link className="green-btn" href="/account/">Open login</Link></div></main></div>;
 
   const doAction=async(fn:()=>Promise<any>, ok:string)=>{setNotice("");try{await fn();setNotice(ok);await loadTab(tab);}catch(e){setNotice(e instanceof Error?e.message:"Action failed.");}};
   const maxChart=Math.max(1,...chart.map(x=>Number(x.count)||0));
 
   return <div className="skup-site"><SkupHeader/><main className="shell admin-page">
-    <div className="admin-head"><div><span className="kicker">CONTROL CENTER</span><h1>LUKMA Admin</h1><p>Restaurants, guests, reviews, bookings and homepage content.</p></div><button className="outline-btn" onClick={()=>tab==="overview"?loadOverview():loadTab(tab)}><RefreshCw size={14}/> Refresh</button></div>
+    <div className="admin-head"><div><span className="kicker">CONTROL CENTER</span><h1>LUKMA Admin</h1><p>Manage restaurants, guests, bookings, reviews and homepage content.</p></div><button className="outline-btn" onClick={()=>tab==="overview"?loadOverview():loadTab(tab)}><RefreshCw size={14}/> Refresh</button></div>
     {notice?<div className={notice.includes("failed")||notice.includes("Could not")?"inline-error":"account-notice"}>{notice}</div>:null}
     <div className="admin-tabs">{([
       ["overview","Overview",LayoutDashboard],["restaurants","Restaurants",Utensils],["bookings","Bookings",ChefHat],["users","Users",Users],["reviews","Reviews",MessageSquare],["content","Content",Eye],["broadcast","Broadcast",Bell]
