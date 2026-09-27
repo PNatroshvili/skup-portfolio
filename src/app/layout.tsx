@@ -20,16 +20,17 @@ const siteUrl = "https://lukma.skup.ge";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Skup — აღმოაჩინე და დაჯავშნე საუკეთესო რესტორნები თბილისში",
-  description: "თბილისის რესტორნების აღმოჩენა, რუკა და მაგიდის დაჯავშნა ერთ სივრცეში.",
+  title: "LUKMA — აღმოაჩინე და დაჯავშნე საუკეთესო რესტორნები თბილისში",
+  description: "LUKMA — თბილისის რესტორნების აღმოჩენა, რუკა და მაგიდის დაჯავშნა ერთ სივრცეში.",
   alternates: { canonical: siteUrl },
+  icons: { icon: "/icon.svg", apple: "/icon.svg" },
   openGraph: {
     type: "website",
     url: siteUrl,
-    siteName: "Skup",
-    title: "Skup — რესტორნები და ჯავშნები თბილისში",
+    siteName: "LUKMA",
+    title: "LUKMA — რესტორნები და ჯავშნები თბილისში",
     description: "აღმოაჩინე, შეინახე და დაჯავშნე.",
-    images: [{url:"/og-image.png",width:1200,height:630,alt:"Skup"}],
+    images: [{url:"/og-image.svg",width:1200,height:630,alt:"LUKMA"}],
   },
 };
 
