@@ -9,9 +9,14 @@ import SkupHeader from "./SkupHeader";
 
 const BBOX = { west: 44.72, east: 44.92, north: 41.78, south: 41.64 };
 
-function mapPosition(r: Restaurant) {
-  const left = Math.max(2, Math.min(96, ((Number(r.longitude) - BBOX.west) / (BBOX.east - BBOX.west)) * 100));
-  const top = Math.max(4, Math.min(92, ((BBOX.north - Number(r.latitude)) / (BBOX.north - BBOX.south)) * 100));
+function mapPosition(r: Restaurant, zoom: number, center: { lat: number; lng: number }) {
+  const span = 0.20 / zoom;
+  const west = center.lng - span;
+  const east = center.lng + span;
+  const south = center.lat - span * 0.7;
+  const north = center.lat + span * 0.7;
+  const left = Math.max(2, Math.min(98, ((Number(r.longitude) - west) / (east - west)) * 100));
+  const top = Math.max(4, Math.min(96, ((north - Number(r.latitude)) / (north - south)) * 100));
   return { left: left + "%", top: top + "%" };
 }
 
@@ -192,7 +197,7 @@ export default function SkupDiscover() {
                   key={r.id}
                   href={"/restaurant/?id=" + encodeURIComponent(r.id)}
                   className={"map-pin " + (selected === r.id ? "active" : "")}
-                  style={mapPosition(r)}
+                  style={mapPosition(r, zoom, center)}
                   onMouseEnter={() => setSelected(r.id)}
                 >
                   <span><Star size={9} fill="currentColor"/>{Number(r.ratingAvg || 0).toFixed(1)}</span>
