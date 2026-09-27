@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   forgotPassword,
   getFavorites,
-  getLoyalty,
+  getRewards,
   getMe,
   getMyBookings,
   login,
@@ -47,7 +47,7 @@ function clearSession() {
 
 function statusLabel(status: string) {
   const map: Record<string, string> = {
-    pending: "ელოდება დადასტურებას",
+    pending: "ელოდება Verifyს",
     confirmed: "დადასტურებული",
     cancelled: "გაუქმებული",
     rejected: "უარყოფილი",
@@ -60,7 +60,7 @@ export default function SkupAccount() {
   const [user, setUser] = useState<any>(null);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [favorites, setFavorites] = useState<any[]>([]);
-  const [loyalty, setLoyalty] = useState<any>(null);
+  const [loyalty, setRewards] = useState<any>(null);
   const [mode, setMode] = useState<AuthMode>("login");
   const [authEmail, setAuthEmail] = useState("");
   const [code, setCode] = useState("");
@@ -78,11 +78,11 @@ export default function SkupAccount() {
   const [editingProfile, setEditingProfile] = useState(false);
 
   const loadAccount = async (accessToken: string) => {
-    const [u,b,f,l] = await Promise.all([getMe(accessToken), getMyBookings(accessToken), getFavorites(accessToken), getLoyalty(accessToken)]);
+    const [u,b,f,l] = await Promise.all([getMe(accessToken), getMyBookings(accessToken), getFavorites(accessToken), getRewards(accessToken)]);
     setUser(u);
     setBookings((b || []) as Booking[]);
     setFavorites(f || []);
-    setLoyalty(l);
+    setRewards(l);
     setName(String(u?.name ?? ""));
     setLastName(String(u?.lastName ?? ""));
     setPhone(String(u?.phone ?? ""));
@@ -129,16 +129,16 @@ export default function SkupAccount() {
       setToken(result.tokens.access_token);
       await loadAccount(result.tokens.access_token);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "შესვლა ვერ მოხერხდა";
+      const msg = e instanceof Error ? e.message : "Log in ვერ მოხერხდა";
       if (msg.includes("EMAIL_NOT_VERIFIED")) {
         setAuthEmail(identifier.includes("@") ? identifier.trim() : "");
         setMode("verify");
-        setNotice("ელფოსტაზე გამოგზავნე ახალი კოდი ანგარიშის დასადასტურებლად.");
+        setNotice("Emailზე გამოგზავნე ახალი კოდი ანგარიშის დასადასტურებლად.");
         if (identifier.includes("@")) {
           try {
             await resendVerificationCode(identifier.trim());
           } catch {
-            setError("კოდის ხელახლა გამოგზავნა ვერ მოხერხდა.");
+            setError("Resend code ვერ მოხერხდა.");
           }
         }
       } else {
@@ -163,9 +163,9 @@ export default function SkupAccount() {
       setAuthEmail(result.email);
       setCode("");
       setMode("verify");
-      setNotice("დადასტურების კოდი გამოგზავნილია ელფოსტაზე.");
+      setNotice("დადასტურების კოდი გამოგზავნილია Emailზე.");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "რეგისტრაცია ვერ მოხერხდა");
+      setError(e instanceof Error ? e.message : "Create account ვერ მოხერხდა");
     } finally {
       setBusy(false);
     }
@@ -179,7 +179,7 @@ export default function SkupAccount() {
       setToken(result.tokens.access_token);
       await loadAccount(result.tokens.access_token);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "კოდის დადასტურება ვერ მოხერხდა");
+      setError(e instanceof Error ? e.message : "Could not verify the code");
     } finally {
       setBusy(false);
     }
@@ -190,7 +190,7 @@ export default function SkupAccount() {
     try {
       await forgotPassword(authEmail.trim());
       setMode("reset");
-      setNotice("თუ ეს ელფოსტა რეგისტრირებულია, კოდი გამოგზავნილია.");
+      setNotice("თუ ეს Email რეგისტრირებულია, Code sent.");
     } catch (e) {
       setError(e instanceof Error ? e.message : "მოთხოვნა ვერ შესრულდა");
     } finally {
@@ -206,9 +206,9 @@ export default function SkupAccount() {
       setPassword("");
       setNewPassword("");
       setCode("");
-      setNotice("პაროლი შეიცვალა. ახლა შეგიძლია შეხვიდე.");
+      setNotice("Password changed. You can now log in.");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "პაროლის შეცვლა ვერ მოხერხდა");
+      setError(e instanceof Error ? e.message : "Change password ვერ მოხერხდა");
     } finally {
       setBusy(false);
     }
@@ -218,7 +218,7 @@ export default function SkupAccount() {
     setBusy(true); setError("");
     try {
       await resendVerificationCode(authEmail.trim());
-      setNotice("ახალი კოდი გამოგზავნილია.");
+      setNotice("ახალი Code sent.");
     } catch (e) {
       setError(e instanceof Error ? e.message : "კოდის გამოგზავნა ვერ მოხერხდა");
     } finally {
@@ -239,14 +239,14 @@ export default function SkupAccount() {
       if (result?.requiresVerification) {
         setAuthEmail(result.email);
         setMode("verify");
-        setNotice("ახალი ელფოსტა უნდა დაადასტურო.");
+        setNotice("ახალი Email უნდა დაადასტურო.");
       } else {
         setUser(result);
         setEditingProfile(false);
-        setNotice("პროფილი განახლდა.");
+        setNotice("Profile განახლდა.");
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "პროფილის განახლება ვერ მოხერხდა");
+      setError(e instanceof Error ? e.message : "Profileს განახლება ვერ მოხერხდა");
     } finally {
       setBusy(false);
     }
@@ -258,9 +258,9 @@ export default function SkupAccount() {
     try {
       await updateBookingStatus(token, bookingId, "cancelled");
       await loadAccount(token);
-      setNotice("ჯავშანი გაუქმდა.");
+      setNotice("Booking cancelled.");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "ჯავშნის გაუქმება ვერ მოხერხდა");
+      setError(e instanceof Error ? e.message : "ჯავშნის Cancel ვერ მოხერხდა");
     } finally {
       setBusy(false);
     }
@@ -282,77 +282,77 @@ export default function SkupAccount() {
 
             {mode === "login" ? (
               <>
-                <h1>შენი მაგიდები,<br/>ფავორიტები და ჯილდოები.</h1>
-                <p>შედი LUKMA ანგარიშში, რომ ნახო ჯავშნები, ფავორიტები და loyalty.</p>
+                <h1>Your tables,<br/>favorites and rewards.</h1>
+                <p>Log in to manage your bookings, favorites, and rewards.</p>
                 <div className="account-login-form">
-                  <input value={identifier} onChange={e=>setIdentifier(e.target.value)} placeholder="ელფოსტა ან ტელეფონი" />
+                  <input value={identifier} onChange={e=>setIdentifier(e.target.value)} placeholder="Email ან Phone" />
                   <input value={password} onChange={e=>setPassword(e.target.value)} type="password" placeholder="პაროლი" />
                   {error ? <div className="inline-error">{error}</div> : null}
                   {notice ? <div className="account-notice">{notice}</div> : null}
-                  <button className="green-btn" onClick={handleLogin} disabled={busy}><LogIn size={16}/> {busy ? "იტვირთება…" : "შესვლა"}</button>
+                  <button className="green-btn" onClick={handleLogin} disabled={busy}><LogIn size={16}/> {busy ? "Loading…" : "Log in"}</button>
                 </div>
-                <div className="account-auth-links"><button onClick={() => {setMode("register");setError("");setNotice("")}}>შექმენი ანგარიში</button><button onClick={() => {setMode("forgot");setError("");setNotice("")}}>დაგავიწყდა პაროლი?</button></div>
+                <div className="account-auth-links"><button onClick={() => {setMode("register");setError("");setNotice("")}}>Create an account</button><button onClick={() => {setMode("forgot");setError("");setNotice("")}}>Forgot password?</button></div>
               </>
             ) : null}
 
             {mode === "register" ? (
               <>
                 <h1>შექმენი<br/>LUKMA ანგარიში.</h1>
-                <p>რამდენიმე წამი და შენი ჯავშნები ერთ სივრცეში იქნება.</p>
+                <p>რამდენიმე წამი და შენი Bookings ერთ სივრცეში იქნება.</p>
                 <div className="account-login-form">
-                  <input value={name} onChange={e=>setName(e.target.value)} placeholder="სახელი" />
-                  <input value={lastName} onChange={e=>setLastName(e.target.value)} placeholder="გვარი" />
-                  <input value={phone} onChange={e=>setPhone(e.target.value)} placeholder="ტელეფონი" />
-                  <input value={authEmail} onChange={e=>setAuthEmail(e.target.value)} type="email" placeholder="ელფოსტა" />
-                  <input value={password} onChange={e=>setPassword(e.target.value)} type="password" placeholder="პაროლი (მინ. 6)" />
-                  <input value={referralCode} onChange={e=>setReferralCode(e.target.value.toUpperCase())} placeholder="Referral code (არასავალდებულო)" />
+                  <input value={name} onChange={e=>setName(e.target.value)} placeholder="Name" />
+                  <input value={lastName} onChange={e=>setLastName(e.target.value)} placeholder="Last name" />
+                  <input value={phone} onChange={e=>setPhone(e.target.value)} placeholder="Phone" />
+                  <input value={authEmail} onChange={e=>setAuthEmail(e.target.value)} type="email" placeholder="Email" />
+                  <input value={password} onChange={e=>setPassword(e.target.value)} type="password" placeholder="Password (min. 6)" />
+                  <input value={referralCode} onChange={e=>setReferralCode(e.target.value.toUpperCase())} placeholder="Referral code (optional)" />
                   {error ? <div className="inline-error">{error}</div> : null}
-                  <button className="green-btn" onClick={handleRegister} disabled={busy}>{busy ? "იქმნება…" : "რეგისტრაცია"}</button>
+                  <button className="green-btn" onClick={handleRegister} disabled={busy}>{busy ? "იქმნება…" : "Create account"}</button>
                 </div>
-                <div className="account-auth-links"><button onClick={() => setMode("login")}>უკვე მაქვს ანგარიში</button></div>
+                <div className="account-auth-links"><button onClick={() => setMode("login")}>I already have an account</button></div>
               </>
             ) : null}
 
             {mode === "verify" ? (
               <>
-                <h1>დაადასტურე<br/>ელფოსტა.</h1>
-                <p>შეიყვანე 6-ნიშნა კოდი, რომელიც გამოგიგზავნეთ <strong>{authEmail}</strong>-ზე.</p>
+                <h1>Verify your<br/>Email.</h1>
+                <p>Enter the 6-digit code we sent to <strong>{authEmail}</strong>-ზე.</p>
                 <div className="account-login-form">
                   <input value={code} onChange={e=>setCode(e.target.value.replace(/\D/g, "").slice(0,6))} inputMode="numeric" placeholder="123456" />
                   {error ? <div className="inline-error">{error}</div> : null}
                   {notice ? <div className="account-notice">{notice}</div> : null}
-                  <button className="green-btn" onClick={handleVerify} disabled={busy}>{busy ? "მოწმდება…" : "დადასტურება"}</button>
+                  <button className="green-btn" onClick={handleVerify} disabled={busy}>{busy ? "მოწმდება…" : "Verify"}</button>
                 </div>
-                <div className="account-auth-links"><button onClick={handleResend} disabled={busy}>კოდის ხელახლა გამოგზავნა</button><button onClick={() => setMode("login")}>შესვლაზე დაბრუნება</button></div>
+                <div className="account-auth-links"><button onClick={handleResend} disabled={busy}>Resend code</button><button onClick={() => setMode("login")}>Log inზე დაბრუნება</button></div>
               </>
             ) : null}
 
             {mode === "forgot" ? (
               <>
-                <h1>აღადგინე<br/>პაროლი.</h1>
-                <p>შეიყვანე ანგარიშთან დაკავშირებული ელფოსტა.</p>
+                <h1>Reset your<br/>password.</h1>
+                <p>შეიყვანე ანგარიშთან დაკავშირებული Email.</p>
                 <div className="account-login-form">
-                  <input value={authEmail} onChange={e=>setAuthEmail(e.target.value)} type="email" placeholder="ელფოსტა" />
+                  <input value={authEmail} onChange={e=>setAuthEmail(e.target.value)} type="email" placeholder="Email" />
                   {error ? <div className="inline-error">{error}</div> : null}
                   {notice ? <div className="account-notice">{notice}</div> : null}
-                  <button className="green-btn" onClick={handleForgot} disabled={busy}>კოდის გაგზავნა</button>
+                  <button className="green-btn" onClick={handleForgot} disabled={busy}>Send code</button>
                 </div>
-                <div className="account-auth-links"><button onClick={() => setMode("login")}>შესვლაზე დაბრუნება</button></div>
+                <div className="account-auth-links"><button onClick={() => setMode("login")}>Log inზე დაბრუნება</button></div>
               </>
             ) : null}
 
             {mode === "reset" ? (
               <>
-                <h1>დააყენე<br/>ახალი პაროლი.</h1>
-                <p>შეიყვანე ელფოსტაზე მიღებული 6-ნიშნა კოდი.</p>
+                <h1>Set a<br/>ახალი password.</h1>
+                <p>შეიყვანე Emailზე მიღებული 6-ნიშნა კოდი.</p>
                 <div className="account-login-form">
                   <input value={code} onChange={e=>setCode(e.target.value.replace(/\D/g, "").slice(0,6))} inputMode="numeric" placeholder="კოდი" />
-                  <input value={newPassword} onChange={e=>setNewPassword(e.target.value)} type="password" placeholder="ახალი პაროლი (მინ. 6)" />
+                  <input value={newPassword} onChange={e=>setNewPassword(e.target.value)} type="password" placeholder="ახალი Password (min. 6)" />
                   {error ? <div className="inline-error">{error}</div> : null}
                   {notice ? <div className="account-notice">{notice}</div> : null}
-                  <button className="green-btn" onClick={handleReset} disabled={busy}>პაროლის შეცვლა</button>
+                  <button className="green-btn" onClick={handleReset} disabled={busy}>Change password</button>
                 </div>
-                <div className="account-auth-links"><button onClick={() => setMode("login")}>შესვლაზე დაბრუნება</button></div>
+                <div className="account-auth-links"><button onClick={() => setMode("login")}>Log inზე დაბრუნება</button></div>
               </>
             ) : null}
           </div>
@@ -366,8 +366,8 @@ export default function SkupAccount() {
       <SkupHeader />
       <main className="account-page shell">
         <div className="account-header">
-          <div><span className="kicker">MY LUKMA</span><h1>გამარჯობა, {user?.name || "სტუმარო"}.</h1><p>შენი LUKMA ერთ სივრცეში.</p></div>
-          <button className="outline-btn" onClick={() => { clearSession(); setToken(null); setUser(null); }}><LogOut size={15}/> გასვლა</button>
+          <div><span className="kicker">MY LUKMA</span><h1>Hello, {user?.name || "სტუმარო"}.</h1><p>Your LUKMA in one place.</p></div>
+          <button className="outline-btn" onClick={() => { clearSession(); setToken(null); setUser(null); }}><LogOut size={15}/> Log out</button>
         </div>
 
         {error ? <div className="inline-error account-global-error">{error}</div> : null}
@@ -377,49 +377,49 @@ export default function SkupAccount() {
           <aside className="account-side">
             <div className="account-user"><div className="avatar">{(user?.name || "ლ").slice(0,1)}</div><div><strong>{user?.name || "LUKMA user"}</strong><span>{user?.email || user?.phone || ""}</span></div></div>
             <nav>
-              <a className="active" href="#reservations"><CalendarDays size={16}/> ჯავშნები</a>
-              <a href="#favorites"><Heart size={16}/> ფავორიტები</a>
-              <a href="#loyalty"><Star size={16}/> Loyalty</a>
-              <a href="#profile"><UserRound size={16}/> პროფილი</a>
-              {user?.role === "restaurant_manager" ? <a className="account-manager-link" href="/for-restaurants/dashboard/">რესტორნის პანელი →</a> : null}
+              <a className="active" href="#reservations"><CalendarDays size={16}/> Bookings</a>
+              <a href="#favorites"><Heart size={16}/> Favorites</a>
+              <a href="#loyalty"><Star size={16}/> Rewards</a>
+              <a href="#profile"><UserRound size={16}/> Profile</a>
+              {user?.role === "restaurant_manager" ? <a className="account-manager-link" href="/for-restaurants/dashboard/">Restaurant portal →</a> : null}
             </nav>
           </aside>
 
           <div className="account-main">
             <section id="reservations" className="account-section">
-              <div className="section-head"><div><span className="kicker">BOOKINGS</span><h2>ჩემი ჯავშნები</h2></div><Link href="/discover/" className="green-btn small">+ ახალი ჯავშანი</Link></div>
+              <div className="section-head"><div><span className="kicker">BOOKINGS</span><h2>ჩემი Bookings</h2></div><Link href="/discover/" className="green-btn small">+ New booking</Link></div>
               {upcoming.length ? upcoming.map(b => (
                 <div key={b.id} className="booking-row">
                   <div className="booking-date"><strong>{b.date}</strong><span>{b.time}</span></div>
                   <div><strong>{b.restaurant?.name || "რესტორანი"}</strong><span>{b.guestsCount || b.guests_count || 0} სტუმარი</span></div>
                   <span className={"status status-"+b.status}>{statusLabel(b.status)}</span>
-                  {b.status !== "cancelled" ? <button className="booking-cancel" onClick={() => cancelBooking(b.id)} disabled={busy}>გაუქმება</button> : null}
+                  {b.status !== "cancelled" ? <button className="booking-cancel" onClick={() => cancelBooking(b.id)} disabled={busy}>Cancel</button> : null}
                 </div>
-              )) : <div className="empty-state">ჯავშნები ჯერ არ გაქვს.</div>}
+              )) : <div className="empty-state">Bookings ჯერ არ გაქვს.</div>}
             </section>
 
             <section id="favorites" className="account-section">
-              <div className="section-head"><div><span className="kicker">SAVED</span><h2>ფავორიტები</h2></div></div>
-              {favorites.length ? <div className="favorite-list">{favorites.slice(0,8).map(r => <Link key={r.id} href={"/restaurant/?id="+encodeURIComponent(r.id)} className="mini-fav-card">{r.cover_photo ? <img src={r.cover_photo} alt="" /> : <div className="mini-fav-fallback"/>}<div><strong>{r.name}</strong><span><Star size={11} fill="currentColor"/> {Number(r.ratingAvg||0).toFixed(1)}</span></div></Link>)}</div> : <div className="empty-state">შენახული რესტორნები ჯერ არ გაქვს.</div>}
+              <div className="section-head"><div><span className="kicker">SAVED</span><h2>Favorites</h2></div></div>
+              {favorites.length ? <div className="favorite-list">{favorites.slice(0,8).map(r => <Link key={r.id} href={"/restaurant/?id="+encodeURIComponent(r.id)} className="mini-fav-card">{r.cover_photo ? <img src={r.cover_photo} alt="" /> : <div className="mini-fav-fallback"/>}<div><strong>{r.name}</strong><span><Star size={11} fill="currentColor"/> {Number(r.ratingAvg||0).toFixed(1)}</span></div></Link>)}</div> : <div className="empty-state">You have no saved restaurants yet.</div>}
             </section>
 
             <section id="loyalty" className="account-section">
-              <div className="section-head"><div><span className="kicker">REWARDS</span><h2>LUKMA Loyalty</h2></div></div>
-              <div className="loyalty-card"><div><span>ქულები</span><strong>{loyalty?.points ?? 0}</strong></div><div><span>დონე</span><strong>{loyalty?.tier || "Bronze"}</strong></div><div className="loyalty-progress"><div><span>{loyalty?.progress ?? 0}%</span><span>{loyalty?.nextTier ? "შემდეგი: "+loyalty.nextTier : "უმაღლესი დონე"}</span></div><div className="progress-bar"><i style={{width: Math.max(0,Math.min(100,loyalty?.progress||0))+"%"}}/></div></div></div>
+              <div className="section-head"><div><span className="kicker">REWARDS</span><h2>LUKMA Rewards</h2></div></div>
+              <div className="loyalty-card"><div><span>Points</span><strong>{loyalty?.points ?? 0}</strong></div><div><span>Tier</span><strong>{loyalty?.tier || "Bronze"}</strong></div><div className="loyalty-progress"><div><span>{loyalty?.progress ?? 0}%</span><span>{loyalty?.nextTier ? "Next: "+loyalty.nextTier : "უმაღლესი Tier"}</span></div><div className="progress-bar"><i style={{width: Math.max(0,Math.min(100,loyalty?.progress||0))+"%"}}/></div></div></div>
             </section>
 
             <section id="profile" className="account-section">
-              <div className="section-head"><div><span className="kicker">PROFILE</span><h2>პროფილი</h2></div><button className="outline-btn" onClick={() => setEditingProfile(!editingProfile)}>{editingProfile ? "დახურვა" : "რედაქტირება"}</button></div>
+              <div className="section-head"><div><span className="kicker">PROFILE</span><h2>Profile</h2></div><button className="outline-btn" onClick={() => setEditingProfile(!editingProfile)}>{editingProfile ? "Close" : "Edit"}</button></div>
               {editingProfile ? (
                 <div className="profile-edit-grid">
-                  <input value={name} onChange={e=>setName(e.target.value)} placeholder="სახელი" />
-                  <input value={lastName} onChange={e=>setLastName(e.target.value)} placeholder="გვარი" />
-                  <input value={phone} onChange={e=>setPhone(e.target.value)} placeholder="ტელეფონი" />
-                  <input value={profileEmail} onChange={e=>setProfileEmail(e.target.value)} type="email" placeholder="ელფოსტა" />
-                  <button className="green-btn" onClick={saveProfile} disabled={busy}><RefreshCw size={14}/> შენახვა</button>
+                  <input value={name} onChange={e=>setName(e.target.value)} placeholder="Name" />
+                  <input value={lastName} onChange={e=>setLastName(e.target.value)} placeholder="Last name" />
+                  <input value={phone} onChange={e=>setPhone(e.target.value)} placeholder="Phone" />
+                  <input value={profileEmail} onChange={e=>setProfileEmail(e.target.value)} type="email" placeholder="Email" />
+                  <button className="green-btn" onClick={saveProfile} disabled={busy}><RefreshCw size={14}/> Save</button>
                 </div>
               ) : (
-                <div className="profile-summary"><div><span>სახელი</span><strong>{user?.name || "—"} {user?.lastName || ""}</strong></div><div><span>ელფოსტა</span><strong>{user?.email || "—"}</strong></div><div><span>ტელეფონი</span><strong>{user?.phone || "—"}</strong></div></div>
+                <div className="profile-summary"><div><span>Name</span><strong>{user?.name || "—"} {user?.lastName || ""}</strong></div><div><span>Email</span><strong>{user?.email || "—"}</strong></div><div><span>Phone</span><strong>{user?.phone || "—"}</strong></div></div>
               )}
             </section>
           </div>
