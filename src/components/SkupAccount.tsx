@@ -47,10 +47,10 @@ function clearSession() {
 
 function statusLabel(status: string) {
   const map: Record<string, string> = {
-    pending: "ელოდება Verifyს",
-    confirmed: "დადასტურებული",
-    cancelled: "გაუქმებული",
-    rejected: "უარყოფილი",
+    pending: "Awaiting confirmation",
+    confirmed: "Confirmed",
+    cancelled: "Cancelled",
+    rejected: "Rejected",
   };
   return map[status] || status;
 }
@@ -129,16 +129,16 @@ export default function SkupAccount() {
       setToken(result.tokens.access_token);
       await loadAccount(result.tokens.access_token);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Log in ვერ მოხერხდა";
+      const msg = e instanceof Error ? e.message : "Login failed";
       if (msg.includes("EMAIL_NOT_VERIFIED")) {
         setAuthEmail(identifier.includes("@") ? identifier.trim() : "");
         setMode("verify");
-        setNotice("Emailზე გამოგზავნე ახალი კოდი ანგარიშის დასადასტურებლად.");
+        setNotice("A new verification code has been sent to your email.");
         if (identifier.includes("@")) {
           try {
             await resendVerificationCode(identifier.trim());
           } catch {
-            setError("Resend code ვერ მოხერხდა.");
+            setError("Could not resend the code.");
           }
         }
       } else {
@@ -163,9 +163,9 @@ export default function SkupAccount() {
       setAuthEmail(result.email);
       setCode("");
       setMode("verify");
-      setNotice("დადასტურების კოდი გამოგზავნილია Emailზე.");
+      setNotice("A verification code has been sent to your email.");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Create account ვერ მოხერხდა");
+      setError(e instanceof Error ? e.message : "Could not create the account");
     } finally {
       setBusy(false);
     }
@@ -190,7 +190,7 @@ export default function SkupAccount() {
     try {
       await forgotPassword(authEmail.trim());
       setMode("reset");
-      setNotice("თუ ეს Email რეგისტრირებულია, Code sent.");
+      setNotice("If this email is registered, a code has been sent.");
     } catch (e) {
       setError(e instanceof Error ? e.message : "მოთხოვნა ვერ შესრულდა");
     } finally {
@@ -208,7 +208,7 @@ export default function SkupAccount() {
       setCode("");
       setNotice("Password changed. You can now log in.");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Change password ვერ მოხერხდა");
+      setError(e instanceof Error ? e.message : "Could not change the password");
     } finally {
       setBusy(false);
     }
@@ -218,9 +218,9 @@ export default function SkupAccount() {
     setBusy(true); setError("");
     try {
       await resendVerificationCode(authEmail.trim());
-      setNotice("ახალი Code sent.");
+      setNotice("A new code has been sent.");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "კოდის გამოგზავნა ვერ მოხერხდა");
+      setError(e instanceof Error ? e.message : "Could not send the code");
     } finally {
       setBusy(false);
     }
@@ -239,14 +239,14 @@ export default function SkupAccount() {
       if (result?.requiresVerification) {
         setAuthEmail(result.email);
         setMode("verify");
-        setNotice("ახალი Email უნდა დაადასტურო.");
+        setNotice("You need to verify the new email.");
       } else {
         setUser(result);
         setEditingProfile(false);
-        setNotice("Profile განახლდა.");
+        setNotice("Profile updated.");
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Profileს განახლება ვერ მოხერხდა");
+      setError(e instanceof Error ? e.message : "Could not update the profile");
     } finally {
       setBusy(false);
     }
@@ -260,7 +260,7 @@ export default function SkupAccount() {
       await loadAccount(token);
       setNotice("Booking cancelled.");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "ჯავშნის Cancel ვერ მოხერხდა");
+      setError(e instanceof Error ? e.message : "Could not cancel the booking");
     } finally {
       setBusy(false);
     }
@@ -285,8 +285,8 @@ export default function SkupAccount() {
                 <h1>Your tables,<br/>favorites and rewards.</h1>
                 <p>Log in to manage your bookings, favorites, and rewards.</p>
                 <div className="account-login-form">
-                  <input value={identifier} onChange={e=>setIdentifier(e.target.value)} placeholder="Email ან Phone" />
-                  <input value={password} onChange={e=>setPassword(e.target.value)} type="password" placeholder="პაროლი" />
+                  <input value={identifier} onChange={e=>setIdentifier(e.target.value)} placeholder="Email or phone" />
+                  <input value={password} onChange={e=>setPassword(e.target.value)} type="password" placeholder="Password" />
                   {error ? <div className="inline-error">{error}</div> : null}
                   {notice ? <div className="account-notice">{notice}</div> : null}
                   <button className="green-btn" onClick={handleLogin} disabled={busy}><LogIn size={16}/> {busy ? "Loading…" : "Log in"}</button>
@@ -297,8 +297,8 @@ export default function SkupAccount() {
 
             {mode === "register" ? (
               <>
-                <h1>შექმენი<br/>LUKMA ანგარიში.</h1>
-                <p>რამდენიმე წამი და შენი Bookings ერთ სივრცეში იქნება.</p>
+                <h1>Create your<br/>LUKMA account.</h1>
+                <p>Your bookings, favorites, and rewards in one place.</p>
                 <div className="account-login-form">
                   <input value={name} onChange={e=>setName(e.target.value)} placeholder="Name" />
                   <input value={lastName} onChange={e=>setLastName(e.target.value)} placeholder="Last name" />
@@ -316,43 +316,43 @@ export default function SkupAccount() {
             {mode === "verify" ? (
               <>
                 <h1>Verify your<br/>Email.</h1>
-                <p>Enter the 6-digit code we sent to <strong>{authEmail}</strong>-ზე.</p>
+                <p>Enter the 6-digit code we sent to <strong>{authEmail}</strong>.</p>
                 <div className="account-login-form">
                   <input value={code} onChange={e=>setCode(e.target.value.replace(/\D/g, "").slice(0,6))} inputMode="numeric" placeholder="123456" />
                   {error ? <div className="inline-error">{error}</div> : null}
                   {notice ? <div className="account-notice">{notice}</div> : null}
-                  <button className="green-btn" onClick={handleVerify} disabled={busy}>{busy ? "მოწმდება…" : "Verify"}</button>
+                  <button className="green-btn" onClick={handleVerify} disabled={busy}>{busy ? "Verifying…" : "Verify"}</button>
                 </div>
-                <div className="account-auth-links"><button onClick={handleResend} disabled={busy}>Resend code</button><button onClick={() => setMode("login")}>Log inზე დაბრუნება</button></div>
+                <div className="account-auth-links"><button onClick={handleResend} disabled={busy}>Resend code</button><button onClick={() => setMode("login")}>Back to login</button></div>
               </>
             ) : null}
 
             {mode === "forgot" ? (
               <>
                 <h1>Reset your<br/>password.</h1>
-                <p>შეიყვანე ანგარიშთან დაკავშირებული Email.</p>
+                <p>Enter the email linked to your account.</p>
                 <div className="account-login-form">
                   <input value={authEmail} onChange={e=>setAuthEmail(e.target.value)} type="email" placeholder="Email" />
                   {error ? <div className="inline-error">{error}</div> : null}
                   {notice ? <div className="account-notice">{notice}</div> : null}
                   <button className="green-btn" onClick={handleForgot} disabled={busy}>Send code</button>
                 </div>
-                <div className="account-auth-links"><button onClick={() => setMode("login")}>Log inზე დაბრუნება</button></div>
+                <div className="account-auth-links"><button onClick={() => setMode("login")}>Back to login</button></div>
               </>
             ) : null}
 
             {mode === "reset" ? (
               <>
-                <h1>Set a<br/>ახალი password.</h1>
-                <p>შეიყვანე Emailზე მიღებული 6-ნიშნა კოდი.</p>
+                <h1>Set a<br/>new password.</h1>
+                <p>Enter the 6-digit code sent to your email.</p>
                 <div className="account-login-form">
-                  <input value={code} onChange={e=>setCode(e.target.value.replace(/\D/g, "").slice(0,6))} inputMode="numeric" placeholder="კოდი" />
-                  <input value={newPassword} onChange={e=>setNewPassword(e.target.value)} type="password" placeholder="ახალი Password (min. 6)" />
+                  <input value={code} onChange={e=>setCode(e.target.value.replace(/\D/g, "").slice(0,6))} inputMode="numeric" placeholder="Code" />
+                  <input value={newPassword} onChange={e=>setNewPassword(e.target.value)} type="password" placeholder="New password (min. 6)" />
                   {error ? <div className="inline-error">{error}</div> : null}
                   {notice ? <div className="account-notice">{notice}</div> : null}
                   <button className="green-btn" onClick={handleReset} disabled={busy}>Change password</button>
                 </div>
-                <div className="account-auth-links"><button onClick={() => setMode("login")}>Log inზე დაბრუნება</button></div>
+                <div className="account-auth-links"><button onClick={() => setMode("login")}>Back to login</button></div>
               </>
             ) : null}
           </div>
@@ -366,7 +366,7 @@ export default function SkupAccount() {
       <SkupHeader />
       <main className="account-page shell">
         <div className="account-header">
-          <div><span className="kicker">MY LUKMA</span><h1>Hello, {user?.name || "სტუმარო"}.</h1><p>Your LUKMA in one place.</p></div>
+          <div><span className="kicker">MY LUKMA</span><h1>Hello, {user?.name || "Guest"}.</h1><p>Your LUKMA in one place.</p></div>
           <button className="outline-btn" onClick={() => { clearSession(); setToken(null); setUser(null); }}><LogOut size={15}/> Log out</button>
         </div>
 
@@ -375,7 +375,7 @@ export default function SkupAccount() {
 
         <div className="account-grid">
           <aside className="account-side">
-            <div className="account-user"><div className="avatar">{(user?.name || "ლ").slice(0,1)}</div><div><strong>{user?.name || "LUKMA user"}</strong><span>{user?.email || user?.phone || ""}</span></div></div>
+            <div className="account-user"><div className="avatar">{(user?.name || "L").slice(0,1)}</div><div><strong>{user?.name || "LUKMA user"}</strong><span>{user?.email || user?.phone || ""}</span></div></div>
             <nav>
               <a className="active" href="#reservations"><CalendarDays size={16}/> Bookings</a>
               <a href="#favorites"><Heart size={16}/> Favorites</a>
@@ -387,15 +387,15 @@ export default function SkupAccount() {
 
           <div className="account-main">
             <section id="reservations" className="account-section">
-              <div className="section-head"><div><span className="kicker">BOOKINGS</span><h2>ჩემი Bookings</h2></div><Link href="/discover/" className="green-btn small">+ New booking</Link></div>
+              <div className="section-head"><div><span className="kicker">BOOKINGS</span><h2>My bookings</h2></div><Link href="/discover/" className="green-btn small">+ New booking</Link></div>
               {upcoming.length ? upcoming.map(b => (
                 <div key={b.id} className="booking-row">
                   <div className="booking-date"><strong>{b.date}</strong><span>{b.time}</span></div>
-                  <div><strong>{b.restaurant?.name || "რესტორანი"}</strong><span>{b.guestsCount || b.guests_count || 0} სტუმარი</span></div>
+                  <div><strong>{b.restaurant?.name || "რესტორანი"}</strong><span>{b.guestsCount || b.guests_count || 0} guest(s)</span></div>
                   <span className={"status status-"+b.status}>{statusLabel(b.status)}</span>
                   {b.status !== "cancelled" ? <button className="booking-cancel" onClick={() => cancelBooking(b.id)} disabled={busy}>Cancel</button> : null}
                 </div>
-              )) : <div className="empty-state">Bookings ჯერ არ გაქვს.</div>}
+              )) : <div className="empty-state">You have no bookings yet.</div>}
             </section>
 
             <section id="favorites" className="account-section">
@@ -405,7 +405,7 @@ export default function SkupAccount() {
 
             <section id="loyalty" className="account-section">
               <div className="section-head"><div><span className="kicker">REWARDS</span><h2>LUKMA Rewards</h2></div></div>
-              <div className="loyalty-card"><div><span>Points</span><strong>{loyalty?.points ?? 0}</strong></div><div><span>Tier</span><strong>{loyalty?.tier || "Bronze"}</strong></div><div className="loyalty-progress"><div><span>{loyalty?.progress ?? 0}%</span><span>{loyalty?.nextTier ? "Next: "+loyalty.nextTier : "უმაღლესი Tier"}</span></div><div className="progress-bar"><i style={{width: Math.max(0,Math.min(100,loyalty?.progress||0))+"%"}}/></div></div></div>
+              <div className="loyalty-card"><div><span>Points</span><strong>{loyalty?.points ?? 0}</strong></div><div><span>Tier</span><strong>{loyalty?.tier || "Bronze"}</strong></div><div className="loyalty-progress"><div><span>{loyalty?.progress ?? 0}%</span><span>{loyalty?.nextTier ? "Next: "+loyalty.nextTier : "Highest tier"}</span></div><div className="progress-bar"><i style={{width: Math.max(0,Math.min(100,loyalty?.progress||0))+"%"}}/></div></div></div>
             </section>
 
             <section id="profile" className="account-section">
