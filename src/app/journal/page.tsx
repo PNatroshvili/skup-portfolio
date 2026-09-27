@@ -20,7 +20,7 @@ export default function JournalPage() {
       <main className="journal-page">
         <section className="journal-page-hero shell">
           <span className="kicker">LUKMA Journal</span>
-          <h1>Stories about<br/><em>great food.</em></h1>
+          <h1>Places, food,<br/><em>good stories.</em></h1>
           <p>Places, flavors, and small guides to help you plan your next evening.</p>
         </section>
         <section className="section shell">
