@@ -210,6 +210,7 @@ export default function SkupManager() {
           </div>
           <div className="manager-head-actions">
             <a href={"/restaurant/?id=" + encodeURIComponent(restaurant.id)} className="outline-btn"><ExternalLink size={14}/> View profile</a>
+            <Link href="/for-restaurants/subscription/" className="outline-btn">Subscription</Link>
             <button className="outline-btn" onClick={() => { localStorage.removeItem("skup_access_token"); localStorage.removeItem("skup_refresh_token"); window.location.href="/account/"; }}><LogOut size={14}/> Log out</button>
           </div>
         </header>
