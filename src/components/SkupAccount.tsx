@@ -7,9 +7,9 @@ import { useEffect, useMemo, useState } from "react";
 import {
   forgotPassword,
   getFavorites,
-  getRewards,
   getMe,
   getMyBookings,
+  getLoyalty,
   login,
   refreshAccessToken,
   register,
@@ -60,7 +60,7 @@ export default function SkupAccount() {
   const [user, setUser] = useState<any>(null);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [favorites, setFavorites] = useState<any[]>([]);
-  const [loyalty, setRewards] = useState<any>(null);
+  const [loyalty, setLoyalty] = useState<any>(null);
   const [mode, setMode] = useState<AuthMode>("login");
   const [authEmail, setAuthEmail] = useState("");
   const [code, setCode] = useState("");
@@ -78,11 +78,11 @@ export default function SkupAccount() {
   const [editingProfile, setEditingProfile] = useState(false);
 
   const loadAccount = async (accessToken: string) => {
-    const [u,b,f,l] = await Promise.all([getMe(accessToken), getMyBookings(accessToken), getFavorites(accessToken), getRewards(accessToken)]);
+    const [u,b,f,l] = await Promise.all([getMe(accessToken), getMyBookings(accessToken), getFavorites(accessToken), getLoyalty(accessToken)]);
     setUser(u);
     setBookings((b || []) as Booking[]);
     setFavorites(f || []);
-    setRewards(l);
+    setLoyalty(l);
     setName(String(u?.name ?? ""));
     setLastName(String(u?.lastName ?? ""));
     setPhone(String(u?.phone ?? ""));
