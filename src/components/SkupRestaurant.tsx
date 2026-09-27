@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   addFavorite,
   createBooking,
+  createReview,
   getAvailability,
   getEvents,
   getFavorites,
@@ -52,6 +53,10 @@ export default function SkupRestaurant() {
   const [loginError, setLoginError] = useState("");
   const [favorite, setFavorite] = useState(false);
   const [favoriteBusy, setFavoriteBusy] = useState(false);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewBusy, setReviewBusy] = useState(false);
+  const [reviewMessage, setReviewMessage] = useState("");
 
   useEffect(() => {
     const nextId = new URLSearchParams(window.location.search).get("id") || "";
@@ -147,6 +152,31 @@ export default function SkupRestaurant() {
         ? "ელფოსტა ჯერ არ არის დადასტურებული. დაასრულე დადასტურება ანგარიშის გვერდზე."
         : e instanceof Error ? e.message : "შესვლა ვერ მოხერხდა");
       setBookingState("login");
+    }
+  }
+
+  async function submitReview() {
+    const token = localStorage.getItem("skup_access_token");
+    if (!token) {
+      window.location.href = "/account/?mode=login";
+      return;
+    }
+    setReviewBusy(true);
+    setReviewMessage("");
+    try {
+      const saved = await createReview(token, {
+        restaurant_id: id,
+        rating: reviewRating,
+        comment: reviewComment.trim() || undefined,
+      });
+      setReviews(prev => [saved, ...prev]);
+      setReviewComment("");
+      setReviewMessage("მიმოხილვა გამოქვეყნდა.");
+      setRestaurant(prev => prev ? { ...prev, ratingAvg: Number(saved?.rating || reviewRating), reviewsCount: Number(prev.reviewsCount || 0) + 1 } : prev);
+    } catch (e) {
+      setReviewMessage(e instanceof Error ? e.message : "მიმოხილვის გაგზავნა ვერ მოხერხდა.");
+    } finally {
+      setReviewBusy(false);
     }
   }
 
@@ -252,6 +282,13 @@ export default function SkupRestaurant() {
 
             <article id="reviews" className="detail-section">
               <div className="section-title-small">მიმოხილვები <span>{restaurant.reviewsCount}</span></div>
+              <div className="review-compose">
+                <div className="review-compose-head"><strong>შეაფასე ეს ადგილი</strong><span>1–5 ვარსკვლავი</span></div>
+                <div className="review-stars">{[1,2,3,4,5].map(value => <button key={value} type="button" aria-label={value + " ვარსკვლავი"} className={value <= reviewRating ? "active" : ""} onClick={() => setReviewRating(value)}><Star size={18} fill="currentColor"/></button>)}</div>
+                <textarea value={reviewComment} onChange={e => setReviewComment(e.target.value.slice(0,1000))} placeholder="რა მოგეწონა? რას ურჩევდი სხვებს?" />
+                {reviewMessage ? <div className="review-message">{reviewMessage}</div> : null}
+                <button className="green-btn small" onClick={submitReview} disabled={reviewBusy}>{reviewBusy ? "იგზავნება…" : "გამოქვეყნება"}</button>
+              </div>
               {reviews.length ? <div className="reviews-list">{reviews.slice(0,8).map(rv => <div key={rv.id} className="review-row"><div className="review-avatar">{(rv.reviewerName || rv.user?.name || "S").slice(0,1)}</div><div><div className="review-head"><strong>{rv.reviewerName || rv.user?.name || "სტუმარი"}</strong><span><Star size={11} fill="currentColor"/> {rv.rating}</span></div><p>{rv.comment || ""}</p></div></div>)}</div> : <p className="muted-copy">ჯერ არ არის გამოქვეყნებული მიმოხილვები.</p>}
             </article>
 
