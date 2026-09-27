@@ -76,6 +76,7 @@ export default function SkupAccount() {
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
   const [editingProfile, setEditingProfile] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const loadAccount = async (accessToken: string) => {
     const [u,b,f,l] = await Promise.all([getMe(accessToken), getMyBookings(accessToken), getFavorites(accessToken), getLoyalty(accessToken)]);
@@ -88,6 +89,54 @@ export default function SkupAccount() {
     setPhone(String(u?.phone ?? ""));
     setProfileEmail(String(u?.email ?? ""));
   };
+
+  useEffect(() => {
+    const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "673067127577-ad5quav4fr7dkpc05enrf2muvo6mppsd.apps.googleusercontent.com";
+    const scriptId = "google-gsi-script";
+    if (!document.getElementById(scriptId)) {
+      const script = document.createElement("script");
+      script.id = scriptId;
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    }
+    const setupGoogle = () => {
+      const google = (window as any).google;
+      if (!google?.accounts?.id) return false;
+      google.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: async (response: { credential?: string }) => {
+          if (!response.credential) return;
+          setGoogleLoading(true); setError(""); setNotice("");
+          try {
+            const result = await fetch("/api/skup/auth/google", {
+              method: "POST",
+              headers: {"Content-Type":"application/json"},
+              body: JSON.stringify({ idToken: response.credential }),
+            });
+            const raw = await result.text();
+            if (!result.ok) throw new Error(raw || "Google sign-in failed");
+            const data = JSON.parse(raw);
+            saveSession(data);
+            setToken(data.tokens.access_token);
+            await loadAccount(data.tokens.access_token);
+          } catch (e) {
+            setError(e instanceof Error ? e.message : "Google sign-in failed");
+          } finally { setGoogleLoading(false); }
+        },
+      });
+      const el = document.getElementById("lukma-google-button");
+      if (el) {
+        el.innerHTML = "";
+        google.accounts.id.renderButton(el, { theme: "outline", size: "large", width: 360, text: "continue_with", shape: "pill" });
+      }
+      return true;
+    };
+    let timer: number | undefined;
+    if (!setupGoogle()) timer = window.setInterval(() => { if (setupGoogle() && timer) window.clearInterval(timer); }, 250);
+    return () => { if (timer) window.clearInterval(timer); };
+  }, []); 
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -304,6 +353,11 @@ export default function SkupAccount() {
               <>
                 <h1>Your tables,<br/>favorites and rewards.</h1>
                 <p>Log in to manage your bookings, favorites, and rewards.</p>
+                <div className="google-login-wrap">
+                  <div id="lukma-google-button"></div>
+                  {googleLoading ? <span className="google-loading">Signing in with Google…</span> : null}
+                </div>
+                <div className="auth-divider"><span>or</span></div>
                 <div className="account-login-form">
                   <input value={identifier} onChange={e=>setIdentifier(e.target.value)} placeholder="Email or phone" />
                   <input value={password} onChange={e=>setPassword(e.target.value)} type="password" placeholder="Password" />
