@@ -24,6 +24,7 @@ export const metadata: Metadata = {
   description: "LUKMA — თბილისის რესტორნების აღმოჩენა, რუკა და მაგიდის დაჯავშნა ერთ სივრცეში.",
   alternates: { canonical: siteUrl },
   icons: { icon: "/icon.svg", apple: "/icon.svg" },
+  manifest: "/site.webmanifest",
   openGraph: {
     type: "website",
     url: siteUrl,
