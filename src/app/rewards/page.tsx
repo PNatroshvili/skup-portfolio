@@ -1,0 +1,1 @@
+import type { Metadata } from "next"; import SkupRewards from "@/components/SkupRewards"; export const metadata: Metadata={title:"LUKMA Rewards",description:"Track LUKMA points, tiers and rewards."}; export default function Page(){return <SkupRewards/>;}
