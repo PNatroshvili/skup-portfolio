@@ -110,10 +110,10 @@ export default function SkupRestaurant() {
   }, [restaurant]);
 
   const days = useMemo(() => {
-    const labels = ["კვ", "ორშ", "სამ", "ოთხ", "ხუთ", "პარ", "შაბ"];
+    const labels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     return [...(restaurant?.workingHours || [])].sort((a,b) => a.day - b.day).map(h => ({
       label: labels[h.day] || "?",
-      open: h.isClosed ? "დახურულია" : formatTime(h.open) + "–" + formatTime(h.close),
+      open: h.isClosed ? "Closed" : formatTime(h.open) + "–" + formatTime(h.close),
     }));
   }, [restaurant]);
 
@@ -135,7 +135,7 @@ export default function SkupRestaurant() {
       await sendBooking(token);
     } catch (e) {
       setBookingState("error");
-      setAvailabilityError(e instanceof Error ? e.message : "ჯავშნის გაგზავნა ვერ მოხერხდა.");
+      setAvailabilityError(e instanceof Error ? e.message : "Could not submit booking.");
     }
   }
 
@@ -173,7 +173,7 @@ export default function SkupRestaurant() {
       setReviews(freshReviews?.data || []);
       setRestaurant(freshRestaurant);
       setReviewComment("");
-      setReviewMessage("Overview გამოქვეყნდა.");
+      setReviewMessage("Review published.");
     } catch (e) {
       setReviewMessage(e instanceof Error ? e.message : "Could not submit review.");
     } finally {
@@ -195,10 +195,10 @@ export default function SkupRestaurant() {
     const url = window.location.href;
     try {
       if (navigator.share) {
-        await navigator.share({ title: restaurant?.name || "LUKMA", text: "ნახე ეს ადგილი LUKMA-ზე", url });
+        await navigator.share({ title: restaurant?.name || "LUKMA", text: "Check out this place on LUKMA", url });
       } else if (navigator.clipboard) {
         await navigator.clipboard.writeText(url);
-        window.alert("ბმული დაკოპირდა.");
+        window.alert("Link copied.");
       }
     } catch {}
   }
@@ -219,7 +219,7 @@ export default function SkupRestaurant() {
           <Link href="/discover/" className="back-link"><ArrowLeft size={15}/> Back to Discover</Link>
           <div className="restaurant-gallery">
             <div className="gallery-main">
-              {currentPhoto ? <img src={currentPhoto} alt={restaurant.name}/> : <div className="gallery-fallback">ლუკმა</div>}
+              {currentPhoto ? <img src={currentPhoto} alt={restaurant.name}/> : <div className="gallery-fallback">LUKMA</div>}
               <div className="gallery-count">{photoIndex+1} / {Math.max(1, photos.length)}</div>
               {photos.length > 1 ? <div className="gallery-arrows"><button onClick={() => setPhotoIndex((photoIndex-1+photos.length)%photos.length)}><ChevronLeft size={18}/></button><button onClick={() => setPhotoIndex((photoIndex+1)%photos.length)}><ChevronRight size={18}/></button></div> : null}
             </div>
@@ -234,7 +234,7 @@ export default function SkupRestaurant() {
               <span className={"badge-open " + (!isOpen ? "closed" : "")}><span/> {isOpen ? "Open now" : "Closed now"}</span>
             </div>
             <h1>{restaurant.name}</h1>
-            <div className="restaurant-subline">{restaurant.cuisine?.name || "რესტორანი"} <span>·</span> {restaurant.district || restaurant.city}</div>
+            <div className="restaurant-subline">{restaurant.cuisine?.name || "Restaurant"} <span>·</span> {restaurant.district || restaurant.city}</div>
             <div className="restaurant-rating-line"><Star size={14} fill="currentColor"/><strong>{avg.toFixed(1)}</strong><span>({restaurant.reviewsCount} Overview)</span><span className="dot"/> <MapPin size={14}/><span>{restaurant.address}</span></div>
             <div className="restaurant-actions">
               <button onClick={toggleFavorite} disabled={favoriteBusy} className="outline-btn"><Heart size={15} fill={favorite ? "currentColor":"none"}/> {favorite ? "Saved" : "Save"}</button>
@@ -288,7 +288,7 @@ export default function SkupRestaurant() {
                 <div className="review-stars">{[1,2,3,4,5].map(value => <button key={value} type="button" aria-label={value + " ვარსკვლავი"} className={value <= reviewRating ? "active" : ""} onClick={() => setReviewRating(value)}><Star size={18} fill="currentColor"/></button>)}</div>
                 <textarea value={reviewComment} onChange={e => setReviewComment(e.target.value.slice(0,1000))} placeholder="What did you like? What would you recommend to others?" />
                 {reviewMessage ? <div className="review-message">{reviewMessage}</div> : null}
-                <button className="green-btn small" onClick={submitReview} disabled={reviewBusy}>{reviewBusy ? "იგზავნება…" : "Publish"}</button>
+                <button className="green-btn small" onClick={submitReview} disabled={reviewBusy}>{reviewBusy ? "Sending…" : "Publish"}</button>
               </div>
               {reviews.length ? <div className="reviews-list">{reviews.slice(0,8).map(rv => <div key={rv.id} className="review-row"><div className="review-avatar">{(rv.reviewerName || rv.user?.name || "S").slice(0,1)}</div><div><div className="review-head"><strong>{rv.reviewerName || rv.user?.name || "guest"}</strong><span><Star size={11} fill="currentColor"/> {rv.rating}</span></div><p>{rv.comment || ""}</p></div></div>)}</div> : <p className="muted-copy">ჯერ არ არის გამოქვეყნებული Reviews.</p>}
             </article>
@@ -301,8 +301,8 @@ export default function SkupRestaurant() {
       </main>
 
       {bookingState==="login" ? <div className="modal-backdrop" onMouseDown={e => {if(e.target===e.currentTarget)setBookingState("idle")}}><div className="auth-modal"><button className="modal-close" onClick={() => setBookingState("idle")}>×</button><span className="kicker">დაჯავშნის Continue</span><h2>Log in to your LUKMA account</h2><p>You need to be logged in to submit a booking.</p><input value={loginIdentifier} onChange={e=>setLoginIdentifier(e.target.value)} placeholder="Email or phone"/><input value={loginPassword} onChange={e=>setLoginPassword(e.target.value)} type="password" placeholder="Password"/>{loginError ? <div className="inline-error">{loginError}</div> : null}<button className="booking-submit" onClick={submitLogin}>Log in and book <span>→</span></button><Link href="/account/?mode=register" className="modal-alt-link">Create an account</Link></div></div> : null}
-      {bookingState==="success" ? <div className="modal-backdrop"><div className="auth-modal success-modal"><div className="success-icon"><CheckCircle2 size={27}/></div><span className="kicker">Booking request sent</span><h2>Thank you!</h2><p>{restaurant.name} · {date} · {time} · {guests} guest</p><div className="success-note">რესტორანი მიიღებს მოთხოვნას და დადასტურებისთანავე გამოჩნდება შენს ჯავშნებში.</div><Link href="/account/" className="booking-submit">ჩემი ჯავშნები <span>→</span></Link><button className="modal-alt-link" onClick={() => setBookingState("idle")}>დარჩი აქ</button></div></div> : null}
-      {bookingState==="error" ? <div className="modal-backdrop"><div className="auth-modal"><button className="modal-close" onClick={() => setBookingState("idle")}>×</button><span className="kicker">დაჯავშნა</span><h2>Could not send</h2><p>{availabilityError || "Please try again."}</p><button className="booking-submit" onClick={() => setBookingState("idle")}>OK</button></div></div> : null}
+      {bookingState==="success" ? <div className="modal-backdrop"><div className="auth-modal success-modal"><div className="success-icon"><CheckCircle2 size={27}/></div><span className="kicker">Booking request sent</span><h2>Thank you!</h2><p>{restaurant.name} · {date} · {time} · {guests} guest</p><div className="success-note">რესტორანი მიიღებს მოთხოვნას და დადასტურებისთანავე გამოჩნდება შენს ჯავშნებში.</div><Link href="/account/" className="booking-submit>My bookings <span>→</span></Link><button className="modal-alt-link" onClick={() => setBookingState("idle")}>დარჩი აქ</button></div></div> : null}
+      {bookingState==="error" ? <div className="modal-backdrop"><div className="auth-modal"><button className="modal-close" onClick={() => setBookingState("idle")}>×</button><span className="kicker>Booking</span><h2>Could not send</h2><p>{availabilityError || "Please try again."}</p><button className="booking-submit" onClick={() => setBookingState("idle")}>OK</button></div></div> : null}
     </div>
   );
 }
