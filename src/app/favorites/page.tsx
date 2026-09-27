@@ -1,0 +1,1 @@
+import type { Metadata } from "next"; import SkupFavorites from "@/components/SkupFavorites"; export const metadata: Metadata={title:"LUKMA — Favorites",description:"Your saved LUKMA restaurants."}; export default function Page(){return <SkupFavorites/>;}
