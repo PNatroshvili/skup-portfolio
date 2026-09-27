@@ -1,0 +1,312 @@
+
+"use client";
+
+import Link from "next/link";
+import { CalendarDays, Check, ExternalLink, LogOut, Plus, Save, Store, Trash2, UtensilsCrossed } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  addMenuCategory,
+  addMenuItem,
+  createRestaurantEvent,
+  deleteRestaurantEvent,
+  getMe,
+  getMyRestaurant,
+  getMyRestaurantBookings,
+  getMyRestaurantEvents,
+  type MenuCategory,
+  type Restaurant,
+  type RestaurantEvent,
+  updateBookingStatus,
+  updateMenuItem,
+  updateRestaurantDiscount,
+  updateRestaurantHours,
+  updateRestaurantInfo,
+} from "@/lib/skupApi";
+import SkupHeader from "./SkupHeader";
+
+type ManagedRestaurant = Restaurant & {
+  menuCategories?: MenuCategory[];
+  workingHours?: Restaurant["workingHours"];
+};
+
+type ManagerBooking = {
+  id: string;
+  date: string;
+  time: string;
+  guestsCount?: number;
+  guests_count?: number;
+  status: string;
+  comment?: string | null;
+  user?: { name?: string; email?: string; phone?: string };
+};
+
+const DAYS = ["კვირა","ორშაბათი","სამშაბათი","ოთხშაბათი","ხუთშაბათი","პარასკევი","შაბათი"];
+
+export default function SkupManager() {
+  const [token, setToken] = useState<string | null>(null);
+  const [restaurant, setRestaurant] = useState<ManagedRestaurant | null>(null);
+  const [bookings, setBookings] = useState<ManagerBooking[]>([]);
+  const [events, setEvents] = useState<RestaurantEvent[]>([]);
+  const [tab, setTab] = useState<"overview"|"bookings"|"menu"|"hours"|"events">("overview");
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [form, setForm] = useState({ name:"", description:"", address:"", district:"", phone:"" });
+  const [discount, setDiscount] = useState("");
+  const [hours, setHours] = useState<NonNullable<Restaurant["workingHours"]>>([]);
+  const [newCategory, setNewCategory] = useState("");
+  const [newItemCategory, setNewItemCategory] = useState("");
+  const [newItem, setNewItem] = useState({ name:"", description:"", price:"", available:true });
+  const [eventForm, setEventForm] = useState({ title:"", description:"", emoji:"✦", eventDate:"" });
+
+  const reload = async (t: string) => {
+    const [r,b,e] = await Promise.all([
+      getMyRestaurant(t),
+      getMyRestaurantBookings(t),
+      getMyRestaurantEvents(t).catch(() => []),
+    ]);
+    setRestaurant(r);
+    setBookings((b || []) as ManagerBooking[]);
+    setEvents(e || []);
+    setForm({
+      name: r?.name || "",
+      description: r?.description || "",
+      address: r?.address || "",
+      district: r?.district || "",
+      phone: r?.phone || "",
+    });
+    setDiscount(r?.discountPercent == null ? "" : String(r.discountPercent));
+    setHours((r?.workingHours || []).slice().sort((a,b) => a.day - b.day));
+  };
+
+  useEffect(() => {
+    const t = localStorage.getItem("skup_access_token");
+    if (!t) {
+      setLoading(false);
+      return;
+    }
+    setToken(t);
+    reload(t).catch(() => {
+      setError("რესტორნის მენეჯერის მონაცემები ვერ ჩაიტვირთა.");
+    }).finally(() => setLoading(false));
+  }, []);
+
+  const pending = useMemo(() => bookings.filter(b => b.status === "pending"), [bookings]);
+  const upcoming = useMemo(() => bookings.filter(b => b.status === "pending" || b.status === "confirmed"), [bookings]);
+
+  const run = async (fn: () => Promise<unknown>, success: string) => {
+    setBusy(true); setError(""); setMessage("");
+    try {
+      await fn();
+      setMessage(success);
+      if (token) await reload(token);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "ოპერაცია ვერ შესრულდა.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (loading) return <div className="skup-site"><SkupHeader/><div className="page-loading">იტვირთება...</div></div>;
+
+  if (!token) {
+    return (
+      <div className="skup-site"><SkupHeader/><main className="manager-page shell">
+        <div className="manager-login-card">
+          <Store size={25}/>
+          <span className="kicker">LUKMA FOR RESTAURANTS</span>
+          <h1>რესტორნის მართვა</h1>
+          <p>შედი LUKMA ანგარიშში, რომელსაც რესტორანი აქვს მიბმული.</p>
+          <Link href="/account/" className="green-btn">შესვლა →</Link>
+        </div>
+      </main></div>
+    );
+  }
+
+  if (!restaurant) {
+    return (
+      <div className="skup-site"><SkupHeader/><main className="manager-page shell">
+        <div className="manager-login-card">
+          <Store size={25}/>
+          <span className="kicker">LUKMA FOR RESTAURANTS</span>
+          <h1>რესტორანი ვერ მოიძებნა</h1>
+          <p>{error || "ამ ანგარიშს ჯერ რესტორანი არ აქვს მიბმული."}</p>
+          <a href="mailto:hello@skup.ge?subject=LUKMA%20restaurant%20link" className="green-btn">დახმარების მოთხოვნა</a>
+        </div>
+      </main></div>
+    );
+  }
+
+  const updateHour = (day: number, patch: Partial<NonNullable<Restaurant["workingHours"]>[number]>) => {
+    setHours(prev => {
+      const rows = prev.slice();
+      const index = rows.findIndex(x => x.day === day);
+      const base = index >= 0 ? rows[index] : { day, open:"10:00", close:"23:00", isClosed:false };
+      const next = { ...base, ...patch };
+      if (index >= 0) rows[index] = next; else rows.push(next);
+      return rows.sort((a,b) => a.day - b.day);
+    });
+  };
+
+  const addCategory = () => {
+    if (!newCategory.trim()) return;
+    run(() => addMenuCategory(token, restaurant.id, newCategory.trim()), "კატეგორია დაემატა.").then(() => setNewCategory(""));
+  };
+
+  const addItem = () => {
+    const categoryId = newItemCategory || restaurant.menuCategories?.[0]?.id || "";
+    if (!categoryId || !newItem.name.trim() || Number(newItem.price) <= 0) {
+      setError("კერძის სახელი, კატეგორია და ფასი აუცილებელია.");
+      return;
+    }
+    run(
+      () => addMenuItem(token, restaurant.id, categoryId, { name:newItem.name.trim(), description:newItem.description.trim() || undefined, price:Number(newItem.price), isAvailable:newItem.available }),
+      "კერძი დაემატა."
+    ).then(() => setNewItem({ name:"", description:"", price:"", available:true }));
+  };
+
+  const addEvent = () => {
+    if (!eventForm.title.trim()) return;
+    run(
+      () => createRestaurantEvent(token, restaurant.id, {
+        title:eventForm.title.trim(),
+        description:eventForm.description.trim() || undefined,
+        emoji:eventForm.emoji || "✦",
+        eventDate:eventForm.eventDate || undefined,
+      }),
+      "ივენთი დაემატა."
+    ).then(() => setEventForm({ title:"", description:"", emoji:"✦", eventDate:"" }));
+  };
+
+  return (
+    <div className="skup-site">
+      <SkupHeader />
+      <main className="manager-page shell">
+        <header className="manager-header">
+          <div>
+            <span className="kicker">LUKMA FOR RESTAURANTS</span>
+            <h1>{restaurant.name}</h1>
+            <p>{restaurant.address} · {pending.length} ახალი მოთხოვნა</p>
+          </div>
+          <div className="manager-head-actions">
+            <a href={"/restaurant/?id=" + encodeURIComponent(restaurant.id)} className="outline-btn"><ExternalLink size={14}/> პროფილის ნახვა</a>
+            <button className="outline-btn" onClick={() => { localStorage.removeItem("skup_access_token"); localStorage.removeItem("skup_refresh_token"); window.location.href="/account/"; }}><LogOut size={14}/> გასვლა</button>
+          </div>
+        </header>
+
+        {error ? <div className="inline-error">{error}</div> : null}
+        {message ? <div className="account-notice">{message}</div> : null}
+
+        <nav className="manager-tabs">
+          {[
+            ["overview","მიმოხილვა"],
+            ["bookings","ჯავშნები"],
+            ["menu","მენიუ"],
+            ["hours","სამუშაო საათები"],
+            ["events","ივენთები"],
+          ].map(([key,label]) => <button key={key} className={tab===key ? "active" : ""} onClick={() => setTab(key as typeof tab)}>{label}</button>)}
+        </nav>
+
+        {tab === "overview" ? (
+          <>
+            <section className="manager-stat-grid">
+              <div><span>ახალი მოთხოვნები</span><strong>{pending.length}</strong></div>
+              <div><span>მომავალი ჯავშნები</span><strong>{upcoming.length}</strong></div>
+              <div><span>რეიტინგი</span><strong>{Number(restaurant.ratingAvg || 0).toFixed(1)}</strong></div>
+              <div><span>შეთავაზება</span><strong>{restaurant.discountPercent ? "-" + restaurant.discountPercent + "%" : "—"}</strong></div>
+            </section>
+            <section className="manager-panel">
+              <div className="section-head"><div><span className="kicker">PROFILE</span><h2>რესტორნის ინფორმაცია</h2></div><button className="green-btn small" onClick={() => run(() => updateRestaurantInfo(token, restaurant.id, form), "ინფორმაცია განახლდა.")}><Save size={14}/> შენახვა</button></div>
+              <div className="manager-form-grid">
+                <input value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="რესტორნის სახელი"/>
+                <input value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})} placeholder="ტელეფონი"/>
+                <input value={form.address} onChange={e=>setForm({...form,address:e.target.value})} placeholder="მისამართი"/>
+                <input value={form.district} onChange={e=>setForm({...form,district:e.target.value})} placeholder="უბანი"/>
+                <textarea value={form.description} onChange={e=>setForm({...form,description:e.target.value})} placeholder="აღწერა"/>
+              </div>
+            </section>
+            <section className="manager-panel">
+              <div className="section-head"><div><span className="kicker">OFFER</span><h2>შეთავაზება</h2></div><button className="green-btn small" onClick={() => run(() => updateRestaurantDiscount(token, restaurant.id, discount === "" ? null : Math.max(0, Math.min(100, Number(discount)))), "შეთავაზება განახლდა.")}><Save size={14}/> შენახვა</button></div>
+              <div className="discount-editor"><input value={discount} onChange={e=>setDiscount(e.target.value.replace(/\D/g,"").slice(0,3))} inputMode="numeric" placeholder="10"/><span>%</span><p>მომხმარებლისთვის გამოჩნდება რესტორნის შეთავაზებად.</p></div>
+            </section>
+          </>
+        ) : null}
+
+        {tab === "bookings" ? (
+          <section className="manager-panel">
+            <div className="section-head"><div><span className="kicker">RESERVATIONS</span><h2>ჯავშნების მართვა</h2></div></div>
+            {bookings.length ? bookings.map(b => (
+              <div className="manager-booking-row" key={b.id}>
+                <div className="manager-booking-date"><strong>{b.date}</strong><span>{b.time}</span></div>
+                <div><strong>{b.user?.name || "სტუმარი"}</strong><span>{b.guestsCount || b.guests_count || 0} სტუმარი · {b.user?.phone || b.user?.email || ""}</span>{b.comment ? <small>{b.comment}</small> : null}</div>
+                <span className={"status status-"+b.status}>{b.status}</span>
+                <div className="manager-booking-actions">
+                  {b.status === "pending" ? <><button className="green-mini" onClick={() => run(() => updateBookingStatus(token,b.id,"confirmed"), "ჯავშანი დადასტურდა.")}>დადასტურება</button><button className="red-mini" onClick={() => run(() => updateBookingStatus(token,b.id,"rejected"), "ჯავშანი უარყოფილია.")}>უარყოფა</button></> : null}
+                  {b.status === "confirmed" ? <button className="red-mini" onClick={() => run(() => updateBookingStatus(token,b.id,"cancelled"), "ჯავშანი გაუქმდა.")}>გაუქმება</button> : null}
+                </div>
+              </div>
+            )) : <div className="empty-state">ჯავშნები ჯერ არ არის.</div>}
+          </section>
+        ) : null}
+
+        {tab === "menu" ? (
+          <section className="manager-panel">
+            <div className="section-head"><div><span className="kicker">MENU</span><h2>მენიუს მართვა</h2></div></div>
+            <div className="manager-add-row"><input value={newCategory} onChange={e=>setNewCategory(e.target.value)} placeholder="ახალი კატეგორია"/><button className="green-btn small" onClick={addCategory}><Plus size={14}/> კატეგორია</button></div>
+            <div className="manager-menu-list">
+              {(restaurant.menuCategories || []).map(cat => (
+                <div className="manager-menu-category" key={cat.id}>
+                  <div className="manager-category-head"><div><UtensilsCrossed size={15}/><strong>{cat.name}</strong></div><span>{cat.items?.length || 0} კერძი</span></div>
+                  {cat.items?.map(item => <div className="manager-menu-item" key={item.id}>
+                    <div><strong>{item.name}</strong><span>₾{Number(item.price).toFixed(0)}</span></div>
+                    <div className="manager-menu-actions">
+                      <label className="switch-line"><input type="checkbox" checked={item.isAvailable} onChange={e => run(() => updateMenuItem(token,restaurant.id,item.id,{isAvailable:e.target.checked}), e.target.checked ? "კერძი ხელმისაწვდომია." : "კერძი მიუწვდომელია.")}/><span>ხელმისაწვდომი</span></label>
+                    </div>
+                  </div>)}
+                </div>
+              ))}
+            </div>
+            <div className="manager-add-item">
+              <span className="kicker">ახალი კერძი</span>
+              <select value={newItemCategory} onChange={e=>setNewItemCategory(e.target.value)}><option value="">კატეგორია</option>{(restaurant.menuCategories || []).map(cat=><option key={cat.id} value={cat.id}>{cat.name}</option>)}</select>
+              <input value={newItem.name} onChange={e=>setNewItem({...newItem,name:e.target.value})} placeholder="კერძის სახელი"/>
+              <input value={newItem.price} onChange={e=>setNewItem({...newItem,price:e.target.value.replace(/[^0-9.]/g,"")})} placeholder="ფასი" inputMode="decimal"/>
+              <input value={newItem.description} onChange={e=>setNewItem({...newItem,description:e.target.value})} placeholder="აღწერა"/>
+              <button className="green-btn small" onClick={addItem} disabled={busy}><Plus size={14}/> დამატება</button>
+            </div>
+          </section>
+        ) : null}
+
+        {tab === "hours" ? (
+          <section className="manager-panel">
+            <div className="section-head"><div><span className="kicker">HOURS</span><h2>სამუშაო საათები</h2></div><button className="green-btn small" onClick={() => run(() => updateRestaurantHours(token,restaurant.id,hours), "სამუშაო საათები განახლდა.")}><Save size={14}/> შენახვა</button></div>
+            <div className="manager-hours-list">
+              {Array.from({length:7},(_,day) => {
+                const h=hours.find(x=>x.day===day) || {day,open:"10:00",close:"23:00",isClosed:false};
+                return <div className="manager-hour-row" key={day}><strong>{DAYS[day]}</strong><input type="time" value={h.open || "10:00"} disabled={h.isClosed} onChange={e=>updateHour(day,{open:e.target.value})}/><span>—</span><input type="time" value={h.close || "23:00"} disabled={h.isClosed} onChange={e=>updateHour(day,{close:e.target.value})}/><label><input type="checkbox" checked={!!h.isClosed} onChange={e=>updateHour(day,{isClosed:e.target.checked})}/> დაკეტილია</label></div>;
+              })}
+            </div>
+          </section>
+        ) : null}
+
+        {tab === "events" ? (
+          <section className="manager-panel">
+            <div className="section-head"><div><span className="kicker">EVENTS</span><h2>ივენთები</h2></div></div>
+            <div className="manager-add-event">
+              <input value={eventForm.title} onChange={e=>setEventForm({...eventForm,title:e.target.value})} placeholder="ივენთის სახელი"/>
+              <input value={eventForm.emoji} onChange={e=>setEventForm({...eventForm,emoji:e.target.value})} placeholder="✦"/>
+              <input value={eventForm.eventDate} onChange={e=>setEventForm({...eventForm,eventDate:e.target.value})} placeholder="2026-10-10 20:00"/>
+              <textarea value={eventForm.description} onChange={e=>setEventForm({...eventForm,description:e.target.value})} placeholder="აღწერა"/>
+              <button className="green-btn small" onClick={addEvent}><Plus size={14}/> ივენთის დამატება</button>
+            </div>
+            <div className="manager-events-list">
+              {events.map(ev => <div className="manager-event-row" key={ev.id}><span>{ev.emoji || "✦"}</span><div><strong>{ev.title}</strong><p>{ev.description || ""}</p><small>{ev.eventDate || ""}</small></div><button className="red-mini" onClick={() => run(() => deleteRestaurantEvent(token,ev.id), "ივენთი წაიშალა.")}><Trash2 size={13}/></button></div>)}
+              {!events.length ? <div className="empty-state">აქტიური ივენთები ჯერ არ არის.</div> : null}
+            </div>
+          </section>
+        ) : null}
+      </main>
+    </div>
+  );
+}
