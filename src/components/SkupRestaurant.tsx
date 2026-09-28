@@ -40,6 +40,7 @@ export default function SkupRestaurant() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [events, setEvents] = useState<RestaurantEvent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [photoIndex, setPhotoIndex] = useState(0);
   const [date, setDate] = useState(todayISO());
   const [guests, setGuests] = useState(2);
@@ -66,15 +67,17 @@ export default function SkupRestaurant() {
     const nextId = new URLSearchParams(window.location.search).get("id") || "";
     setId(nextId);
     if (!nextId) { setLoading(false); return; }
-    Promise.all([getRestaurant(nextId), getMenu(nextId), getReviews(nextId), getEvents(nextId)])
-      .then(([r,m,rv,ev]) => {
+    Promise.allSettled([getRestaurant(nextId), getMenu(nextId), getReviews(nextId), getEvents(nextId)])
+      .then(([restaurantResult, menuResult, reviewsResult, eventsResult]) => {
+        if (restaurantResult.status !== "fulfilled") throw restaurantResult.reason;
+        const r = restaurantResult.value;
         setRestaurant(r);
         trackRecentlyViewed(r);
-        setMenu(m || []);
-        setReviews(rv?.data || []);
-        setEvents((ev || []).filter(x => x.isActive));
+        if (menuResult.status === "fulfilled") setMenu(menuResult.value || []);
+        if (reviewsResult.status === "fulfilled") setReviews(reviewsResult.value?.data || []);
+        if (eventsResult.status === "fulfilled") setEvents((eventsResult.value || []).filter(x => x.isActive));
       })
-      .catch(() => {})
+      .catch(() => setLoadError("Restaurant could not be loaded right now."))
       .finally(() => setLoading(false));
   }, []);
 
@@ -284,7 +287,7 @@ export default function SkupRestaurant() {
   }, [bookingState, date, time]);
 
   if (loading) return <div className="skup-site"><SkupHeader/><div className="page-loading">Loading...</div></div>;
-  if (!restaurant) return <div className="skup-site"><SkupHeader/><div className="page-loading"><h2>Restaurant not found</h2><Link href="/discover/">← Back to Discover</Link></div></div>;
+  if (!restaurant) return <div className="skup-site"><SkupHeader/><div className="page-loading"><h2>{loadError || "Restaurant not found"}</h2><p>{loadError ? "Please try again in a moment." : "This restaurant may have been removed or the link is incorrect."}</p><Link href="/discover/">← Back to Discover</Link></div></div>;
 
   const avg = Number(restaurant.ratingAvg || 0);
   const isOpen = Boolean(restaurant.isOpen);
