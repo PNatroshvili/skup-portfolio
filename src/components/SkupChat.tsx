@@ -53,7 +53,7 @@ export default function SkupChat(){
 
   const send=async()=>{
     const body=text.trim();
-    if(!body || !bookingId || !userId) return;
+    if(!body || !bookingId || !userId || !authToken) return;
     setSending(true);
     try{
       const mod=await import("socket.io-client");
@@ -76,7 +76,7 @@ export default function SkupChat(){
     <div className="chat-head"><Link href="/bookings/" className="back-link"><ArrowLeft size={15}/> Back</Link><div><span className="kicker">BOOKING CHAT</span><h1>{restaurant}</h1><p>Message the restaurant about your reservation.</p></div></div>
     <div className="chat-shell">
       <div className="chat-messages" ref={listRef}>{loading?<div className="page-loading">Loading conversation…</div>:messages.length?messages.map(m=>{const me=m.senderId===userId;return <div key={m.id} className={"chat-row "+(me?"me":"")}><div className={"chat-bubble "+(me?"me":"")}><small>{!me && (m.senderRole==="restaurant_manager"?"Restaurant":"LUKMA guest")}</small><p>{m.content}</p><time>{new Date(m.createdAt).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}</time></div></div>}):<div className="chat-empty"><MessageCircle size={34}/><h3>No messages yet</h3><p>Ask the restaurant about your reservation, arrival time or a special request.</p></div>}</div>
-      <div className="chat-input"><textarea value={text} onChange={e=>setText(e.target.value.slice(0,500))} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}}} placeholder="Write a message…"/><button className="green-btn" onClick={send} disabled={sending||!text.trim()}><Send size={15}/> {sending?"Sending…":"Send"}</button></div>
+      <div className="chat-input"><textarea value={text} onChange={e=>setText(e.target.value.slice(0,500))} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey&&!e.nativeEvent.isComposing){e.preventDefault();send();}}} placeholder="Write a message…"/><button className="green-btn" onClick={send} disabled={sending||!text.trim()}><Send size={15}/> {sending?"Sending…":"Send"}</button></div>
     </div>
     {error?<div className="inline-error">{error}</div>:null}
   </main></div>;
