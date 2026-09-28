@@ -117,7 +117,8 @@ export default function SkupManager() {
       return matchesStatus && (!query || haystack.includes(query));
     });
   }, [sortedBookings, bookingFilter, bookingSearch]);
-  const today = new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   const todayBookings = useMemo(() => bookings.filter(b => b.date === today && ["pending","confirmed"].includes(b.status)), [bookings, today]);
   const confirmed = useMemo(() => bookings.filter(b => b.status === "confirmed"), [bookings]);
   const rejected = useMemo(() => bookings.filter(b => b.status === "rejected"), [bookings]);
