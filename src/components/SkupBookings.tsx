@@ -41,6 +41,7 @@ export default function SkupBookings() {
   const [busy, setBusy] = useState("");
   const [notice, setNotice] = useState("");
   const [authToken, setAuthToken] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const load = async () => {
     if (!authToken) { setBookings([]); setLoading(false); return; }
@@ -65,7 +66,7 @@ export default function SkupBookings() {
 
   async function cancel(id: string) {
     const token = sessionToken();
-    if (!token) return;
+    if (!token || busy) return;
     setBusy(id);
     try {
       await updateBookingStatus(token, id, "cancelled");
@@ -78,7 +79,7 @@ export default function SkupBookings() {
 
   async function submitReview() {
     const token = sessionToken();
-    if (!token || !reviewBooking?.restaurant?.id) return;
+    if (!token || !reviewBooking?.restaurant?.id || busy) return;
     setBusy(reviewBooking.id);
     try {
       await createReview(token, {
@@ -89,6 +90,7 @@ export default function SkupBookings() {
       setNotice("Thanks — your review was submitted.");
       setReviewBooking(null);
       setReviewText("");
+      setReviewRating(5);
     } catch (e) {
       setNotice(e instanceof Error ? e.message : "Could not submit review.");
     } finally { setBusy(""); }
@@ -102,7 +104,7 @@ export default function SkupBookings() {
       <main className="shell account-page">
         <div className="account-header">
           <div><span className="kicker">BOOKINGS</span><h1>My bookings</h1><p>Keep every reservation, check-in QR, and follow-up in one place.</p></div>
-          <div style={{display:"flex",gap:8}}><button className="outline-btn" onClick={load}><RefreshCw size={14}/> Refresh</button><Link className="green-btn" href="/discover/">Find a table</Link></div>
+          <div style={{display:"flex",gap:8}}><button className="outline-btn" onClick={async () => { setRefreshing(true); try { await load(); } finally { setRefreshing(false); } }} disabled={loading || refreshing}><RefreshCw className={refreshing ? "spin" : ""} size={14}/> {refreshing ? "Refreshing…" : "Refresh"}</button><Link className="green-btn" href="/discover/">Find a table</Link></div>
         </div>
 
         {!isAuthenticated ? (
@@ -150,7 +152,7 @@ export default function SkupBookings() {
                   );
                 })}
               </div> :
-              <div className="empty-state"><CalendarDays size={28}/><h3>No bookings yet</h3><p>Pick a restaurant and reserve your next table in seconds.</p><Link className="green-btn" href="/discover/">Discover restaurants</Link></div>
+              <div className="empty-state"><CalendarDays size={28}/><h3>{bookings.length ? "No matching bookings" : "No bookings yet"}</h3><p>{bookings.length ? "Try another booking status filter." : "Pick a restaurant and reserve your next table in seconds."}</p>{bookings.length ? <button className="outline-btn" onClick={() => setFilter("all")}>Show all bookings</button> : <Link className="green-btn" href="/discover/">Discover restaurants</Link>}</div>
             }
           </>
         )}
