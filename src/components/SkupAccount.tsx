@@ -129,7 +129,11 @@ export default function SkupAccount() {
             const data = JSON.parse(raw);
             saveSession(data);
             setToken(data.tokens.access_token);
-            await loadAccount(data.tokens.access_token);
+            try {
+              await loadAccount(data.tokens.access_token);
+            } catch {
+              setNotice("Signed in successfully. Some account data could not be loaded; refresh the page to retry.");
+            }
           } catch (e) {
             setError(e instanceof Error ? e.message : "Google sign-in failed");
           } finally { setGoogleLoading(false); }
@@ -196,7 +200,11 @@ export default function SkupAccount() {
       const result = await login(identifier.trim(), password);
       saveSession(result);
       setToken(result.tokens.access_token);
-      await loadAccount(result.tokens.access_token);
+      try {
+        await loadAccount(result.tokens.access_token);
+      } catch {
+        setNotice("Signed in successfully. Some account data could not be loaded; refresh the page to retry.");
+      }
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Login failed";
       if (msg.includes("EMAIL_NOT_VERIFIED")) {
@@ -229,8 +237,12 @@ export default function SkupAccount() {
         window.location.assign("/for-restaurants/dashboard/");
         return;
       }
-      await loadAccount(result.tokens.access_token);
-      setNotice("Demo account loaded.");
+      try {
+        await loadAccount(result.tokens.access_token);
+        setNotice("Demo account loaded.");
+      } catch {
+        setNotice("Demo account signed in. Some account data could not be loaded; refresh the page to retry.");
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Demo login failed");
     } finally {
@@ -266,7 +278,11 @@ export default function SkupAccount() {
       const result = await verifyEmail(authEmail.trim(), code.trim());
       saveSession(result);
       setToken(result.tokens.access_token);
-      await loadAccount(result.tokens.access_token);
+      try {
+        await loadAccount(result.tokens.access_token);
+      } catch {
+        setNotice("Email verified and you are signed in. Some account data could not be loaded; refresh the page to retry.");
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not verify the code");
     } finally {
@@ -346,8 +362,13 @@ export default function SkupAccount() {
     setBusy(true); setError("");
     try {
       await updateBookingStatus(token, bookingId, "cancelled");
-      await loadAccount(token);
+      setBookings(prev => prev.map(b => b.id === bookingId ? { ...b, status: "cancelled" } : b));
       setNotice("Booking cancelled.");
+      try {
+        await loadAccount(token);
+      } catch {
+        setNotice("Booking cancelled. Latest account data could not be refreshed; use Refresh by revisiting this page.");
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not cancel the booking");
     } finally {
