@@ -150,6 +150,7 @@ export default function SkupRestaurant() {
       localStorage.setItem("skup_access_token", result.tokens.access_token);
       localStorage.setItem("skup_refresh_token", result.tokens.refresh_token);
       localStorage.setItem("skup_user", JSON.stringify(result.user));
+      window.dispatchEvent(new Event("skup-auth-changed"));
       await sendBooking(result.tokens.access_token);
     } catch (e) {
       setLoginError(e instanceof Error && e.message.includes("EMAIL_NOT_VERIFIED")
