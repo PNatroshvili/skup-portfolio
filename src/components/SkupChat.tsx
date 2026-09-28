@@ -46,7 +46,7 @@ export default function SkupChat(){
   },[messages]);
 
   useEffect(()=>{
-    if(!bookingId || !userId) return;
+    if(!bookingId || !userId || !authToken) return;
     let socket:any;
     (async()=>{
       try{
@@ -57,7 +57,7 @@ export default function SkupChat(){
       }catch{}
     })();
     return()=>{if(socket)socket.disconnect();};
-  },[bookingId,userId]);
+  },[bookingId,userId,authToken]);
 
   const send=async()=>{
     const body=text.trim();
