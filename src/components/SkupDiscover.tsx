@@ -52,6 +52,8 @@ export default function SkupDiscover(){
   const [visibleCount,setVisibleCount]=useState(20);
   const [searchReady,setSearchReady]=useState(false);
   const [mapReady,setMapReady]=useState(false);
+  const [searchAsMapMoves,setSearchAsMapMoves]=useState(true);
+  const [mapBounds,setMapBounds]=useState<{south:number;west:number;north:number;east:number}|null>(null);
 
   useEffect(()=>{
     let disposed=false;
@@ -87,20 +89,40 @@ export default function SkupDiscover(){
       };
       map.getContainer().addEventListener("wheel",wheelHandler,{passive:false});
       window.setTimeout(()=>map?.invalidateSize(),0);
-      map.whenReady(()=>map?.invalidateSize());
+      map.whenReady(()=>{
+        map?.invalidateSize();
+        const bounds=map?.getBounds();
+        if(bounds) setMapBounds({
+          south:bounds.getSouth(),
+          west:bounds.getWest(),
+          north:bounds.getNorth(),
+          east:bounds.getEast(),
+        });
+      });
+      const onMoveEnd=()=>{
+        const bounds=map?.getBounds();
+        if(bounds && searchAsMapMoves) setMapBounds({
+          south:bounds.getSouth(),
+          west:bounds.getWest(),
+          north:bounds.getNorth(),
+          east:bounds.getEast(),
+        });
+      };
+      map.on("moveend",onMoveEnd);
 
     });
     return ()=>{
       disposed=true;
       if(resizeObserver)resizeObserver.disconnect();
       if(map&&wheelHandler)map.getContainer().removeEventListener("wheel",wheelHandler);
+      if(map) map.off("moveend");
       if(map){map.remove();}
       markerRefs.current.clear();
       leafletMapRef.current=null;
       markerLayerRef.current=null;
       setMapReady(false);
     };
-  },[]);
+  },[searchAsMapMoves]);
 
   useEffect(()=>{
     const params=new URLSearchParams(window.location.search);
@@ -122,6 +144,14 @@ export default function SkupDiscover(){
         setCollections((col||[]).filter(x=>x.isActive).sort((a,b)=>a.sortOrder-b.sortOrder));
         setRestaurants(r.data||[]);
         setSelected(r.data?.[0]?.id||"");
+      const coords=(r.data||[])
+        .map(item=>[Number(item.latitude),Number(item.longitude)] as [number,number])
+        .filter(([lat,lng])=>Number.isFinite(lat)&&Number.isFinite(lng));
+      if(coords.length>1) {
+        window.setTimeout(()=>{
+          leafletMapRef.current?.fitBounds(coords,{padding:[70,70],maxZoom:13.4,animate:false});
+        },250);
+      }
       })
       .catch(()=>setError("Restaurants could not be loaded right now."))
       .finally(()=>setLoading(false));
@@ -161,9 +191,14 @@ export default function SkupDiscover(){
       if(discountOnly&&!Number(r.discountPercent||0))return false;
       if(priceLevel&&String((r as any).priceLevel||"")!==priceLevel)return false;
       if(dietary.length&&!dietary.every(key=>DIETARY[key].some(word=>hay.includes(word))))return false;
+      if(searchAsMapMoves && mapBounds){
+        const lat=Number(r.latitude),lng=Number(r.longitude);
+        if(!Number.isFinite(lat)||!Number.isFinite(lng)) return false;
+        if(lat<mapBounds.south||lat>mapBounds.north||lng<mapBounds.west||lng>mapBounds.east) return false;
+      }
       return true;
     });
-  },[restaurants,q,cuisineId,collectionId,collections,isOpen,minRating,discountOnly,priceLevel,dietary]);
+  },[restaurants,q,cuisineId,collectionId,collections,isOpen,minRating,discountOnly,priceLevel,dietary,searchAsMapMoves,mapBounds]);
 
   const sorted=useMemo(()=>{
     const list=[...filtered];
@@ -286,7 +321,10 @@ export default function SkupDiscover(){
   const clearFilters=()=>{
     setQ("");setCuisineId("");setCollectionId("");setIsOpen(false);setMinRating("");setDiscountOnly(false);setPriceLevel("");setDietary([]);setNearMe(false);setUserLocation(null);setSort("rating");
   };
-  const resetMap=()=>leafletMapRef.current?.flyTo([41.7151,44.8271],12.4,{duration:.5});
+  const resetMap=()=>{
+    setSearchAsMapMoves(true);
+    leafletMapRef.current?.flyTo([41.7151,44.8271],12.4,{duration:.5});
+  };
 
   const surprise=()=>{if(!sorted.length)return;const r=sorted[Math.floor(Math.random()*sorted.length)];selectRestaurant(r);};
 
@@ -378,7 +416,9 @@ export default function SkupDiscover(){
         <div className="discover-map-card">
           <div ref={mapElementRef} className="discover-map-canvas" aria-label="Interactive Tbilisi restaurant map"/>
           <div className="map-overlay-top">
-            <button className="map-search-toggle" type="button"><span className="map-toggle-box">✓</span> Search as I move</button>
+            <button className={"map-search-toggle "+(searchAsMapMoves?"checked":"")} type="button" onClick={()=>setSearchAsMapMoves(v=>!v)} aria-pressed={searchAsMapMoves}>
+              <span className="map-toggle-box">{searchAsMapMoves?"✓":""}</span> Search as I move
+            </button>
           </div>
           <div className="map-controls">
             <button onClick={()=>leafletMapRef.current?.zoomIn()} aria-label="Zoom in">+</button>
