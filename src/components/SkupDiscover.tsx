@@ -55,6 +55,7 @@ export default function SkupDiscover(){
   const [loading,setLoading]=useState(true);
   const [error,setError]=useState("");
   const [visibleCount,setVisibleCount]=useState(20);
+  const [searchReady,setSearchReady]=useState(false);
 
   useEffect(()=>{
     const params=new URLSearchParams(window.location.search);
@@ -69,6 +70,7 @@ export default function SkupDiscover(){
     const requestedSort=params.get("sort");
     if (requestedSort==="name" || requestedSort==="discount" || requestedSort==="distance") setSort(requestedSort);
     setHistory(readSearchHistory());
+    setSearchReady(true);
     Promise.all([getCuisines(),getCollections(),getRestaurants({city:"თბილისი",page:1,limit:200})])
       .then(([c,col,r])=>{
         setCuisines((c||[]).sort((a,b)=>(a.name||"").localeCompare(b.name||"")));
@@ -81,6 +83,7 @@ export default function SkupDiscover(){
   },[]);
 
   useEffect(()=>{
+    if(!searchReady) return;
     setVisibleCount(20);
     const params=new URLSearchParams();
     if(q.trim())params.set("q",q.trim());
@@ -93,7 +96,7 @@ export default function SkupDiscover(){
     if(dietary.length)params.set("dietary",dietary.join(","));
     if(sort!=="rating")params.set("sort",sort);
     window.history.replaceState(null,"",params.toString()?"/discover/?"+params.toString():"/discover/");
-  },[q,cuisineId,collectionId,isOpen,minRating,discountOnly,priceLevel,dietary,sort,nearMe]);
+  },[searchReady,q,cuisineId,collectionId,isOpen,minRating,discountOnly,priceLevel,dietary,sort,nearMe]);
 
   const filtered=useMemo(()=>{
     return restaurants.filter(r=>{
