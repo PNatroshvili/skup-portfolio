@@ -54,6 +54,7 @@ export default function SkupDiscover(){
   const [mapReady,setMapReady]=useState(false);
   const [searchAsMapMoves,setSearchAsMapMoves]=useState(true);
   const [mapBounds,setMapBounds]=useState<{south:number;west:number;north:number;east:number}|null>(null);
+  const searchAsMapMovesRef=useRef(true);
 
   useEffect(()=>{
     let disposed=false;
@@ -101,7 +102,7 @@ export default function SkupDiscover(){
       });
       const onMoveEnd=()=>{
         const bounds=map?.getBounds();
-        if(bounds && searchAsMapMoves) setMapBounds({
+        if(bounds && searchAsMapMovesRef.current) setMapBounds({
           south:bounds.getSouth(),
           west:bounds.getWest(),
           north:bounds.getNorth(),
@@ -122,6 +123,16 @@ export default function SkupDiscover(){
       markerLayerRef.current=null;
       setMapReady(false);
     };
+  },[]);
+
+  useEffect(()=>{
+    searchAsMapMovesRef.current=searchAsMapMoves;
+    if(searchAsMapMoves && leafletMapRef.current){
+      const bounds=leafletMapRef.current.getBounds();
+      setMapBounds({south:bounds.getSouth(),west:bounds.getWest(),north:bounds.getNorth(),east:bounds.getEast()});
+    } else if(!searchAsMapMoves){
+      setMapBounds(null);
+    }
   },[searchAsMapMoves]);
 
   useEffect(()=>{
