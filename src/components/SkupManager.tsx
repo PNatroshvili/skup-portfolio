@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { CalendarDays, Check, ExternalLink, LogOut, Plus, Save, Store, Trash2, UtensilsCrossed } from "lucide-react";
+import { CalendarDays, Check, ExternalLink, LogOut, Plus, RefreshCw, Save, Search, Store, Trash2, UtensilsCrossed } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
   addMenuCategory,
@@ -101,6 +101,54 @@ export default function SkupManager() {
 
   const pending = useMemo(() => bookings.filter(b => b.status === "pending"), [bookings]);
   const upcoming = useMemo(() => bookings.filter(b => b.status === "pending" || b.status === "confirmed"), [bookings]);
+
+  const [bookingFilter, setBookingFilter] = useState<"all"|"pending"|"confirmed"|"rejected"|"cancelled">("pending");
+  const [bookingSearch, setBookingSearch] = useState("");
+  const [actionBookingId, setActionBookingId] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const bookingDateValue = (b: ManagerBooking) => Date.parse(`${b.date}T${b.time || "00:00"}`) || 0;
+  const sortedBookings = useMemo(() => [...bookings].sort((a,b) => bookingDateValue(b) - bookingDateValue(a)), [bookings]);
+  const filteredBookings = useMemo(() => {
+    const query = bookingSearch.trim().toLowerCase();
+    return sortedBookings.filter(b => {
+      const matchesStatus = bookingFilter === "all" || b.status === bookingFilter;
+      const haystack = [b.user?.name, b.user?.email, b.user?.phone, b.comment].filter(Boolean).join(" ").toLowerCase();
+      return matchesStatus && (!query || haystack.includes(query));
+    });
+  }, [sortedBookings, bookingFilter, bookingSearch]);
+  const today = new Date().toISOString().slice(0, 10);
+  const todayBookings = useMemo(() => bookings.filter(b => b.date === today && ["pending","confirmed"].includes(b.status)), [bookings, today]);
+  const confirmed = useMemo(() => bookings.filter(b => b.status === "confirmed"), [bookings]);
+  const rejected = useMemo(() => bookings.filter(b => b.status === "rejected"), [bookings]);
+  const cancelled = useMemo(() => bookings.filter(b => b.status === "cancelled"), [bookings]);
+
+  const refreshData = async () => {
+    if (!token || refreshing) return;
+    setRefreshing(true); setError("");
+    try {
+      await reload(token);
+      setMessage("Restaurant data refreshed.");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not refresh restaurant data.");
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const changeBookingStatus = async (bookingId: string, status: "confirmed"|"rejected"|"cancelled") => {
+    if (!token || actionBookingId) return;
+    setActionBookingId(bookingId); setError(""); setMessage("");
+    try {
+      await updateBookingStatus(token, bookingId, status);
+      setMessage(status === "confirmed" ? "Booking confirmed." : status === "rejected" ? "Booking rejected." : "Booking cancelled.");
+      await reload(token);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not update booking.");
+    } finally {
+      setActionBookingId(null);
+    }
+  };
 
   const run = async (fn: () => Promise<unknown>, success: string) => {
     setBusy(true); setError(""); setMessage("");
@@ -209,7 +257,7 @@ export default function SkupManager() {
             <h1>{restaurant.name}</h1>
             <p>{restaurant.address} · {pending.length} new requests</p>
           </div>
-          <div className="manager-head-actions">
+          <div className="manager-head-actions"><button className="outline-btn" onClick={refreshData} disabled={refreshing}><RefreshCw size={14} className={refreshing ? "spin" : ""}/> {refreshing ? "Refreshing" : "Refresh"}</button>
             <a href={"/restaurant/?id=" + encodeURIComponent(restaurant.id)} className="outline-btn"><ExternalLink size={14}/> View profile</a>
             <Link href="/for-restaurants/subscription/" className="outline-btn">Subscription</Link>
             <button className="outline-btn" onClick={() => { localStorage.removeItem("skup_access_token"); localStorage.removeItem("skup_refresh_token"); window.location.href="/account/"; }}><LogOut size={14}/> Log out</button>
@@ -233,9 +281,10 @@ export default function SkupManager() {
         {tab === "overview" ? (
           <>
             <section className="manager-stat-grid">
-              <div><span>New requests</span><strong>{pending.length}</strong></div>
-              <div><span>Upcoming bookings</span><strong>{upcoming.length}</strong></div>
-              <div><span>Rating</span><strong>{Number(restaurant.ratingAvg || 0).toFixed(1)}</strong></div>
+              <div><span>New requests</span><strong>{pending.length}</strong><small>Need a response</small></div>
+              <div><span>Today</span><strong>{todayBookings.length}</strong><small>Pending or confirmed</small></div>
+              <div><span>Confirmed</span><strong>{confirmed.length}</strong><small>All time</small></div>
+              <div><span>Upcoming</span><strong>{upcoming.length}</strong><small>Pending + confirmed</small></div>
               <div><span>Offer</span><strong>{restaurant.discountPercent ? "-" + restaurant.discountPercent + "%" : "—"}</strong></div>
             </section>
             <section className="manager-panel">
@@ -257,19 +306,20 @@ export default function SkupManager() {
 
         {tab === "bookings" ? (
           <section className="manager-panel">
-            <div className="section-head"><div><span className="kicker">RESERVATIONS</span><h2>Booking management</h2></div></div>
-            {bookings.length ? bookings.map(b => (
+            <div className="section-head"><div><span className="kicker">RESERVATIONS</span><h2>Booking management</h2><p className="manager-section-note">{pending.length} pending · {confirmed.length} confirmed · {rejected.length} rejected · {cancelled.length} cancelled</p></div></div>
+            <div className="manager-booking-toolbar"><div className="manager-booking-filters">{(["pending","confirmed","all","rejected","cancelled"] as const).map(filter => <button key={filter} className={bookingFilter===filter ? "active" : ""} onClick={() => setBookingFilter(filter)}>{filter} <span>{filter==="all" ? bookings.length : bookings.filter(b=>b.status===filter).length}</span></button>)}</div><label className="manager-booking-search"><Search size={14}/><input value={bookingSearch} onChange={e=>setBookingSearch(e.target.value)} placeholder="Search guest"/></label></div>
+            {filteredBookings.length ? filteredBookings.map(b => (
               <div className="manager-booking-row" key={b.id}>
                 <div className="manager-booking-date"><strong>{b.date}</strong><span>{b.time}</span></div>
                 <div><strong>{b.user?.name || "guest"}</strong><span>{b.guestsCount || b.guests_count || 0} guest · {b.user?.phone || b.user?.email || ""}</span>{b.comment ? <small>{b.comment}</small> : null}</div>
                 <span className={"status status-"+b.status}>{b.status}</span>
                 <div className="manager-booking-actions">
-                  {b.status === "pending" ? <><button className="green-mini" onClick={() => run(() => updateBookingStatus(token,b.id,"confirmed"), "Booking confirmed.")}>Confirm</button><button className="red-mini" onClick={() => run(() => updateBookingStatus(token,b.id,"rejected"), "Booking rejected.")}>Reject</button></> : null}
-                  {b.status === "confirmed" ? <button className="red-mini" onClick={() => run(() => updateBookingStatus(token,b.id,"cancelled"), "Booking cancelled.")}>Cancel</button> : null}
+                  {b.status === "pending" ? <><button className="green-mini" disabled={!!actionBookingId} onClick={() => changeBookingStatus(b.id,"confirmed")}>{actionBookingId===b.id ? "Saving…" : "Confirm"}</button><button className="red-mini" disabled={!!actionBookingId} onClick={() => changeBookingStatus(b.id,"rejected")}>Reject</button></> : null}
+                  {b.status === "confirmed" ? <button className="red-mini" disabled={!!actionBookingId} onClick={() => changeBookingStatus(b.id,"cancelled")}>{actionBookingId===b.id ? "Saving…" : "Cancel"}</button> : null}
                   <Link className="green-mini" href={"/chat/?booking_id="+encodeURIComponent(b.id)+"&restaurant="+encodeURIComponent(restaurant.name)}>Chat</Link>
                 </div>
               </div>
-            )) : <div className="empty-state">No bookings yet.</div>}
+            )) : <div className="empty-state">{bookings.length ? "No bookings match this filter." : "No bookings yet."}</div>}
           </section>
         ) : null}
 
