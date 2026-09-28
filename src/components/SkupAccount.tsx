@@ -366,7 +366,6 @@ export default function SkupAccount() {
   );
 
   const confirmedCount = useMemo(() => bookings.filter(b => b.status === "confirmed").length, [bookings]);
-  const cancelledCount = useMemo(() => bookings.filter(b => b.status === "cancelled" || b.status === "rejected").length, [bookings]);
 
   if (!token) {
     return (
