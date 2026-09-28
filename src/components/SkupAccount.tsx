@@ -79,7 +79,8 @@ export default function SkupAccount() {
   const [googleLoading, setGoogleLoading] = useState(false);
 
   const loadAccount = async (accessToken: string) => {
-    const [u,b,f,l] = await Promise.all([getMe(accessToken), getMyBookings(accessToken), getFavorites(accessToken), getLoyalty(accessToken)]);
+    const activeToken = typeof window !== "undefined" ? localStorage.getItem("skup_access_token") || accessToken : accessToken;
+    const [u,b,f,l] = await Promise.all([getMe(activeToken), getMyBookings(activeToken), getFavorites(activeToken), getLoyalty(activeToken)]);
     setUser(u);
     setBookings((b || []) as Booking[]);
     setFavorites(f || []);
@@ -139,6 +140,8 @@ export default function SkupAccount() {
   }, []); 
 
   useEffect(() => {
+    const syncSession = () => setToken(localStorage.getItem("skup_access_token"));
+    window.addEventListener("skup-auth-changed", syncSession);
     const params = new URLSearchParams(window.location.search);
     const requestedMode = params.get("mode");
     if (requestedMode === "register") setMode("register");
@@ -168,6 +171,7 @@ export default function SkupAccount() {
         setToken(null);
       });
     }
+    return () => window.removeEventListener("skup-auth-changed", syncSession);
   }, []);
 
   const handleLogin = async () => {
