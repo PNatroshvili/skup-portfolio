@@ -110,7 +110,7 @@ export default function SkupBookings() {
           <>
             {notice ? <div className="account-notice account-global-notice">{notice}</div> : null}
             <div className="booking-filter-bar">
-              {["all","pending","confirmed","cancelled"].map(key => <button key={key} className={filter===key ? "active" : ""} onClick={() => setFilter(key)}>{key === "all" ? "All" : STATUS[key]?.label || key}</button>)}
+              {["all","pending","confirmed","cancelled","rejected"].map(key => <button key={key} className={filter===key ? "active" : ""} onClick={() => setFilter(key)}>{key === "all" ? "All" : STATUS[key]?.label || key}</button>)}
             </div>
             {loading ? <div className="page-loading">Loading bookings…</div> :
               filtered.length ? <div className="booking-list">
