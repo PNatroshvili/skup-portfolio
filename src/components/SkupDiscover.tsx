@@ -178,6 +178,20 @@ export default function SkupDiscover(){
     if(!sorted.some(r=>r.id===selected))setSelected(sorted[0].id);
   },[sorted,selected]);
 
+  const selectRestaurant=useCallback((r:Restaurant,focusList=false)=>{
+    setSelected(r.id);
+    const lat=Number(r.latitude);
+    const lng=Number(r.longitude);
+    if(leafletMapRef.current && Number.isFinite(lat) && Number.isFinite(lng)){
+      leafletMapRef.current.flyTo([lat,lng],Math.max(leafletMapRef.current.getZoom(),14.8),{duration:.45});
+    }
+    if(focusList){
+      const target=Array.from(document.querySelectorAll<HTMLElement>("[data-restaurant-id]"))
+        .find(node=>node.dataset.restaurantId===r.id);
+      target?.scrollIntoView({behavior:"smooth",block:"nearest"});
+    }
+  },[]);
+
   useEffect(()=>{
     let disposed=false;
     const paintMarkers=async()=>{
@@ -235,20 +249,6 @@ export default function SkupDiscover(){
       element?.classList.toggle("selected",id===selected);
     });
   },[selected]);
-
-  const selectRestaurant=useCallback((r:Restaurant,focusList=false)=>{
-    setSelected(r.id);
-    const lat=Number(r.latitude);
-    const lng=Number(r.longitude);
-    if(leafletMapRef.current && Number.isFinite(lat) && Number.isFinite(lng)){
-      leafletMapRef.current.flyTo([lat,lng],Math.max(leafletMapRef.current.getZoom(),14.8),{duration:.45});
-    }
-    if(focusList){
-      const target=Array.from(document.querySelectorAll<HTMLElement>("[data-restaurant-id]"))
-        .find(node=>node.dataset.restaurantId===r.id);
-      target?.scrollIntoView({behavior:"smooth",block:"nearest"});
-    }
-  },[]);
 
   const toggleNearMe=()=>{
     if(nearMe){
@@ -334,10 +334,15 @@ export default function SkupDiscover(){
           {visible.length<sorted.length?<button className="discover-load-more" onClick={()=>setVisibleCount(v=>v+20)}>Show more · {sorted.length-visible.length} left</button>:null}
         </aside>
         <div className="discover-map-card">
-          <iframe title="Tbilisi restaurant map" src={mapUrl(zoom,center)} loading="lazy"/>
-          <div className="map-overlay-top"><span>{sorted.length} places</span><button onClick={()=>{setCenter({lat:41.7151,lng:44.8271});setZoom(1)}}>Reset</button></div>
-          <div className="map-controls"><button onClick={()=>setZoom(z=>Math.max(.7,z-.3))}>−</button><button onClick={()=>setZoom(z=>Math.min(4,z+.3))}>+</button></div>
-          {visible.slice(0,60).map(r=><button key={r.id} className={"map-pin "+(r.id===selectedRestaurant?.id?"selected":"")} style={mapPosition(r,zoom,center)} onClick={()=>selectRestaurant(r)} aria-label={"Open "+r.name}><span>{Number(r.ratingAvg||0).toFixed(1)}</span>{r.discountPercent?<em>-{r.discountPercent}%</em>:null}</button>)}
+          <div ref={mapElementRef} className="discover-map-canvas" aria-label="Interactive Tbilisi restaurant map"/>
+          <div className="map-overlay-top">
+            <span><strong>{sorted.length}</strong> places</span>
+            <button onClick={resetMap}><RotateCcw size={12}/> Reset</button>
+          </div>
+          <div className="map-controls">
+            <button onClick={()=>leafletMapRef.current?.zoomIn()} aria-label="Zoom in">+</button>
+            <button onClick={()=>leafletMapRef.current?.zoomOut()} aria-label="Zoom out">−</button>
+          </div>
           {selectedRestaurant?<div className="map-selected-card"><img src={restaurantPhoto(selectedRestaurant)} alt=""/><div><strong>{selectedRestaurant.name}</strong><span>{selectedRestaurant.cuisine?.name||"Restaurant"} · {selectedRestaurant.district||selectedRestaurant.city}</span><small><Star size={11} fill="currentColor"/> {Number(selectedRestaurant.ratingAvg||0).toFixed(1)} · {selectedRestaurant.address}</small></div><Link href={"/restaurant/?id="+encodeURIComponent(selectedRestaurant.id)}>View</Link></div>:null}
         </div>
       </section>
