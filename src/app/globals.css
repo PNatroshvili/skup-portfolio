@@ -776,7 +776,7 @@ h3{font-weight:600}
 }
 
 
-/* Discover map: page scroll + sticky viewport map */
+/* Discover map: page scroll + sticky viewport map (desktop) */
 .discover-layout{align-items:start}
 .discover-list{
   min-width:0;
