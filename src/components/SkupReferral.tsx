@@ -24,7 +24,7 @@ export default function SkupReferral(){
     if(!token){setCode("");return;}
     getLoyalty(token).then(v=>setCode(v?.referralCode||"")).catch(()=>setCode(""));
   },[token]);
-  const link=typeof window!=="undefined" ? window.location.origin+"/account/?ref="+encodeURIComponent(code) : "";
+  const link=typeof window!=="undefined" ? window.location.origin+"/account/?mode=register&ref="+encodeURIComponent(code) : "";
   const copy=async()=>{
     if(!code || !navigator.clipboard) return;
     try{
