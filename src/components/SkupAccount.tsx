@@ -82,7 +82,12 @@ export default function SkupAccount() {
 
   const loadAccount = async (accessToken: string) => {
     const activeToken = typeof window !== "undefined" ? localStorage.getItem("skup_access_token") || accessToken : accessToken;
-    const [u,b,f,l] = await Promise.all([getMe(activeToken), getMyBookings(activeToken), getFavorites(activeToken), getLoyalty(activeToken)]);
+    const [u,b,f,l] = await Promise.all([
+      getMe(activeToken),
+      getMyBookings(activeToken).catch(() => []),
+      getFavorites(activeToken).catch(() => []),
+      getLoyalty(activeToken).catch(() => null),
+    ]);
     setUser(u);
     setBookings((b || []) as Booking[]);
     setFavorites(f || []);
