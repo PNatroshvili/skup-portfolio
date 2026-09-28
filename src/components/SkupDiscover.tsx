@@ -223,7 +223,7 @@ export default function SkupDiscover(){
         const marker=L.marker([lat,lng],{
           icon:L.divIcon({
             className:"lukma-map-marker-wrap",
-                        html:'<button class="lukma-map-marker '+(selectedMarker?'selected':'')+'" type="button"><span class="marker-core" aria-hidden="true"></span><strong class="marker-label">'+Number(r.ratingAvg||0).toFixed(1)+'</strong>'+(discount?'<em>-' +discount+'%</em>':"")+</button>',
+                        html:'<button class="lukma-map-marker '+(selectedMarker?'selected':'')+'" type="button"><span class="marker-core" aria-hidden="true"></span><strong class="marker-label">'+Number(r.ratingAvg||0).toFixed(1)+'</strong>'+(discount?'<em>-'+discount+'%</em>':"")+'</button>',
             iconSize:[48,32],
             iconAnchor:[24,16],
           }),
