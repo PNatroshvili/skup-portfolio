@@ -28,6 +28,7 @@ import {
   updateRestaurantInfo,
 } from "@/lib/skupApi";
 import SkupHeader from "./SkupHeader";
+import { isBookingUpcoming } from "@/lib/lukmaUtils";
 
 type ManagedRestaurant = Restaurant & {
   menuCategories?: MenuCategory[];
@@ -111,7 +112,10 @@ export default function SkupManager() {
   }, []);
 
   const pending = useMemo(() => bookings.filter(b => b.status === "pending"), [bookings]);
-  const upcoming = useMemo(() => bookings.filter(b => b.status === "pending" || b.status === "confirmed"), [bookings]);
+  const upcoming = useMemo(
+    () => bookings.filter(b => (b.status === "pending" || b.status === "confirmed") && isBookingUpcoming(b.date, b.time)),
+    [bookings],
+  );
 
   const [bookingFilter, setBookingFilter] = useState<"all"|"pending"|"confirmed"|"rejected"|"cancelled">("pending");
   const [bookingSearch, setBookingSearch] = useState("");
