@@ -1,0 +1,1 @@
+import type { Metadata } from "next"; import SkupAdmin from "@/components/SkupAdmin"; export const metadata: Metadata={title:"LUKMA Admin Control Center",description:"Manage LUKMA restaurants, users, bookings, reviews and content."}; export default function Page(){return <SkupAdmin/>;}

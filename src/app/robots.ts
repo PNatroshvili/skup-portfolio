@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://skup.ge/sitemap.xml",
+    sitemap: "https://lukma.skup.ge/sitemap.xml",
   };
 }

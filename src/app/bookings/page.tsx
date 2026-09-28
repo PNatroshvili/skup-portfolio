@@ -1,0 +1,1 @@
+import type { Metadata } from "next"; import SkupBookings from "@/components/SkupBookings"; export const metadata: Metadata={title:"LUKMA — My bookings",description:"Manage your LUKMA restaurant bookings, QR check-ins and calendar events."}; export default function Page(){return <SkupBookings/>;}

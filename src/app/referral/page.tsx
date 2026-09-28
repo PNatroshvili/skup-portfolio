@@ -1,0 +1,1 @@
+import type { Metadata } from "next"; import SkupReferral from "@/components/SkupReferral"; export const metadata: Metadata={title:"LUKMA Referral",description:"Invite friends to LUKMA and earn points together."}; export default function Page(){return <SkupReferral/>;}
