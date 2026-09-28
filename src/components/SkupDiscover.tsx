@@ -53,6 +53,7 @@ export default function SkupDiscover(){
   const [searchReady,setSearchReady]=useState(false);
   const [mapReady,setMapReady]=useState(false);
   const [searchAsMapMoves,setSearchAsMapMoves]=useState(true);
+  const [mapPreviewOpen,setMapPreviewOpen]=useState(true);
   const [mapBounds,setMapBounds]=useState<{south:number;west:number;north:number;east:number}|null>(null);
   const searchAsMapMovesRef=useRef(true);
 
@@ -230,6 +231,7 @@ export default function SkupDiscover(){
 
   const selectRestaurant=useCallback((r:Restaurant,focusList=false)=>{
     setSelected(r.id);
+    setMapPreviewOpen(true);
     if(focusList){
       const index=sorted.findIndex(item=>item.id===r.id);
       if(index>=visibleCount){
@@ -393,7 +395,7 @@ export default function SkupDiscover(){
             visible.length ? <div className="discover-cards">
               {visible.map(r=>{
                 const distance = userLocation ? distanceKm(userLocation.lat,userLocation.lng,Number(r.latitude),Number(r.longitude)) : null;
-                return <article key={r.id} data-restaurant-id={r.id} onMouseEnter={()=>setSelected(r.id)} onClick={()=>selectRestaurant(r)} className={"discover-card-wrap "+(r.id===selectedRestaurant?.id?"selected":"")}>
+                return <article key={r.id} data-restaurant-id={r.id} onMouseEnter={()=>{setSelected(r.id);setMapPreviewOpen(true)}} onClick={()=>selectRestaurant(r)} className={"discover-card-wrap "+(r.id===selectedRestaurant?.id?"selected":"")}>
                   <div className="discover-card-photo">
                     <img src={restaurantPhoto(r)} alt="" loading="lazy"/>
                     {r.discountPercent ? <span className="discover-card-deal">-{r.discountPercent}%</span> : null}
@@ -437,8 +439,8 @@ export default function SkupDiscover(){
             <button onClick={()=>leafletMapRef.current?.zoomOut()} aria-label="Zoom out">−</button>
             <button onClick={resetMap} aria-label="Reset map"><LocateFixed size={15}/></button>
           </div>
-          {selectedRestaurant?<div className="map-selected-card map-focus-card">
-            <button className="map-focus-close" aria-label="Close preview" onClick={()=>setSelected(selectedRestaurant.id)}><X size={15}/></button>
+          {selectedRestaurant && mapPreviewOpen?<div className="map-selected-card map-focus-card">
+            <button className="map-focus-close" aria-label="Close preview" onClick={()=>setMapPreviewOpen(false)}><X size={15}/></button>
             <img src={restaurantPhoto(selectedRestaurant)} alt=""/>
             <div className="map-focus-copy">
               <strong>{selectedRestaurant.name}</strong>
