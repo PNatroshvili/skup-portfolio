@@ -259,7 +259,9 @@ export default function SkupDiscover(){
   useEffect(()=>{
     markerRefs.current.forEach((marker,id)=>{
       const element=marker.getElement()?.querySelector(".lukma-map-marker");
-      element?.classList.toggle("selected",id===selected);
+      const isSelected=id===selected;
+      element?.classList.toggle("selected",isSelected);
+      marker.setZIndexOffset(isSelected?1000:0);
     });
   },[selected]);
 
