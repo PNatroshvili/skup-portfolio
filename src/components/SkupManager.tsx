@@ -268,7 +268,7 @@ export default function SkupManager() {
           <div className="manager-head-actions"><button className="outline-btn" onClick={refreshData} disabled={refreshing}><RefreshCw size={14} className={refreshing ? "spin" : ""}/> {refreshing ? "Refreshing" : "Refresh"}</button>
             <a href={"/restaurant/?id=" + encodeURIComponent(restaurant.id)} className="outline-btn"><ExternalLink size={14}/> View profile</a>
             <Link href="/for-restaurants/subscription/" className="outline-btn">Subscription</Link>
-            <button className="outline-btn" onClick={() => { localStorage.removeItem("skup_access_token"); localStorage.removeItem("skup_refresh_token"); window.location.href="/account/"; }}><LogOut size={14}/> Log out</button>
+            <button className="outline-btn" onClick={() => { localStorage.removeItem("skup_access_token"); localStorage.removeItem("skup_refresh_token"); localStorage.removeItem("skup_user"); window.dispatchEvent(new Event("skup-auth-changed")); window.location.href="/account/"; }}><LogOut size={14}/> Log out</button>
           </div>
         </header>
 
