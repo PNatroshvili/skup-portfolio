@@ -4,7 +4,7 @@ import Link from "next/link";
 import { CalendarDays, CheckCircle2, Clock3, MessageCircle, QrCode, RefreshCw, Star, XCircle } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { getMyBookings, updateBookingStatus, createReview, getRestaurant, type Restaurant } from "@/lib/skupApi";
-import { addBookingToCalendar, bookingCountdown, bookingQrUrl, restaurantPhoto } from "@/lib/lukmaUtils";
+import { addBookingToCalendar, bookingCountdown, bookingQrUrl, isBookingUpcoming, restaurantPhoto } from "@/lib/lukmaUtils";
 import SkupHeader from "./SkupHeader";
 
 type Booking = {
@@ -145,7 +145,7 @@ export default function SkupBookings() {
                             <Link className="outline-btn" href={"/chat/?booking_id="+encodeURIComponent(b.id)+"&restaurant="+encodeURIComponent(restaurant?.name || "Restaurant")}><MessageCircle size={14}/> Chat</Link>
                           </> : null}
                           {b.status === "confirmed" || b.status === "cancelled" ? <button className="outline-btn" onClick={() => setReviewBooking(b)}><Star size={14}/> Review</button> : null}
-                          {b.status === "pending" ? <button className="outline-btn danger" disabled={busy===b.id} onClick={() => cancel(b.id)}><XCircle size={14}/> {busy===b.id ? "Cancelling…" : "Cancel"}</button> : null}
+                          {b.status === "pending" && isBookingUpcoming(b.date,b.time) ? <button className="outline-btn danger" disabled={busy===b.id} onClick={() => cancel(b.id)}><XCircle size={14}/> {busy===b.id ? "Cancelling…" : "Cancel"}</button> : null}
                         </div>
                       </div>
                     </article>
