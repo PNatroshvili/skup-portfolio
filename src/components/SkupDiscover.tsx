@@ -219,7 +219,8 @@ export default function SkupDiscover(){
         const lat=Number(r.latitude),lng=Number(r.longitude);
         if(!Number.isFinite(lat)||!Number.isFinite(lng))return;
         const selectedMarker=r.id===selected;
-        const discount=Number(r.discountPercent||0);\n        const photo=restaurantPhoto(r).replace(/"/g,"&quot;");
+        const discount=Number(r.discountPercent||0);
+        const photo=restaurantPhoto(r).replace(/"/g,"&quot;");
         const marker=L.marker([lat,lng],{
           icon:L.divIcon({
             className:"lukma-map-marker-wrap",
