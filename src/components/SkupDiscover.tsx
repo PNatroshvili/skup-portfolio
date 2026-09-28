@@ -223,9 +223,9 @@ export default function SkupDiscover(){
         const marker=L.marker([lat,lng],{
           icon:L.divIcon({
             className:"lukma-map-marker-wrap",
-                        html:'<button class="lukma-map-marker '+(selectedMarker?'selected':'')+'" type="button"><span class="marker-photo" style="background-image:url(&quot;'+photo+'&quot;)"></span><span class="marker-rating">'+Number(r.ratingAvg||0).toFixed(1)+(discount?' · '+discount+'% OFF':"")+</span></button>',
-            iconSize:[48,32],
-            iconAnchor:[24,16],
+                        html:'<button class="lukma-map-marker '+(selectedMarker?'selected':'')+'" type="button"><span class="marker-photo" style="background-image:url(&quot;'+photo+'&quot;)"></span><span class="marker-rating">'+Number(r.ratingAvg||0).toFixed(1)+(discount?' · '+discount+'% OFF':"")+'</span></button>',
+            iconSize:[52,46],
+            iconAnchor:[26,23],
           }),
           keyboard:true,
           title:r.name,
