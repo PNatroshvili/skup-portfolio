@@ -51,7 +51,7 @@ export default function SkupChat(){
     (async()=>{
       try{
         const mod=await import("socket.io-client");
-        socket=mod.io("https://api.skup.ge/chat",{transports:["websocket"],path:"/socket.io"});
+        socket=mod.io("https://api.skup.ge/chat",{transports:["websocket"],path:"/socket.io",auth:{token:authToken}});
         socket.emit("joinBookingRoom",bookingId);
         socket.on("newMessage",(msg:ChatMessage)=>setMessages(prev=>prev.some(x=>x.id===msg.id)?prev:[...prev,msg]));
       }catch{}
@@ -65,11 +65,26 @@ export default function SkupChat(){
     setSending(true);
     try{
       const mod=await import("socket.io-client");
-      const socket=mod.io("https://api.skup.ge/chat",{transports:["websocket"],path:"/socket.io"});
-      socket.emit("joinBookingRoom",bookingId);
-      await new Promise<void>(resolve=>{
-        socket.emit("sendMessage",{bookingId,senderId:userId,senderRole:String(JSON.parse(localStorage.getItem("skup_user")||"{}")?.role||"user"),content:body});
-        setTimeout(()=>{socket.disconnect();resolve();},350);
+      const socket=mod.io("https://api.skup.ge/chat",{transports:["websocket"],path:"/socket.io",auth:{token:authToken}});
+      const senderRole=String(JSON.parse(localStorage.getItem("skup_user")||"{}")?.role||"user");
+      await new Promise<void>((resolve,reject)=>{
+        let settled=false;
+        const finish=(error?:Error)=>{
+          if(settled)return;
+          settled=true;
+          window.clearTimeout(timeout);
+          socket.disconnect();
+          if(error) reject(error); else resolve();
+        };
+        const timeout=window.setTimeout(()=>finish(new Error("Message delivery timed out. Please try again.")),5000);
+        const sendNow=()=>{
+          socket.emit("joinBookingRoom",bookingId);
+          socket.emit("sendMessage",{bookingId,senderId:userId,senderRole,content:body});
+          window.setTimeout(()=>finish(),500);
+        };
+        socket.once("connect",sendNow);
+        socket.once("connect_error",()=>finish(new Error("Could not connect to the booking chat.")));
+        if(socket.connected) sendNow();
       });
       setText("");
       const token=localStorage.getItem("skup_access_token");
