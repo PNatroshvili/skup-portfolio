@@ -353,12 +353,12 @@ export default function SkupRestaurant() {
           <aside className="booking-card">
             <div className="booking-kicker">Book a table</div>
             <h2>Reserve your evening</h2>
-            <label>Date<input type="date" value={date} min={todayISO()} onChange={e => setDate(e.target.value)}/></label>
-            <label>Guests<div className="stepper"><button onClick={() => setGuests(g => Math.max(1,g-1))}>−</button><strong>{guests}</strong><button onClick={() => setGuests(g => Math.min(12,g+1))}>+</button><span><Users size={13}/> guest</span></div></label>
+            <label>Date<input type="date" value={date} min={todayISO()} onChange={e => { setDate(e.target.value); setAvailabilityError(""); }}/></label>
+            <label>Guests<div className="stepper"><button onClick={() => { setGuests(g => Math.max(1,g-1)); setAvailabilityError(""); }}>−</button><strong>{guests}</strong><button onClick={() => { setGuests(g => Math.min(12,g+1)); setAvailabilityError(""); }}>+</button><span><Users size={13}/> guest</span></div></label>
             <label>Preferred time</label>
             {availabilityLoading ? <div className="time-loading">Loading available times…</div> :
               availability?.open === false ? <div className="time-empty">The restaurant is closed on this date.</div> :
-              availableSlots.length && availability ? <div className="time-grid">{availability.slots.map(slot => <button key={slot.time} disabled={!slot.available} onClick={() => setTime(slot.time)} className={slot.time===time ? "active":""}>{slot.time}</button>)}</div> :
+              availableSlots.length && availability ? <div className="time-grid">{availability.slots.map(slot => <button key={slot.time} disabled={!slot.available} onClick={() => { setTime(slot.time); setAvailabilityError(""); }} className={slot.time===time ? "active":""}>{slot.time}</button>)}</div> :
               <div className="time-empty">No available times remain for this date.</div>}
             {availabilityError ? <div className="booking-inline-error">{availabilityError}</div> : null}
             <label className="booking-comment">Note<textarea value={comment} onChange={e => setComment(e.target.value.slice(0,200))} placeholder="Allergy, birthday, special request..." /></label>
@@ -409,7 +409,7 @@ export default function SkupRestaurant() {
 
       {bookingState==="login" ? <div className="modal-backdrop" onMouseDown={e => {if(e.target===e.currentTarget)setBookingState("idle")}}><div className="auth-modal"><button className="modal-close" onClick={() => setBookingState("idle")}>×</button><span className="kicker">Continue booking</span><h2>Log in to your LUKMA account</h2><p>You need to be logged in to submit a booking.</p><input value={loginIdentifier} onChange={e=>setLoginIdentifier(e.target.value)} placeholder="Email or phone"/><input value={loginPassword} onChange={e=>setLoginPassword(e.target.value)} type="password" placeholder="Password"/>{loginError ? <div className="inline-error">{loginError}</div> : null}<button className="booking-submit" onClick={submitLogin} disabled={loginBusy}>{loginBusy ? "Logging in…" : "Log in and book"} <span>→</span></button><Link href="/account/?mode=register" className="modal-alt-link">Create an account</Link></div></div> : null}
       {bookingState==="success" ? <div className="modal-backdrop"><div className="auth-modal success-modal"><div className="success-icon"><CheckCircle2 size={27}/></div><span className="kicker">BOOKING REQUEST SENT</span><h2>Thank you!</h2><p>{restaurant.name} · {date} · {time} · {guests} guest{guests===1?"":"s"}</p><div className="success-countdown"><Clock3 size={15}/><span>Awaiting restaurant confirmation</span></div><div className="success-note">Your request is now in My Bookings. Once the restaurant confirms it, your check-in QR and calendar action become available there.</div><Link href="/bookings/" className="booking-submit">Open my bookings <span>→</span></Link><button className="modal-alt-link" onClick={() => setBookingState("idle")}>Stay here</button></div></div> : null}
-      {bookingState==="error" ? <div className="modal-backdrop"><div className="auth-modal"><button className="modal-close" onClick={() => setBookingState("idle")}>×</button><span className="kicker">Booking</span><h2>Could not send</h2><p>{availabilityError || "Please try again."}</p><button className="booking-submit" onClick={() => setBookingState("idle")}>OK</button></div></div> : null}
+      {bookingState==="error" ? <div className="modal-backdrop"><div className="auth-modal"><button className="modal-close" onClick={() => setBookingState("idle")}>×</button><span className="kicker">Booking</span><h2>Could not send</h2><p>{availabilityError || "Please try again."}</p><button className="booking-submit" onClick={() => { setBookingState("idle"); setAvailabilityError(""); }}>OK</button></div></div> : null}
     </div>
   );
 }
