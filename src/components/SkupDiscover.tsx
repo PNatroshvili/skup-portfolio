@@ -176,7 +176,7 @@ export default function SkupDiscover(){
           <button className={"filter-chip "+(discountOnly?"active":"")} onClick={()=>setDiscountOnly(!discountOnly)}>🏷️ Offers</button>
           <button className={"filter-chip "+(showFilters?"active":"")} onClick={()=>setShowFilters(!showFilters)}><SlidersHorizontal size={14}/> Filters</button>
           <button className="filter-chip surprise" onClick={surprise}><Shuffle size={13}/> Surprise me</button>
-          {(q||cuisineId||collectionId||isOpen||minRating||discountOnly||priceLevel||dietary.length)?<button className="filter-chip" onClick={shareSearch}><Share2 size={13}/> Share search</button>:null>
+          {(q||cuisineId||collectionId||isOpen||minRating||discountOnly||priceLevel||dietary.length)?<button className="filter-chip" onClick={shareSearch}><Share2 size={13}/> Share search</button>:null}
           {(q||cuisineId||isOpen||minRating||discountOnly||priceLevel||dietary.length||nearMe)?<button className="filter-clear" onClick={clearFilters}><X size={13}/> Clear</button>:null}
         </div>
         <div className="discover-toolbar-right">
