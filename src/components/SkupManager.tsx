@@ -175,7 +175,13 @@ export default function SkupManager() {
       try {
         await fn();
         setMessage(success);
-        if (token) await reload(token);
+        if (token) {
+          try {
+            await reload(token);
+          } catch {
+            setMessage(success + " Latest data could not be refreshed; use Refresh.");
+          }
+        }
         return true;
       } catch (e) {
         setError(e instanceof Error ? e.message : "Operation failed.");
