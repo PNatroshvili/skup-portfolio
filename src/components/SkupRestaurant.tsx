@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { ArrowLeft, CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, Clock3, Heart, MapPin, QrCode, Share2, Star, Users } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   addFavorite,
   createBooking,
@@ -60,6 +60,7 @@ export default function SkupRestaurant() {
   const [reviewMessage, setReviewMessage] = useState("");
   const [showQr, setShowQr] = useState(false);
   const [countdown, setCountdown] = useState("");
+  const bookingSubmitRef = useRef(false);
 
   useEffect(() => {
     const nextId = new URLSearchParams(window.location.search).get("id") || "";
@@ -122,14 +123,63 @@ export default function SkupRestaurant() {
   }, [restaurant]);
 
   async function sendBooking(token: string) {
-    if (!time) {
+    if (bookingSubmitRef.current) return;
+    const today = todayISO();
+    const normalizedGuests = Number(guests);
+    const selectedTime = String(time || "").slice(0, 5);
+
+    if (!id) {
+      setAvailabilityError("Restaurant information is missing. Please reload the page.");
+      setBookingState("error");
+      return;
+    }
+    if (!date || date < today) {
+      setAvailabilityError("Choose today or a future date.");
+      setBookingState("error");
+      return;
+    }
+    if (!Number.isInteger(normalizedGuests) || normalizedGuests < 1 || normalizedGuests > 12) {
+      setAvailabilityError("Choose between 1 and 12 guests.");
+      setBookingState("error");
+      return;
+    }
+    if (!selectedTime) {
       setAvailabilityError("Choose an available time.");
       setBookingState("error");
       return;
     }
+    if (comment.length > 200) {
+      setAvailabilityError("Your note is too long.");
+      setBookingState("error");
+      return;
+    }
+
+    bookingSubmitRef.current = true;
     setBookingState("submitting");
-    await createBooking(token, { restaurant_id:id, date, time, guests_count:guests, comment });
-    setBookingState("success");
+    setAvailabilityError("");
+    try {
+      const freshAvailability = await getAvailability(id, date, normalizedGuests);
+      const freshSlot = freshAvailability.slots.find(slot => String(slot.time).slice(0, 5) === selectedTime);
+      setAvailability(freshAvailability);
+
+      if (!freshAvailability.open || !freshSlot?.available) {
+        setTime(prev => prev === selectedTime ? "" : prev);
+        setAvailabilityError("That time was just taken. Please choose another available time.");
+        setBookingState("error");
+        return;
+      }
+
+      await createBooking(token, {
+        restaurant_id: id,
+        date,
+        time: selectedTime,
+        guests_count: normalizedGuests,
+        comment: comment.trim() || undefined,
+      });
+      setBookingState("success");
+    } finally {
+      bookingSubmitRef.current = false;
+    }
   }
 
   async function submitBooking() {
@@ -140,6 +190,11 @@ export default function SkupRestaurant() {
     } catch (e) {
       setBookingState("error");
       setAvailabilityError(e instanceof Error ? e.message : "Could not submit booking.");
+      if (id && date) {
+        getAvailability(id, date, guests)
+          .then(setAvailability)
+          .catch(() => {});
+      }
     }
   }
 
