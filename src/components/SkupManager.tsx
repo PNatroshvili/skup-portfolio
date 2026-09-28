@@ -14,7 +14,6 @@ import {
   deleteRestaurantPhoto,
   setCoverPhoto,
   uploadRestaurantPhoto,
-  getMe,
   getMyRestaurant,
   getMyRestaurantBookings,
   getMyRestaurantEvents,
