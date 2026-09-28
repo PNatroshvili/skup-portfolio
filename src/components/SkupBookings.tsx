@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { CalendarDays, CheckCircle2, Clock3, MessageCircle, QrCode, RefreshCw, Star, XCircle } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { getMyBookings, updateBookingStatus, createReview, getRestaurant, type Restaurant } from "@/lib/skupApi";
+import { getMyBookings, updateBookingStatus, createReview, type Restaurant } from "@/lib/skupApi";
 import { addBookingToCalendar, bookingCountdown, bookingQrUrl, isBookingUpcoming, restaurantPhoto } from "@/lib/lukmaUtils";
 import SkupHeader from "./SkupHeader";
 
