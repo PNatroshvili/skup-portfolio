@@ -340,6 +340,16 @@ export default function SkupAccount() {
     [bookings],
   );
 
+  const pastBookings = useMemo(
+    () => bookings
+      .filter(b => !upcoming.some(next => next.id === b.id))
+      .sort((a,b) => (b.date + b.time).localeCompare(a.date + a.time)),
+    [bookings, upcoming],
+  );
+
+  const confirmedCount = useMemo(() => bookings.filter(b => b.status === "confirmed").length, [bookings]);
+  const cancelledCount = useMemo(() => bookings.filter(b => b.status === "cancelled" || b.status === "rejected").length, [bookings]);
+
   if (!token) {
     return (
       <div className="skup-site">
