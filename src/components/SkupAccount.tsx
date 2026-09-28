@@ -156,6 +156,7 @@ export default function SkupAccount() {
         .then(next => {
           localStorage.setItem("skup_access_token", next.access_token);
           localStorage.setItem("skup_refresh_token", next.refresh_token);
+          window.dispatchEvent(new Event("skup-auth-changed"));
           setToken(next.access_token);
           return loadAccount(next.access_token);
         })
@@ -166,6 +167,7 @@ export default function SkupAccount() {
         const next = await refreshAccessToken(rt);
         localStorage.setItem("skup_access_token", next.access_token);
         localStorage.setItem("skup_refresh_token", next.refresh_token);
+        window.dispatchEvent(new Event("skup-auth-changed"));
         setToken(next.access_token);
         await loadAccount(next.access_token);
       }).catch(() => {
