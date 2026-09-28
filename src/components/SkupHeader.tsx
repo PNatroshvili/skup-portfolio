@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Heart, LogIn, LogOut, Map, Menu, Shield, Search, Utensils, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
-export default function SkupHeader() {
+export default function SkupHeader({\n  searchValue,\n  onSearchChange,\n  activeNav = "",\n}: {\n  searchValue?: string;\n  onSearchChange?: (value: string) => void;\n  activeNav?: string;\n} = {}) {
   const [open, setOpen] = useState(false);
   const [role, setRole] = useState("");
   const [userName, setUserName] = useState("");
@@ -53,13 +53,13 @@ export default function SkupHeader() {
       <div className="skup-header-inner">
         <Link href="/" className="skup-logo">LUKMA<span>.</span></Link>
         <nav className="skup-nav">
-          <Link href="/discover/">Discover</Link>
-          <Link href="/discover/#map">Map</Link>
-          <Link href="/discover/?is_open=true">Tonight</Link>
-          <Link href="/discover/#collections">Collections</Link>
+          <Link className={activeNav === "discover" ? "active" : ""} href="/discover/">Discover</Link>
+          <Link className={activeNav === "map" ? "active" : ""} href="/discover/#map">Map</Link>
+          <Link className={activeNav === "tonight" ? "active" : ""} href="/discover/?is_open=true">Tonight</Link>
+          <Link className={activeNav === "collections" ? "active" : ""} href="/discover/#collections">Collections</Link>
           <Link href="/journal/">Journal</Link>
         </nav>
-        <div className="skup-header-actions">
+        <div className="skup-header-actions">\n          {onSearchChange ? <label className="header-search"><Search size={15}/><input value={searchValue || ""} onChange={e => onSearchChange(e.target.value)} placeholder="Search restaurants, cuisine…" aria-label="Search restaurants, cuisine" /></label> : null}
           <Link className="header-icon" href="/favorites/" aria-label="Favorites"><Heart size={18} /></Link>
           {role === "restaurant_manager" ? <Link className="header-restaurant-link" href="/for-restaurants/dashboard/"><Utensils size={14}/> Manager</Link> : null}
           {role === "admin" ? <Link className="header-restaurant-link" href="/admin/"><Shield size={14}/> Admin</Link> : null}
