@@ -486,6 +486,13 @@ export default function SkupAccount() {
           </aside>
 
           <div className="account-main">
+            <div className="account-stats">
+              <div><span>Upcoming</span><strong>{upcoming.length}</strong><small>active booking{upcoming.length === 1 ? "" : "s"}</small></div>
+              <div><span>Confirmed</span><strong>{confirmedCount}</strong><small>restaurant confirmed</small></div>
+              <div><span>Saved</span><strong>{favorites.length}</strong><small>favorite restaurant{favorites.length === 1 ? "" : "s"}</small></div>
+              <div><span>Rewards</span><strong>{loyalty?.points ?? 0}</strong><small>LUKMA points</small></div>
+            </div>
+
             <section id="reservations" className="account-section">
               <div className="section-head"><div><span className="kicker">BOOKINGS</span><h2>My bookings</h2></div><Link href="/discover/" className="green-btn small">+ New booking</Link></div>
               {upcoming.length ? upcoming.map(b => (
