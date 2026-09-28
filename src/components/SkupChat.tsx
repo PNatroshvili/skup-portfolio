@@ -15,6 +15,7 @@ export default function SkupChat(){
   const [error,setError]=useState("");
   const [sending,setSending]=useState(false);
   const [userId,setUserId]=useState("");
+  const [authToken,setAuthToken]=useState<string|null>(null);
   const [restaurant,setRestaurant]=useState("Restaurant");
   const listRef=useRef<HTMLDivElement>(null);
   const bookingId=typeof window!=="undefined" ? new URLSearchParams(window.location.search).get("booking_id") || "" : "";
@@ -27,10 +28,10 @@ export default function SkupChat(){
   },[]);
 
   useEffect(()=>{
-    const token=typeof window!=="undefined"?localStorage.getItem("skup_access_token"):null;
-    if(!token || !bookingId){setLoading(false);return;}
-    getChatMessages(token,bookingId).then(setMessages).catch(e=>setError(e instanceof Error?e.message:"Could not load chat.")).finally(()=>setLoading(false));
-  },[bookingId]);
+    if(!authToken || !bookingId){setLoading(false);return;}
+    setLoading(true);
+    getChatMessages(authToken,bookingId).then(setMessages).catch(e=>setError(e instanceof Error?e.message:"Could not load chat.")).finally(()=>setLoading(false));
+  },[bookingId,authToken]);
 
   useEffect(()=>{
     const el=listRef.current; if(el) el.scrollTop=el.scrollHeight;
