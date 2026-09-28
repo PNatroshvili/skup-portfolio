@@ -10,19 +10,36 @@ export default function SkupHeader() {
   const [userName, setUserName] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
   useEffect(() => {
-    try {
-      const user = JSON.parse(localStorage.getItem("skup_user") || "{}");
-      setRole(String(user?.role || ""));
-      setUserName(String(user?.name || user?.email || ""));
-      setAuthenticated(Boolean(localStorage.getItem("skup_access_token")));
-    } catch {}
-    const sync = () => {
+    const hasToken = Boolean(localStorage.getItem("skup_access_token"));
+    if (hasToken) {
       try {
         const user = JSON.parse(localStorage.getItem("skup_user") || "{}");
         setRole(String(user?.role || ""));
         setUserName(String(user?.name || user?.email || ""));
-        setAuthenticated(Boolean(localStorage.getItem("skup_access_token")));
-      } catch {}
+      } catch {
+        setRole("");
+        setUserName("");
+      }
+    }
+    setAuthenticated(hasToken);
+    const sync = () => {
+      const hasToken = Boolean(localStorage.getItem("skup_access_token"));
+      if (!hasToken) {
+        setRole("");
+        setUserName("");
+        setAuthenticated(false);
+        return;
+      }
+      try {
+        const user = JSON.parse(localStorage.getItem("skup_user") || "{}");
+        setRole(String(user?.role || ""));
+        setUserName(String(user?.name || user?.email || ""));
+        setAuthenticated(true);
+      } catch {
+        setRole("");
+        setUserName("");
+        setAuthenticated(true);
+      }
     };
     window.addEventListener("storage", sync);
     window.addEventListener("skup-auth-changed", sync);
