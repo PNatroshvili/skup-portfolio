@@ -28,16 +28,3 @@ jobs:
         run: git diff -- package-lock.json
       - run: npm run build
       - run: npm run lint
-      - name: Report dependency audit
-        run: |
-          npm audit --json > audit.json || true
-          node - <<'NODE'
-          const audit = require("./audit.json");
-          const format = (label, data) => console.log(label, JSON.stringify(Object.entries(data || {}).map(([name, item]) => ({
-            name,
-            severity: item.severity,
-            via: item.via,
-            fixAvailable: item.fixAvailable
-          })), null, 2));
-          format("FULL_AUDIT", audit.vulnerabilities);
-          NODE
