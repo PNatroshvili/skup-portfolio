@@ -53,6 +53,7 @@ export default function SkupRestaurant() {
   const [loginIdentifier, setLoginIdentifier] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [loginError, setLoginError] = useState("");
+  const [loginBusy, setLoginBusy] = useState(false);
   const [favorite, setFavorite] = useState(false);
   const [favoriteBusy, setFavoriteBusy] = useState(false);
   const [reviewRating, setReviewRating] = useState(5);
@@ -208,6 +209,8 @@ export default function SkupRestaurant() {
   }
 
   async function submitLogin() {
+    if (loginBusy) return;
+    setLoginBusy(true);
     setLoginError("");
     try {
       const result = await login(loginIdentifier.trim(), loginPassword);
@@ -221,6 +224,8 @@ export default function SkupRestaurant() {
         ? "Your email is not verified yet. Complete verification in your account."
         : e instanceof Error ? e.message : "Login failed");
       setBookingState("login");
+    } finally {
+      setLoginBusy(false);
     }
   }
 
@@ -373,7 +378,7 @@ export default function SkupRestaurant() {
         </section>
       </main>
 
-      {bookingState==="login" ? <div className="modal-backdrop" onMouseDown={e => {if(e.target===e.currentTarget)setBookingState("idle")}}><div className="auth-modal"><button className="modal-close" onClick={() => setBookingState("idle")}>×</button><span className="kicker">Continue booking</span><h2>Log in to your LUKMA account</h2><p>You need to be logged in to submit a booking.</p><input value={loginIdentifier} onChange={e=>setLoginIdentifier(e.target.value)} placeholder="Email or phone"/><input value={loginPassword} onChange={e=>setLoginPassword(e.target.value)} type="password" placeholder="Password"/>{loginError ? <div className="inline-error">{loginError}</div> : null}<button className="booking-submit" onClick={submitLogin}>Log in and book <span>→</span></button><Link href="/account/?mode=register" className="modal-alt-link">Create an account</Link></div></div> : null}
+      {bookingState==="login" ? <div className="modal-backdrop" onMouseDown={e => {if(e.target===e.currentTarget)setBookingState("idle")}}><div className="auth-modal"><button className="modal-close" onClick={() => setBookingState("idle")}>×</button><span className="kicker">Continue booking</span><h2>Log in to your LUKMA account</h2><p>You need to be logged in to submit a booking.</p><input value={loginIdentifier} onChange={e=>setLoginIdentifier(e.target.value)} placeholder="Email or phone"/><input value={loginPassword} onChange={e=>setLoginPassword(e.target.value)} type="password" placeholder="Password"/>{loginError ? <div className="inline-error">{loginError}</div> : null}<button className="booking-submit" onClick={submitLogin} disabled={loginBusy}>{loginBusy ? "Logging in…" : "Log in and book"} <span>→</span></button><Link href="/account/?mode=register" className="modal-alt-link">Create an account</Link></div></div> : null}
       {bookingState==="success" ? <div className="modal-backdrop"><div className="auth-modal success-modal"><div className="success-icon"><CheckCircle2 size={27}/></div><span className="kicker">BOOKING REQUEST SENT</span><h2>Thank you!</h2><p>{restaurant.name} · {date} · {time} · {guests} guest{guests===1?"":"s"}</p><div className="success-countdown"><Clock3 size={15}/><span>Awaiting restaurant confirmation</span></div><div className="success-note">Your request is now in My Bookings. Once the restaurant confirms it, your check-in QR and calendar action become available there.</div><Link href="/bookings/" className="booking-submit">Open my bookings <span>→</span></Link><button className="modal-alt-link" onClick={() => setBookingState("idle")}>Stay here</button></div></div> : null}
       {bookingState==="error" ? <div className="modal-backdrop"><div className="auth-modal"><button className="modal-close" onClick={() => setBookingState("idle")}>×</button><span className="kicker">Booking</span><h2>Could not send</h2><p>{availabilityError || "Please try again."}</p><button className="booking-submit" onClick={() => setBookingState("idle")}>OK</button></div></div> : null}
     </div>
