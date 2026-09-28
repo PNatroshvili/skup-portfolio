@@ -207,9 +207,6 @@ export default function SkupRestaurant() {
     } catch {}
   }
 
-  if (loading) return <div className="skup-site"><SkupHeader/><div className="page-loading">Loading...</div></div>;
-  if (!restaurant) return <div className="skup-site"><SkupHeader/><div className="page-loading"><h2>Restaurant not found</h2><Link href="/discover/">← Back to Discover</Link></div></div>;
-
   const currentPhoto = photos[photoIndex]?.url;
   const avg = Number(restaurant.ratingAvg || 0);
   const isOpen = Boolean(restaurant.isOpen);
@@ -223,6 +220,9 @@ export default function SkupRestaurant() {
     const timer = window.setInterval(tick, 30000);
     return () => window.clearInterval(timer);
   }, [bookingState, date, time]);
+
+  if (loading) return <div className="skup-site"><SkupHeader/><div className="page-loading">Loading...</div></div>;
+  if (!restaurant) return <div className="skup-site"><SkupHeader/><div className="page-loading"><h2>Restaurant not found</h2><Link href="/discover/">← Back to Discover</Link></div></div>;
 
   return (
     <div className="skup-site">
@@ -248,7 +248,7 @@ export default function SkupRestaurant() {
             </div>
             <h1>{restaurant.name}</h1>
             <div className="restaurant-subline">{restaurant.cuisine?.name || "Restaurant"} <span>·</span> {restaurant.district || restaurant.city}</div>
-            <div className="restaurant-rating-line"><Star size={14} fill="currentColor"/><strong>{avg.toFixed(1)}</strong><span>({restaurant.reviewsCount} Overview)</span><span className="dot"/> <MapPin size={14}/><span>{restaurant.address}</span></div>
+            <div className="restaurant-rating-line"><Star size={14} fill="currentColor"/><strong>{avg.toFixed(1)}</strong><span>({restaurant.reviewsCount} reviews)</span><span className="dot"/> <MapPin size={14}/><span>{restaurant.address}</span></div>
             <div className="restaurant-actions">
               <button onClick={toggleFavorite} disabled={favoriteBusy} className="outline-btn"><Heart size={15} fill={favorite ? "currentColor":"none"}/> {favorite ? "Saved" : "Save"}</button>
               <button className="outline-btn" onClick={shareRestaurant}><Share2 size={15}/> Share</button>
