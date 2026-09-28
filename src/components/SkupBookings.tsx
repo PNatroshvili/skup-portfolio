@@ -43,11 +43,10 @@ export default function SkupBookings() {
   const [authToken, setAuthToken] = useState<string | null>(null);
 
   const load = async () => {
-    const token = sessionToken();
-    if (!token) { setLoading(false); return; }
+    if (!authToken) { setBookings([]); setLoading(false); return; }
     setLoading(true);
     try {
-      setBookings((await getMyBookings(token)) || []);
+      setBookings((await getMyBookings(authToken)) || []);
     } catch {
       setNotice("Could not load bookings.");
     } finally { setLoading(false); }
