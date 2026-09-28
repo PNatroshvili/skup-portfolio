@@ -68,10 +68,11 @@ export default function SkupManager() {
   const [photoBusy, setPhotoBusy] = useState(false);
 
   const reload = async (t: string) => {
+    const activeToken = typeof window !== "undefined" ? localStorage.getItem("skup_access_token") || t : t;
     const [r,b,e] = await Promise.all([
-      getMyRestaurant(t),
-      getMyRestaurantBookings(t),
-      getMyRestaurantEvents(t).catch(() => []),
+      getMyRestaurant(activeToken),
+      getMyRestaurantBookings(activeToken),
+      getMyRestaurantEvents(activeToken).catch(() => []),
     ]);
     setRestaurant(r);
     setBookings((b || []) as ManagerBooking[]);
@@ -88,6 +89,8 @@ export default function SkupManager() {
   };
 
   useEffect(() => {
+    const syncSession = () => setToken(localStorage.getItem("skup_access_token"));
+    window.addEventListener("skup-auth-changed", syncSession);
     const t = localStorage.getItem("skup_access_token");
     if (!t) {
       setLoading(false);
@@ -97,6 +100,7 @@ export default function SkupManager() {
     reload(t).catch(() => {
       setError("Could not load restaurant manager data.");
     }).finally(() => setLoading(false));
+    return () => window.removeEventListener("skup-auth-changed", syncSession);
   }, []);
 
   const pending = useMemo(() => bookings.filter(b => b.status === "pending"), [bookings]);
