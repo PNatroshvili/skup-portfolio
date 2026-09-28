@@ -37,12 +37,14 @@ function saveSession(result: { user: Record<string, unknown>; tokens: { access_t
   localStorage.setItem("skup_access_token", result.tokens.access_token);
   localStorage.setItem("skup_refresh_token", result.tokens.refresh_token);
   localStorage.setItem("skup_user", JSON.stringify(result.user));
+  window.dispatchEvent(new Event("skup-auth-changed"));
 }
 
 function clearSession() {
   localStorage.removeItem("skup_access_token");
   localStorage.removeItem("skup_refresh_token");
   localStorage.removeItem("skup_user");
+  window.dispatchEvent(new Event("skup-auth-changed"));
 }
 
 function statusLabel(status: string) {
