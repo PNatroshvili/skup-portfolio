@@ -40,6 +40,7 @@ export default function SkupBookings() {
   const [reviewText, setReviewText] = useState("");
   const [busy, setBusy] = useState("");
   const [notice, setNotice] = useState("");
+  const [authToken, setAuthToken] = useState<string | null>(null);
 
   const load = async () => {
     const token = sessionToken();
@@ -52,7 +53,14 @@ export default function SkupBookings() {
     } finally { setLoading(false); }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    const sync = () => setAuthToken(sessionToken());
+    sync();
+    window.addEventListener("skup-auth-changed", sync);
+    return () => window.removeEventListener("skup-auth-changed", sync);
+  }, []);
+
+  useEffect(() => { load(); }, [authToken]);
 
   const filtered = useMemo(() => filter === "all" ? bookings : bookings.filter(b => b.status === filter), [bookings, filter]);
 
@@ -87,7 +95,7 @@ export default function SkupBookings() {
     } finally { setBusy(""); }
   }
 
-  const isAuthenticated = Boolean(sessionToken());
+  const isAuthenticated = Boolean(authToken);
 
   return (
     <div className="skup-site">
