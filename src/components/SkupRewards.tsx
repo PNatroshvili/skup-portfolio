@@ -21,8 +21,17 @@ const rewards = [
 
 export default function SkupRewards() {
   const [loyalty,setLoyalty]=useState<any>(null);
-  const token = typeof window !== "undefined" ? localStorage.getItem("skup_access_token") : null;
-  useEffect(()=>{ if(token) getLoyalty(token).then(setLoyalty).catch(()=>{}); },[token]);
+  const [token,setToken]=useState<string|null>(null);
+  useEffect(()=>{
+    const sync=()=>setToken(localStorage.getItem("skup_access_token"));
+    sync();
+    window.addEventListener("skup-auth-changed",sync);
+    return()=>window.removeEventListener("skup-auth-changed",sync);
+  },[]);
+  useEffect(()=>{
+    if(!token){setLoyalty(null);return;}
+    getLoyalty(token).then(setLoyalty).catch(()=>setLoyalty(null));
+  },[token]);
   const points=Number(loyalty?.points||0);
   const current=tiers.find(t=>points>=t.min && points<=t.max)||tiers[0];
   const next=tiers[tiers.indexOf(current)+1];
