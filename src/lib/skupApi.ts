@@ -362,13 +362,23 @@ export async function uploadMenuItemPhoto(token: string, restaurantId: string, i
   return uploadRequest<any>("/restaurants/" + encodeURIComponent(restaurantId) + "/menu-items/" + encodeURIComponent(itemId), token, form, "PATCH");
 }
 
-async function uploadRequest<T>(path: string, token: string, form: FormData, method = "POST"): Promise<T> {
+async function uploadRequest<T>(path: string, token: string, form: FormData, method = "POST", retry = true): Promise<T> {
   const response = await fetch(API_BASE + path, {
     method,
     headers: { Authorization: "Bearer " + token },
     body: form,
     cache: "no-store",
   });
+  if (response.status === 401 && retry) {
+    const freshToken = await refreshStoredSession();
+    if (freshToken) return uploadRequest<T>(path, freshToken, form, method, false);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("skup_access_token");
+      localStorage.removeItem("skup_refresh_token");
+      localStorage.removeItem("skup_user");
+      window.dispatchEvent(new Event("skup-auth-changed"));
+    }
+  }
   if (!response.ok) {
     const raw = await response.text().catch(() => "");
     let message = raw || "Upload failed: " + response.status;
