@@ -33,6 +33,17 @@ function formatTime(value?: string | null) {
   return value ? String(value).slice(0, 5) : "—";
 }
 
+function currentTbilisiMinutes() {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Tbilisi",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(new Date());
+  return Number(parts.find(part => part.type === "hour")?.value || 0) * 60
+    + Number(parts.find(part => part.type === "minute")?.value || 0);
+}
+
 export default function SkupRestaurant() {
   const [id, setId] = useState("");
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
@@ -157,6 +168,14 @@ export default function SkupRestaurant() {
       setAvailabilityError("Choose an available time.");
       setBookingState("error");
       return;
+    }
+    if (date === today) {
+      const [hour, minute] = selectedTime.split(":").map(Number);
+      if ((hour * 60 + minute) <= currentTbilisiMinutes()) {
+        setAvailabilityError("Choose a later time for today.");
+        setBookingState("error");
+        return;
+      }
     }
     if (comment.length > 200) {
       setAvailabilityError("Your note is too long.");
