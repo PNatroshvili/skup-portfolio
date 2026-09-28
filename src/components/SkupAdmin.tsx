@@ -40,7 +40,11 @@ export default function SkupAdmin(){
     const sync=()=>setToken(getToken());
     sync();
     window.addEventListener("skup-auth-changed",sync);
-    return()=>window.removeEventListener("skup-auth-changed",sync);
+    window.addEventListener("storage",sync);
+    return()=>{
+      window.removeEventListener("skup-auth-changed",sync);
+      window.removeEventListener("storage",sync);
+    };
   },[]);
 
   const loadOverview=async()=>{if(!token)return;setLoading(true);try{const [s,c,t]=await Promise.all([getAdminStats(token),getAdminBookingsChart(token),getAdminTopRestaurants(token)]);setStats(s);setChart(c||[]);setTop(t||[]);}catch(e){setNotice(e instanceof Error?e.message:"Could not load admin dashboard.");}finally{setLoading(false);}};
