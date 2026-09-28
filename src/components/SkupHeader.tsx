@@ -1,14 +1,31 @@
 "use client";
 
 import Link from "next/link";
-import { Heart, LogIn, Map, Menu, Shield, Search, Utensils, X } from "lucide-react";
+import { Heart, LogIn, LogOut, Map, Menu, Shield, Search, Utensils, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function SkupHeader() {
   const [open, setOpen] = useState(false);
   const [role, setRole] = useState("");
+  const [userName, setUserName] = useState("");
+  const [authenticated, setAuthenticated] = useState(false);
   useEffect(() => {
-    try { setRole(String(JSON.parse(localStorage.getItem("skup_user") || "{}")?.role || "")); } catch {}
+    try {
+      const user = JSON.parse(localStorage.getItem("skup_user") || "{}");
+      setRole(String(user?.role || ""));
+      setUserName(String(user?.name || user?.email || ""));
+      setAuthenticated(Boolean(localStorage.getItem("skup_access_token")));
+    } catch {}
+    const sync = () => {
+      try {
+        const user = JSON.parse(localStorage.getItem("skup_user") || "{}");
+        setRole(String(user?.role || ""));
+        setUserName(String(user?.name || user?.email || ""));
+        setAuthenticated(Boolean(localStorage.getItem("skup_access_token")));
+      } catch {}
+    };
+    window.addEventListener("storage", sync);
+    return () => window.removeEventListener("storage", sync);
   }, []);
   return (
     <header className="skup-header">
@@ -25,8 +42,14 @@ export default function SkupHeader() {
           <Link className="header-icon" href="/favorites/" aria-label="Favorites"><Heart size={18} /></Link>
           {role === "restaurant_manager" ? <Link className="header-restaurant-link" href="/for-restaurants/dashboard/"><Utensils size={14}/> Manager</Link> : null}
           {role === "admin" ? <Link className="header-restaurant-link" href="/admin/"><Shield size={14}/> Admin</Link> : null}
-          <Link className="header-login" href="/account/"><LogIn size={15} /> Log in</Link>
-          <Link className="header-signup" href="/account/?mode=register">Create account</Link>
+          {authenticated ? <>
+            <Link className="header-user" href="/account/" title="My account"><span>{userName.slice(0,1).toUpperCase() || "L"}</span>{userName ? <b>{userName.split(" ")[0]}</b> : null}</Link>
+            <Link className="header-bookings" href="/bookings/">Bookings</Link>
+            <button className="header-logout" onClick={() => { localStorage.removeItem("skup_access_token"); localStorage.removeItem("skup_refresh_token"); localStorage.removeItem("skup_user"); setAuthenticated(false); setUserName(""); setRole(""); window.location.href="/"; }} aria-label="Log out"><LogOut size={15}/></button>
+          </> : <>
+            <Link className="header-login" href="/account/"><LogIn size={15} /> Log in</Link>
+            <Link className="header-signup" href="/account/?mode=register">Create account</Link>
+          </>}
           <button className="header-menu" onClick={() => setOpen(!open)} aria-label="Menu">
             {open ? <X size={21} /> : <Menu size={21} />}
           </button>
