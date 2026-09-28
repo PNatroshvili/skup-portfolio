@@ -454,7 +454,7 @@ export default function SkupDiscover(){
           <div className="map-bottom-strip" aria-label="Restaurant map selection">
             <button className="map-strip-arrow left" onClick={()=>{const nextIndex=Math.max(0,sorted.findIndex(r=>r.id===selectedRestaurant?.id)-1);if(sorted[nextIndex])selectRestaurant(sorted[nextIndex]);}} aria-label="Previous restaurant">‹</button>
             <div className="map-strip-scroll">
-              {sorted.slice(0,8).map(r=><button key={r.id} className={"map-strip-card "+(r.id===selectedRestaurant?.id?"selected":"")} onClick={()=>selectRestaurant(r)}>
+              {[...sorted.slice(0,7),...(selectedRestaurant && !sorted.slice(0,7).some(item=>item.id===selectedRestaurant.id)?[selectedRestaurant]:[])].slice(0,8).map(r=><button key={r.id} className={"map-strip-card "+(r.id===selectedRestaurant?.id?"selected":"")} onClick={()=>selectRestaurant(r)}>
                 <img src={restaurantPhoto(r)} alt=""/>
                 <span>{r.name}</span>
                 <small><Star size={10} fill="currentColor"/> {Number(r.ratingAvg||0).toFixed(1)} ({r.reviewsCount || 0})</small>
