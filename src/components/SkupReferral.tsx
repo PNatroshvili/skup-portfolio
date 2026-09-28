@@ -14,7 +14,11 @@ export default function SkupReferral(){
     const sync=()=>setToken(localStorage.getItem("skup_access_token"));
     sync();
     window.addEventListener("skup-auth-changed",sync);
-    return()=>window.removeEventListener("skup-auth-changed",sync);
+    window.addEventListener("storage",sync);
+    return()=>{
+      window.removeEventListener("skup-auth-changed",sync);
+      window.removeEventListener("storage",sync);
+    };
   },[]);
   useEffect(()=>{
     if(!token){setCode("");return;}
