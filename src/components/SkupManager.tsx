@@ -66,7 +66,7 @@ export default function SkupManager() {
   const [newItem, setNewItem] = useState({ name:"", description:"", price:"", available:true });
   const [eventForm, setEventForm] = useState({ title:"", description:"", emoji:"✦", eventDate:"" });
   const [photoBusy, setPhotoBusy] = useState(false);
-  const actionBusyRef = useRef(false);
+  const runQueueRef = useRef<Promise<void>>(Promise.resolve());
 
   const reload = async (t: string) => {
     const activeToken = typeof window !== "undefined" ? localStorage.getItem("skup_access_token") || t : t;
@@ -169,22 +169,24 @@ export default function SkupManager() {
     }
   };
 
-  const run = async (fn: () => Promise<unknown>, success: string): Promise<boolean> => {
-    if (actionBusyRef.current) return false;
-    actionBusyRef.current = true;
-    setBusy(true); setError(""); setMessage("");
-    try {
-      await fn();
-      setMessage(success);
-      if (token) await reload(token);
-      return true;
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Operation failed.");
-      return false;
-    } finally {
-      actionBusyRef.current = false;
-      setBusy(false);
-    }
+  const run = (fn: () => Promise<unknown>, success: string): Promise<boolean> => {
+    const execute = async (): Promise<boolean> => {
+      setBusy(true); setError(""); setMessage("");
+      try {
+        await fn();
+        setMessage(success);
+        if (token) await reload(token);
+        return true;
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Operation failed.");
+        return false;
+      } finally {
+        setBusy(false);
+      }
+    };
+    const next = runQueueRef.current.then(execute, execute);
+    runQueueRef.current = next.then(() => undefined, () => undefined);
+    return next;
   };
 
   if (loading) return <div className="skup-site"><SkupHeader/><div className="page-loading">Loading...</div></div>;
