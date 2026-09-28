@@ -170,11 +170,9 @@ export default function SkupDiscover(){
       const L=await import("leaflet");
       if(disposed)return;
       layer.clearLayers();
-      const bounds:L.LatLngExpression[]=[];
       sorted.slice(0,120).forEach(r=>{
         const lat=Number(r.latitude),lng=Number(r.longitude);
         if(!Number.isFinite(lat)||!Number.isFinite(lng))return;
-        bounds.push([lat,lng]);
         const selectedMarker=r.id===selected;
         const discount=Number(r.discountPercent||0);
         const marker=L.marker([lat,lng],{
