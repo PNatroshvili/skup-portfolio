@@ -67,7 +67,7 @@ export default function SkupChat(){
 
   const send=async()=>{
     const body=text.trim();
-    if(!body || !bookingId || !userId || !authToken) return;
+    if(sending || !body || !bookingId || !userId || !authToken) return;
     setSending(true);
     try{
       const mod=await import("socket.io-client");
