@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LocateFixed, MapPin, Search, SlidersHorizontal, Star, X, Shuffle, ArrowDownUp } from "lucide-react";
+import { LocateFixed, Search, SlidersHorizontal, Star, X, Shuffle, ArrowDownUp, Share2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { getCollections, getCuisines, getRestaurants, type Cuisine, type Restaurant } from "@/lib/skupApi";
 import { restaurantPhoto } from "@/lib/lukmaUtils";
@@ -63,6 +63,11 @@ export default function SkupDiscover(){
     setIsOpen(params.get("is_open")==="true");
     setMinRating(params.get("min_rating")||"");
     setCollectionId(params.get("collection")||"");
+    setDiscountOnly(params.get("offers")==="true");
+    setPriceLevel(params.get("price")||"");
+    setDietary((params.get("dietary")||"").split(",").filter(x=>DIETARY[x]));
+    const requestedSort=params.get("sort");
+    if (requestedSort==="name" || requestedSort==="discount" || requestedSort==="distance") setSort(requestedSort);
     setHistory(readSearchHistory());
     Promise.all([getCuisines(),getCollections(),getRestaurants({city:"თბილისი",page:1,limit:200})])
       .then(([c,col,r])=>{
@@ -83,6 +88,10 @@ export default function SkupDiscover(){
     if(collectionId)params.set("collection",collectionId);
     if(isOpen)params.set("is_open","true");
     if(minRating)params.set("min_rating",minRating);
+    if(discountOnly)params.set("offers","true");
+    if(priceLevel)params.set("price",priceLevel);
+    if(dietary.length)params.set("dietary",dietary.join(","));
+    if(sort!=="rating")params.set("sort",sort);
     window.history.replaceState(null,"",params.toString()?"/discover/?"+params.toString():"/discover/");
   },[q,cuisineId,collectionId,isOpen,minRating,discountOnly,priceLevel,dietary,sort,nearMe]);
 
@@ -135,6 +144,14 @@ export default function SkupDiscover(){
 
   const surprise=()=>{if(!sorted.length)return;const r=sorted[Math.floor(Math.random()*sorted.length)];selectRestaurant(r);};
 
+  const shareSearch=async()=>{
+    const url=window.location.href;
+    try {
+      if(navigator.share) await navigator.share({title:"LUKMA restaurant search",text:"Restaurants I found on LUKMA",url});
+      else if(navigator.clipboard){await navigator.clipboard.writeText(url);setError("Search link copied to clipboard.");setTimeout(()=>setError(""),2200);}
+    } catch {}
+  };
+
   return <div className="skup-site">
     <SkupHeader/>
     <main className="discover-page">
@@ -159,6 +176,7 @@ export default function SkupDiscover(){
           <button className={"filter-chip "+(discountOnly?"active":"")} onClick={()=>setDiscountOnly(!discountOnly)}>🏷️ Offers</button>
           <button className={"filter-chip "+(showFilters?"active":"")} onClick={()=>setShowFilters(!showFilters)}><SlidersHorizontal size={14}/> Filters</button>
           <button className="filter-chip surprise" onClick={surprise}><Shuffle size={13}/> Surprise me</button>
+          {(q||cuisineId||collectionId||isOpen||minRating||discountOnly||priceLevel||dietary.length)?<button className="filter-chip" onClick={shareSearch}><Share2 size={13}/> Share search</button>:null>
           {(q||cuisineId||isOpen||minRating||discountOnly||priceLevel||dietary.length||nearMe)?<button className="filter-clear" onClick={clearFilters}><X size={13}/> Clear</button>:null}
         </div>
         <div className="discover-toolbar-right">
