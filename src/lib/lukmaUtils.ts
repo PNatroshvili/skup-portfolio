@@ -55,10 +55,14 @@ function tbilisiNowParts() {
   return { hour, weekend: weekday === "Sat" || weekday === "Sun" };
 }
 
-function tbilisiBookingTimestamp(date: string, time: string) {
+export function bookingTimestamp(date: string, time: string) {
   const [y, m, d] = date.split("-").map(Number);
   const [hh, mm] = time.split(":").map(Number);
   return Date.UTC(y, m - 1, d, hh, mm) - 4 * 60 * 60 * 1000;
+}
+
+export function isBookingUpcoming(date: string, time: string) {
+  return bookingTimestamp(date, time) >= Date.now();
 }
 
 export function estimateWaitTime(restaurant: Restaurant): number | null {
@@ -77,7 +81,7 @@ export function addBookingToCalendar(booking: {
   address?: string;
   guests: number;
 }) {
-  const startTimestamp = tbilisiBookingTimestamp(booking.date, booking.time);
+  const startTimestamp = bookingTimestamp(booking.date, booking.time);
   const endTimestamp = startTimestamp + 90 * 60 * 1000;
   const format = (timestamp: number) => {
     const value = new Date(timestamp);
@@ -115,7 +119,7 @@ export function bookingQrUrl(payload: Record<string, unknown>) {
 }
 
 export function bookingCountdown(date: string, time: string) {
-  const target = tbilisiBookingTimestamp(date, time);
+  const target = bookingTimestamp(date, time);
   const diff = target - Date.now();
   if (diff <= 0) return "Now";
   const days = Math.floor(diff / 86400000);
