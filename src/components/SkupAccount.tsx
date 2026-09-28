@@ -150,6 +150,7 @@ export default function SkupAccount() {
   useEffect(() => {
     const syncSession = () => setToken(localStorage.getItem("skup_access_token"));
     window.addEventListener("skup-auth-changed", syncSession);
+    window.addEventListener("storage", syncSession);
     const params = new URLSearchParams(window.location.search);
     const requestedMode = params.get("mode");
     const requestedReferral = params.get("ref");
@@ -183,7 +184,10 @@ export default function SkupAccount() {
         setToken(null);
       });
     }
-    return () => window.removeEventListener("skup-auth-changed", syncSession);
+    return () => {
+      window.removeEventListener("skup-auth-changed", syncSession);
+      window.removeEventListener("storage", syncSession);
+    };
   }, []);
 
   const handleLogin = async () => {
