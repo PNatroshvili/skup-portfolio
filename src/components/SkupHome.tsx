@@ -82,7 +82,7 @@ export default function SkupHome() {
         <section className="section shell" id="tonight"><div className="tonight-banner"><div><span className="kicker">Tonight</span><h2>Looking for dinner?</h2><p>Open Now, map nearby places, and book without leaving the flow.</p></div><Link href="/discover/?is_open=true" className="dark-btn">Open restaurants <ArrowRight size={15}/></Link></div></section>
 
         <section className="section section-dark"><div className="shell journal-grid">
-          <div className="journal-copy"><span className="kicker">LUKMA Journal</span><h2>Stories about<br/>great food.</h2><p>New places, guides, and curated recommendations from Tbilisi's food scene.</p><Link href="/journal/" className="light-outline-btn"><Sparkles size={15}/> Read the journal</Link></div>
+          <div className="journal-copy"><span className="kicker">LUKMA Journal</span><h2>Stories about<br/>great food.</h2><p>New places, guides, and curated recommendations from Tbilisi food scene.</p><Link href="/journal/" className="light-outline-btn"><Sparkles size={15}/> Read the journal</Link></div>
           <div className="journal-feature">{trending[1] ? <img src={restaurantPhoto(trending[1])} alt="" /> : <div className="journal-image-fallback"/>}<div className="journal-feature-copy"><span>Guide</span><h3>Places worth your next evening</h3><p>LUKMA · curated for you</p></div></div>
         </div></section>
       </main>
