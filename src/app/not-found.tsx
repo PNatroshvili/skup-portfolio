@@ -2,6 +2,7 @@
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import Link from "next/link";
 import { LanguageProvider, useLanguage } from "@/components/LanguageProvider";
 
 function NotFoundContent() {
@@ -18,7 +19,7 @@ function NotFoundContent() {
           <h1 className="mt-6 text-xl font-medium text-fg">
             {t({
               ka: "ეს გვერდი ვერ მოიძებნა",
-              en: "This page couldn't be found",
+              en: "This page could not be found",
             })}
           </h1>
           <p className="mt-3 text-[14px] leading-relaxed text-muted">
@@ -27,7 +28,7 @@ function NotFoundContent() {
               en: "The link may be outdated, or the page has moved.",
             })}
           </p>
-          <a
+          <Link
             href="/"
             className="group mt-8 inline-flex items-center gap-2.5 rounded-full bg-fg px-6 py-3 text-[13px] font-medium text-bg transition-opacity hover:opacity-85"
           >
@@ -35,7 +36,7 @@ function NotFoundContent() {
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="transition-transform duration-300 group-hover:-translate-x-0.5">
               <path d="M13 8H3M7 4 3 8l4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-          </a>
+          </Link>
         </div>
       </main>
       <Footer />
