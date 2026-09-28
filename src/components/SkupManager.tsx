@@ -94,7 +94,7 @@ export default function SkupManager() {
     const t = localStorage.getItem("skup_access_token");
     if (!t) {
       setLoading(false);
-      return;
+      return () => window.removeEventListener("skup-auth-changed", syncSession);
     }
     setToken(t);
     reload(t).catch(() => {
