@@ -65,8 +65,15 @@ export default function SkupAdmin(){
     if(!token) return Promise.resolve();
     const execute=async()=>{
       setActionBusy(true); setNotice("");
-      try{await fn();setNotice(ok);await loadTab(tab);}
-      catch(e){setNotice(e instanceof Error?e.message:"Action failed.");}
+      try{
+        await fn();
+        setNotice(ok);
+        try {
+          await loadTab(tab);
+        } catch {
+          setNotice(ok + " Latest data could not be refreshed; use Refresh.");
+        }
+      } catch(e){setNotice(e instanceof Error?e.message:"Action failed.");}
       finally{setActionBusy(false);}
     };
     const next=actionQueueRef.current.then(execute,execute);
