@@ -57,7 +57,11 @@ export default function SkupBookings() {
     const sync = () => setAuthToken(sessionToken());
     sync();
     window.addEventListener("skup-auth-changed", sync);
-    return () => window.removeEventListener("skup-auth-changed", sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener("skup-auth-changed", sync);
+      window.removeEventListener("storage", sync);
+    };
   }, []);
 
   useEffect(() => { load(); }, [authToken]);
