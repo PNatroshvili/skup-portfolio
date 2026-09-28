@@ -51,6 +51,7 @@ export default function SkupDiscover(){
   const [error,setError]=useState("");
   const [visibleCount,setVisibleCount]=useState(20);
   const [searchReady,setSearchReady]=useState(false);
+  const [mapReady,setMapReady]=useState(false);
 
   useEffect(()=>{
     let disposed=false;
@@ -75,6 +76,7 @@ export default function SkupDiscover(){
       }).addTo(map);
       markerLayerRef.current=L.layerGroup().addTo(map);
       leafletMapRef.current=map;
+      setMapReady(true);
       resizeObserver=new ResizeObserver(()=>map?.invalidateSize());
       resizeObserver.observe(mapElementRef.current);
       wheelHandler=(event:WheelEvent)=>{
@@ -96,6 +98,7 @@ export default function SkupDiscover(){
       markerRefs.current.clear();
       leafletMapRef.current=null;
       markerLayerRef.current=null;
+      setMapReady(false);
     };
   },[]);
 
@@ -180,17 +183,27 @@ export default function SkupDiscover(){
 
   const selectRestaurant=useCallback((r:Restaurant,focusList=false)=>{
     setSelected(r.id);
+    if(focusList){
+      const index=sorted.findIndex(item=>item.id===r.id);
+      if(index>=visibleCount){
+        setVisibleCount(Math.min(sorted.length,Math.ceil((index+1)/20)*20));
+      }
+    }
     const lat=Number(r.latitude);
     const lng=Number(r.longitude);
     if(leafletMapRef.current && Number.isFinite(lat) && Number.isFinite(lng)){
       leafletMapRef.current.flyTo([lat,lng],Math.max(leafletMapRef.current.getZoom(),14.8),{duration:.45});
     }
     if(focusList){
-      const target=Array.from(document.querySelectorAll<HTMLElement>("[data-restaurant-id]"))
-        .find(node=>node.dataset.restaurantId===r.id);
-      target?.scrollIntoView({behavior:"smooth",block:"nearest"});
+      window.requestAnimationFrame(()=>{
+        window.requestAnimationFrame(()=>{
+          const target=Array.from(document.querySelectorAll<HTMLElement>("[data-restaurant-id]"))
+            .find(node=>node.dataset.restaurantId===r.id);
+          target?.scrollIntoView({behavior:"smooth",block:"nearest"});
+        });
+      });
     }
-  },[]);
+  },[sorted,visibleCount]);
 
   useEffect(()=>{
     let disposed=false;
@@ -241,7 +254,7 @@ export default function SkupDiscover(){
     };
     paintMarkers();
     return()=>{disposed=true;};
-  },[sorted,userLocation,selectRestaurant]);
+  },[mapReady,sorted,userLocation,selectRestaurant]);
 
   useEffect(()=>{
     markerRefs.current.forEach((marker,id)=>{
