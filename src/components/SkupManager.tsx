@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { CalendarDays, Check, ExternalLink, LogOut, Plus, RefreshCw, Save, Search, Store, Trash2, UtensilsCrossed } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   addMenuCategory,
   addMenuItem,
@@ -66,6 +66,7 @@ export default function SkupManager() {
   const [newItem, setNewItem] = useState({ name:"", description:"", price:"", available:true });
   const [eventForm, setEventForm] = useState({ title:"", description:"", emoji:"✦", eventDate:"" });
   const [photoBusy, setPhotoBusy] = useState(false);
+  const actionBusyRef = useRef(false);
 
   const reload = async (t: string) => {
     const activeToken = typeof window !== "undefined" ? localStorage.getItem("skup_access_token") || t : t;
@@ -158,15 +159,20 @@ export default function SkupManager() {
     }
   };
 
-  const run = async (fn: () => Promise<unknown>, success: string) => {
+  const run = async (fn: () => Promise<unknown>, success: string): Promise<boolean> => {
+    if (actionBusyRef.current) return false;
+    actionBusyRef.current = true;
     setBusy(true); setError(""); setMessage("");
     try {
       await fn();
       setMessage(success);
       if (token) await reload(token);
+      return true;
     } catch (e) {
       setError(e instanceof Error ? e.message : "Operation failed.");
+      return false;
     } finally {
+      actionBusyRef.current = false;
       setBusy(false);
     }
   };
@@ -214,7 +220,7 @@ export default function SkupManager() {
 
   const addCategory = () => {
     if (!newCategory.trim()) return;
-    run(() => addMenuCategory(token, restaurant.id, newCategory.trim()), "Category added.").then(() => setNewCategory(""));
+    run(() => addMenuCategory(token, restaurant.id, newCategory.trim()), "Category added.").then(ok => { if (ok) setNewCategory(""); });
   };
 
   const addItem = () => {
@@ -226,7 +232,7 @@ export default function SkupManager() {
     run(
       () => addMenuItem(token, restaurant.id, categoryId, { name:newItem.name.trim(), description:newItem.description.trim() || undefined, price:Number(newItem.price), isAvailable:newItem.available }),
       "Dish added."
-    ).then(() => setNewItem({ name:"", description:"", price:"", available:true }));
+    ).then(ok => { if (ok) setNewItem({ name:"", description:"", price:"", available:true }); });
   };
 
   const uploadPhoto = async (file: File, isCover: boolean) => {
@@ -252,7 +258,7 @@ export default function SkupManager() {
         eventDate:eventForm.eventDate || undefined,
       }),
       "Event added."
-    ).then(() => setEventForm({ title:"", description:"", emoji:"✦", eventDate:"" }));
+    ).then(ok => { if (ok) setEventForm({ title:"", description:"", emoji:"✦", eventDate:"" }); });
   };
 
   return (
