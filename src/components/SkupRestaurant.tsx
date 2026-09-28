@@ -79,9 +79,17 @@ export default function SkupRestaurant() {
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem("skup_access_token");
-    if (!token || !id) return;
-    getFavorites(token).then(list => setFavorite(list.some(r => r.id === id))).catch(() => {});
+    const syncFavorite = () => {
+      const token = localStorage.getItem("skup_access_token");
+      if (!token || !id) {
+        setFavorite(false);
+        return;
+      }
+      getFavorites(token).then(list => setFavorite(list.some(r => r.id === id))).catch(() => setFavorite(false));
+    };
+    syncFavorite();
+    window.addEventListener("skup-auth-changed", syncFavorite);
+    return () => window.removeEventListener("skup-auth-changed", syncFavorite);
   }, [id]);
 
   useEffect(() => {
@@ -233,6 +241,7 @@ export default function SkupRestaurant() {
       setReviews(freshReviews?.data || []);
       setRestaurant(freshRestaurant);
       setReviewComment("");
+      setReviewRating(5);
       setReviewMessage("Review published.");
     } catch (e) {
       setReviewMessage(e instanceof Error ? e.message : "Could not submit review.");
