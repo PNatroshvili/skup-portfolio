@@ -25,7 +25,11 @@ export default function SkupHeader() {
       } catch {}
     };
     window.addEventListener("storage", sync);
-    return () => window.removeEventListener("storage", sync);
+    window.addEventListener("skup-auth-changed", sync);
+    return () => {
+      window.removeEventListener("storage", sync);
+      window.removeEventListener("skup-auth-changed", sync);
+    };
   }, []);
   return (
     <header className="skup-header">
