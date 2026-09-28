@@ -111,7 +111,11 @@ export default function SkupManager() {
   const [actionBookingId, setActionBookingId] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
-  const bookingDateValue = (b: ManagerBooking) => Date.parse(`${b.date}T${b.time || "00:00"}`) || 0;
+  const bookingDateValue = (b: ManagerBooking) => {
+    const [year, month, day] = b.date.split("-").map(Number);
+    const [hour, minute] = (b.time || "00:00").split(":").map(Number);
+    return Date.UTC(year || 0, (month || 1) - 1, day || 1, hour || 0, minute || 0);
+  };
   const sortedBookings = useMemo(() => [...bookings].sort((a,b) => bookingDateValue(b) - bookingDateValue(a)), [bookings]);
   const filteredBookings = useMemo(() => {
     const query = bookingSearch.trim().toLowerCase();
@@ -121,8 +125,7 @@ export default function SkupManager() {
       return matchesStatus && (!query || haystack.includes(query));
     });
   }, [sortedBookings, bookingFilter, bookingSearch]);
-  const now = new Date();
-  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  const today = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Tbilisi" });
   const todayBookings = useMemo(() => bookings.filter(b => b.date === today && ["pending","confirmed"].includes(b.status)), [bookings, today]);
   const confirmed = useMemo(() => bookings.filter(b => b.status === "confirmed"), [bookings]);
   const rejected = useMemo(() => bookings.filter(b => b.status === "rejected"), [bookings]);
