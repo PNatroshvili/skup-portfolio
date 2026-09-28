@@ -22,8 +22,16 @@ export default function SkupChat(){
 
   useEffect(()=>{
     if(typeof window!=="undefined"){
-      try{ setUserId(String(JSON.parse(localStorage.getItem("skup_user")||"{}")?.id||"")); }catch{}
+      const syncAuth=()=>{
+        const nextToken=localStorage.getItem("skup_access_token");
+        setAuthToken(nextToken);
+        if(!nextToken) setMessages([]);
+        try{ setUserId(String(JSON.parse(localStorage.getItem("skup_user")||"{}")?.id||"")); }catch{ setUserId(""); }
+      };
+      syncAuth();
+      window.addEventListener("skup-auth-changed",syncAuth);
       setRestaurant(new URLSearchParams(window.location.search).get("restaurant") || "Restaurant");
+      return()=>window.removeEventListener("skup-auth-changed",syncAuth);
     }
   },[]);
 
