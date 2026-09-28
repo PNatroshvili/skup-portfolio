@@ -4,7 +4,15 @@ import Link from "next/link";
 import { Heart, LogIn, LogOut, Map, Menu, Shield, Search, Utensils, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
-export default function SkupHeader({\n  searchValue,\n  onSearchChange,\n  activeNav = "",\n}: {\n  searchValue?: string;\n  onSearchChange?: (value: string) => void;\n  activeNav?: string;\n} = {}) {
+export default function SkupHeader({
+  searchValue,
+  onSearchChange,
+  activeNav = "",
+}: {
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
+  activeNav?: string;
+} = {}) {
   const [open, setOpen] = useState(false);
   const [role, setRole] = useState("");
   const [userName, setUserName] = useState("");
@@ -59,7 +67,8 @@ export default function SkupHeader({\n  searchValue,\n  onSearchChange,\n  activ
           <Link className={activeNav === "collections" ? "active" : ""} href="/discover/#collections">Collections</Link>
           <Link href="/journal/">Journal</Link>
         </nav>
-        <div className="skup-header-actions">\n          {onSearchChange ? <label className="header-search"><Search size={15}/><input value={searchValue || ""} onChange={e => onSearchChange(e.target.value)} placeholder="Search restaurants, cuisine…" aria-label="Search restaurants, cuisine" /></label> : null}
+        <div className="skup-header-actions">
+          {onSearchChange ? <label className="header-search"><Search size={15}/><input value={searchValue || ""} onChange={e => onSearchChange(e.target.value)} placeholder="Search restaurants, cuisine…" aria-label="Search restaurants, cuisine" /></label> : null}
           <Link className="header-icon" href="/favorites/" aria-label="Favorites"><Heart size={18} /></Link>
           {role === "restaurant_manager" ? <Link className="header-restaurant-link" href="/for-restaurants/dashboard/"><Utensils size={14}/> Manager</Link> : null}
           {role === "admin" ? <Link className="header-restaurant-link" href="/admin/"><Shield size={14}/> Admin</Link> : null}
