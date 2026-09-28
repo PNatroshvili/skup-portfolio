@@ -48,15 +48,17 @@ export default function SkupChat(){
   useEffect(()=>{
     if(!bookingId || !userId || !authToken) return;
     let socket:any;
+    let disposed=false;
     (async()=>{
       try{
         const mod=await import("socket.io-client");
+        if(disposed) return;
         socket=mod.io("https://api.skup.ge/chat",{transports:["websocket"],path:"/socket.io",auth:{token:authToken}});
         socket.emit("joinBookingRoom",bookingId);
         socket.on("newMessage",(msg:ChatMessage)=>setMessages(prev=>prev.some(x=>x.id===msg.id)?prev:[...prev,msg]));
       }catch{}
     })();
-    return()=>{if(socket)socket.disconnect();};
+    return()=>{disposed=true;if(socket)socket.disconnect();};
   },[bookingId,userId,authToken]);
 
   const send=async()=>{
