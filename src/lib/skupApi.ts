@@ -62,7 +62,45 @@ export type RestaurantEvent = {
   isActive: boolean;
 };
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+let refreshPromise: Promise<string | null> | null = null;
+
+function getHeaderValue(headers: HeadersInit | undefined, name: string) {
+  if (!headers) return "";
+  if (headers instanceof Headers) return headers.get(name) || "";
+  if (Array.isArray(headers)) return headers.find(([key]) => key.toLowerCase() === name.toLowerCase())?.[1] || "";
+  return String((headers as Record<string, string>)[name] || (headers as Record<string, string>)[name.toLowerCase()] || "");
+}
+
+async function refreshStoredSession() {
+  if (typeof window === "undefined") return null;
+  const refreshToken = localStorage.getItem("skup_refresh_token");
+  if (!refreshToken) return null;
+  if (!refreshPromise) {
+    refreshPromise = fetch(API_BASE + "/auth/refresh", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh_token: refreshToken }),
+      cache: "no-store",
+    })
+      .then(async response => {
+        if (!response.ok) return null;
+        const result = await response.json() as { access_token?: string; refresh_token?: string };
+        if (!result.access_token) return null;
+        localStorage.setItem("skup_access_token", result.access_token);
+        if (result.refresh_token) localStorage.setItem("skup_refresh_token", result.refresh_token);
+        window.dispatchEvent(new Event("skup-auth-changed"));
+        return result.access_token;
+      })
+      .catch(() => null)
+      .finally(() => {
+        refreshPromise = null;
+      });
+  }
+  return refreshPromise;
+}
+
+async function request<T>(path: string, init?: RequestInit, retry = true): Promise<T> {
+  const authHeader = getHeaderValue(init?.headers, "Authorization");
   const response = await fetch(API_BASE + path, {
     ...init,
     headers: {
@@ -71,6 +109,22 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     },
     cache: "no-store",
   });
+
+  if (response.status === 401 && authHeader && retry) {
+    const freshToken = await refreshStoredSession();
+    if (freshToken) {
+      const headers = new Headers(init?.headers);
+      headers.set("Authorization", "Bearer " + freshToken);
+      return request<T>(path, { ...init, headers }, false);
+    }
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("skup_access_token");
+      localStorage.removeItem("skup_refresh_token");
+      localStorage.removeItem("skup_user");
+      window.dispatchEvent(new Event("skup-auth-changed"));
+    }
+  }
+
   if (!response.ok) {
     const raw = await response.text().catch(() => "");
     let message = raw || "Request failed: " + response.status;
