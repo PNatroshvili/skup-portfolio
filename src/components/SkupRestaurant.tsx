@@ -272,12 +272,16 @@ export default function SkupRestaurant() {
         rating: reviewRating,
         comment: reviewComment.trim() || undefined,
       });
-      const [freshReviews, freshRestaurant] = await Promise.all([getReviews(id), getRestaurant(id)]);
-      setReviews(freshReviews?.data || []);
-      setRestaurant(freshRestaurant);
       setReviewComment("");
       setReviewRating(5);
       setReviewMessage("Review published.");
+      try {
+        const [freshReviews, freshRestaurant] = await Promise.all([getReviews(id), getRestaurant(id)]);
+        setReviews(freshReviews?.data || []);
+        setRestaurant(freshRestaurant);
+      } catch {
+        setReviewMessage("Review published. Refresh the page to see the latest reviews.");
+      }
     } catch (e) {
       setReviewMessage(e instanceof Error ? e.message : "Could not submit review.");
     } finally {
