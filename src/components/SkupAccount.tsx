@@ -505,6 +505,23 @@ export default function SkupAccount() {
               )) : <div className="empty-state">You have no bookings yet.</div>}
             </section>
 
+            {pastBookings.length ? (
+              <section className="account-section account-history">
+                <div className="section-head"><div><span className="kicker">HISTORY</span><h2>Past bookings</h2></div><span className="account-history-count">{pastBookings.length} total</span></div>
+                <div className="booking-history-list">
+                  {pastBookings.slice(0, 12).map(b => (
+                    <div key={b.id} className="booking-row booking-row-past">
+                      <div className="booking-date"><strong>{b.date}</strong><span>{b.time}</span></div>
+                      <div><strong>{b.restaurant?.name || "Restaurant"}</strong><span>{b.guestsCount || b.guests_count || 0} guest(s)</span></div>
+                      <span className={"status status-"+b.status}>{statusLabel(b.status)}</span>
+                      {b.restaurant?.id ? <Link href={"/restaurant/?id="+encodeURIComponent(b.restaurant.id)} className="booking-view-link">View restaurant</Link> : null}
+                    </div>
+                  ))}
+                </div>
+                {pastBookings.length > 12 ? <p className="account-history-note">Showing your 12 most recent past bookings.</p> : null}
+              </section>
+            ) : null}
+
             <section id="favorites" className="account-section">
               <div className="section-head"><div><span className="kicker">SAVED</span><h2>Favorites</h2></div></div>
               {favorites.length ? <div className="favorite-list">{favorites.slice(0,8).map(r => <Link key={r.id} href={"/restaurant/?id="+encodeURIComponent(r.id)} className="mini-fav-card">{r.cover_photo ? <img src={r.cover_photo} alt="" /> : <div className="mini-fav-fallback"/>}<div><strong>{r.name}</strong><span><Star size={11} fill="currentColor"/> {Number(r.ratingAvg||0).toFixed(1)}</span></div></Link>)}</div> : <div className="empty-state">You have no saved restaurants yet.</div>}
