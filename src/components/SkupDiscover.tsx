@@ -44,6 +44,7 @@ export default function SkupDiscover(){
   const mapElementRef=useRef<HTMLDivElement|null>(null);
   const leafletMapRef=useRef<import("leaflet").Map|null>(null);
   const markerLayerRef=useRef<import("leaflet").LayerGroup|null>(null);
+  const markerRefs=useRef<Map<string,import("leaflet").Marker>>(new Map());
   const [history,setHistory]=useState<string[]>([]);
   const [showFilters,setShowFilters]=useState(false);
   const [loading,setLoading]=useState(true);
@@ -72,11 +73,17 @@ export default function SkupDiscover(){
       }).addTo(map);
       markerLayerRef.current=L.layerGroup().addTo(map);
       leafletMapRef.current=map;
+      const resizeObserver=new ResizeObserver(()=>map?.invalidateSize());
+      resizeObserver.observe(mapElementRef.current);
       window.setTimeout(()=>map?.invalidateSize(),0);
+      map.whenReady(()=>map?.invalidateSize());
+      return;
+
     });
     return ()=>{
       disposed=true;
       if(map){map.remove();}
+      markerRefs.current.clear();
       leafletMapRef.current=null;
       markerLayerRef.current=null;
     };
@@ -170,6 +177,7 @@ export default function SkupDiscover(){
       const L=await import("leaflet");
       if(disposed)return;
       layer.clearLayers();
+      markerRefs.current.clear();
       sorted.slice(0,120).forEach(r=>{
         const lat=Number(r.latitude),lng=Number(r.longitude);
         if(!Number.isFinite(lat)||!Number.isFinite(lng))return;
@@ -188,6 +196,7 @@ export default function SkupDiscover(){
         });
         marker.on("click",()=>selectRestaurant(r,true));
         marker.addTo(layer);
+        markerRefs.current.set(r.id,marker);
       });
       if(userLocation){
         L.circleMarker([userLocation.lat,userLocation.lng],{
@@ -208,7 +217,14 @@ export default function SkupDiscover(){
     };
     paintMarkers();
     return()=>{disposed=true;};
-  },[sorted,selected,userLocation,selectRestaurant]);
+  },[sorted,userLocation,selectRestaurant]);
+
+  useEffect(()=>{
+    markerRefs.current.forEach((marker,id)=>{
+      const element=marker.getElement()?.querySelector(".lukma-map-marker");
+      element?.classList.toggle("selected",id===selected);
+    });
+  },[selected]);
 
   const selectRestaurant=useCallback((r:Restaurant,focusList=false)=>{
     setSelected(r.id);
@@ -225,7 +241,12 @@ export default function SkupDiscover(){
   },[]);
 
   const toggleNearMe=()=>{
-    if(nearMe){setNearMe(false);if(sort==="distance")setSort("rating");return;}
+    if(nearMe){
+      setNearMe(false);
+      setUserLocation(null);
+      if(sort==="distance")setSort("rating");
+      return;
+    }
     if(!navigator.geolocation){setError("Location is not available on this device.");return;}
     navigator.geolocation.getCurrentPosition(pos=>{
       const next={lat:pos.coords.latitude,lng:pos.coords.longitude};
@@ -237,7 +258,7 @@ export default function SkupDiscover(){
   };
 
   const clearFilters=()=>{
-    setQ("");setCuisineId("");setCollectionId("");setIsOpen(false);setMinRating("");setDiscountOnly(false);setPriceLevel("");setDietary([]);setNearMe(false);setSort("rating");
+    setQ("");setCuisineId("");setCollectionId("");setIsOpen(false);setMinRating("");setDiscountOnly(false);setPriceLevel("");setDietary([]);setNearMe(false);setUserLocation(null);setSort("rating");
   };
   const resetMap=()=>leafletMapRef.current?.flyTo([41.7151,44.8271],12.4,{duration:.5});
 
