@@ -20,6 +20,7 @@ import {
   verifyEmail,
 } from "@/lib/skupApi";
 import SkupHeader from "./SkupHeader";
+import { isBookingUpcoming } from "@/lib/lukmaUtils";
 
 type AuthMode = "login" | "register" | "verify" | "forgot" | "reset";
 type Booking = {
@@ -351,7 +352,9 @@ export default function SkupAccount() {
   };
 
   const upcoming = useMemo(
-    () => bookings.filter(b => b.status === "pending" || b.status === "confirmed").sort((a,b) => (a.date + a.time).localeCompare(b.date + b.time)),
+    () => bookings
+      .filter(b => (b.status === "pending" || b.status === "confirmed") && isBookingUpcoming(b.date, b.time))
+      .sort((a,b) => (a.date + a.time).localeCompare(b.date + b.time)),
     [bookings],
   );
 
