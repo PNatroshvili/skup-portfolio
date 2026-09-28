@@ -90,7 +90,7 @@ export function addBookingToCalendar(booking: {
     "PRODID:-//LUKMA//Restaurant Booking//EN",
     "BEGIN:VEVENT",
     "UID:" + booking.id + "@lukma.skup.ge",
-    "DTSTAMP:" + format(new Date()),
+    "DTSTAMP:" + format(Date.now()),
     "DTSTART:" + format(startTimestamp),
     "DTEND:" + format(endTimestamp),
     "SUMMARY:LUKMA · " + booking.restaurantName,
