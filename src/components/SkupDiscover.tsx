@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { LocateFixed, Search, SlidersHorizontal, Star, X, Shuffle, ArrowDownUp, Share2, RotateCcw } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import { getCollections, getCuisines, getRestaurants, type Cuisine, type Restaurant } from "@/lib/skupApi";
 import { restaurantPhoto } from "@/lib/lukmaUtils";
@@ -208,9 +208,9 @@ export default function SkupDiscover(){
     };
     paintMarkers();
     return()=>{disposed=true;};
-  },[sorted,selected,userLocation]);
+  },[sorted,selected,userLocation,selectRestaurant]);
 
-  const selectRestaurant=(r:Restaurant,focusList=false)=>{
+  const selectRestaurant=useCallback((r:Restaurant,focusList=false)=>{
     setSelected(r.id);
     const lat=Number(r.latitude);
     const lng=Number(r.longitude);
@@ -222,7 +222,7 @@ export default function SkupDiscover(){
         .find(node=>node.dataset.restaurantId===r.id);
       target?.scrollIntoView({behavior:"smooth",block:"nearest"});
     }
-  };
+  },[]);
 
   const toggleNearMe=()=>{
     if(nearMe){setNearMe(false);if(sort==="distance")setSort("rating");return;}
