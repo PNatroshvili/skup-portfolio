@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Bell, Check, ChefHat, Eye, LayoutDashboard, MessageSquare, RefreshCw, Trash2, Users, Utensils } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   deleteAdminCollection, deleteAdminRestaurant, deleteAdminReview, deleteAdminUser,
   getAdminBookings, getAdminBookingsChart, getAdminCollections, getAdminHomeSections,
@@ -35,6 +35,7 @@ export default function SkupAdmin(){
   const [broadcastBody,setBroadcastBody]=useState("");
   const [token,setToken]=useState<string|null>(null);
   const [actionBusy,setActionBusy]=useState(false);
+  const actionQueueRef=useRef<Promise<void>>(Promise.resolve());
 
   useEffect(()=>{
     const sync=()=>setToken(getToken());
@@ -60,12 +61,17 @@ export default function SkupAdmin(){
 
   if(!token)return <div className="skup-site"><SkupHeader/><main className="shell account-page"><div className="account-login-card"><div className="account-mark">L</div><span className="kicker">ADMIN</span><h1>Open the admin<br/>control center.</h1><p>Use the admin demo account from My LUKMA.</p><Link className="green-btn" href="/account/">Open login</Link></div></main></div>;
 
-  const doAction=async(fn:()=>Promise<any>, ok:string)=>{
-    if(actionBusy || !token) return;
-    setActionBusy(true); setNotice("");
-    try{await fn();setNotice(ok);await loadTab(tab);}
-    catch(e){setNotice(e instanceof Error?e.message:"Action failed.");}
-    finally{setActionBusy(false);}
+  const doAction=(fn:()=>Promise<any>, ok:string)=>{
+    if(!token) return Promise.resolve();
+    const execute=async()=>{
+      setActionBusy(true); setNotice("");
+      try{await fn();setNotice(ok);await loadTab(tab);}
+      catch(e){setNotice(e instanceof Error?e.message:"Action failed.");}
+      finally{setActionBusy(false);}
+    };
+    const next=actionQueueRef.current.then(execute,execute);
+    actionQueueRef.current=next.then(()=>undefined,()=>undefined);
+    return next;
   };
   const maxChart=Math.max(1,...chart.map(x=>Number(x.count)||0));
 
