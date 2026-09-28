@@ -91,16 +91,23 @@ export default function SkupManager() {
   useEffect(() => {
     const syncSession = () => setToken(localStorage.getItem("skup_access_token"));
     window.addEventListener("skup-auth-changed", syncSession);
+    window.addEventListener("storage", syncSession);
     const t = localStorage.getItem("skup_access_token");
     if (!t) {
       setLoading(false);
-      return () => window.removeEventListener("skup-auth-changed", syncSession);
+      return () => {
+        window.removeEventListener("skup-auth-changed", syncSession);
+        window.removeEventListener("storage", syncSession);
+      };
     }
     setToken(t);
     reload(t).catch(() => {
       setError("Could not load restaurant manager data.");
     }).finally(() => setLoading(false));
-    return () => window.removeEventListener("skup-auth-changed", syncSession);
+    return () => {
+      window.removeEventListener("skup-auth-changed", syncSession);
+      window.removeEventListener("storage", syncSession);
+    };
   }, []);
 
   const pending = useMemo(() => bookings.filter(b => b.status === "pending"), [bookings]);
