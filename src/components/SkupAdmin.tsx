@@ -33,8 +33,15 @@ export default function SkupAdmin(){
   const [loading,setLoading]=useState(true);
   const [broadcastTitle,setBroadcastTitle]=useState("");
   const [broadcastBody,setBroadcastBody]=useState("");
+  const [token,setToken]=useState<string|null>(null);
+  const [actionBusy,setActionBusy]=useState(false);
 
-  const token=getToken();
+  useEffect(()=>{
+    const sync=()=>setToken(getToken());
+    sync();
+    window.addEventListener("skup-auth-changed",sync);
+    return()=>window.removeEventListener("skup-auth-changed",sync);
+  },[]);
 
   const loadOverview=async()=>{if(!token)return;setLoading(true);try{const [s,c,t]=await Promise.all([getAdminStats(token),getAdminBookingsChart(token),getAdminTopRestaurants(token)]);setStats(s);setChart(c||[]);setTop(t||[]);}catch(e){setNotice(e instanceof Error?e.message:"Could not load admin dashboard.");}finally{setLoading(false);}};
   const loadTab=async(t:Tab)=>{if(!token)return;setLoading(true);setNotice("");try{
@@ -49,7 +56,13 @@ export default function SkupAdmin(){
 
   if(!token)return <div className="skup-site"><SkupHeader/><main className="shell account-page"><div className="account-login-card"><div className="account-mark">L</div><span className="kicker">ADMIN</span><h1>Open the admin<br/>control center.</h1><p>Use the admin demo account from My LUKMA.</p><Link className="green-btn" href="/account/">Open login</Link></div></main></div>;
 
-  const doAction=async(fn:()=>Promise<any>, ok:string)=>{setNotice("");try{await fn();setNotice(ok);await loadTab(tab);}catch(e){setNotice(e instanceof Error?e.message:"Action failed.");}};
+  const doAction=async(fn:()=>Promise<any>, ok:string)=>{
+    if(actionBusy || !token) return;
+    setActionBusy(true); setNotice("");
+    try{await fn();setNotice(ok);await loadTab(tab);}
+    catch(e){setNotice(e instanceof Error?e.message:"Action failed.");}
+    finally{setActionBusy(false);}
+  };
   const maxChart=Math.max(1,...chart.map(x=>Number(x.count)||0));
 
   return <div className="skup-site"><SkupHeader/><main className="shell admin-page">
