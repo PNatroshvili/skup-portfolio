@@ -219,11 +219,11 @@ export default function SkupDiscover(){
         const lat=Number(r.latitude),lng=Number(r.longitude);
         if(!Number.isFinite(lat)||!Number.isFinite(lng))return;
         const selectedMarker=r.id===selected;
-        const discount=Number(r.discountPercent||0);
+        const discount=Number(r.discountPercent||0);\n        const photo=restaurantPhoto(r).replace(/"/g,"&quot;");
         const marker=L.marker([lat,lng],{
           icon:L.divIcon({
             className:"lukma-map-marker-wrap",
-                        html:'<button class="lukma-map-marker '+(selectedMarker?'selected':'')+'" type="button"><span class="marker-core" aria-hidden="true"></span><strong class="marker-label">'+Number(r.ratingAvg||0).toFixed(1)+'</strong>'+(discount?'<em>-'+discount+'%</em>':"")+'</button>',
+                        html:'<button class="lukma-map-marker '+(selectedMarker?'selected':'')+'" type="button"><span class="marker-photo" style="background-image:url(&quot;'+photo+'&quot;)"></span><span class="marker-rating">'+Number(r.ratingAvg||0).toFixed(1)+(discount?' · '+discount+'% OFF':"")+</span></button>',
             iconSize:[48,32],
             iconAnchor:[24,16],
           }),
