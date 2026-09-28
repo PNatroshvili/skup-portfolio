@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { BarChart3, Bell, Check, ChefHat, Eye, LayoutDashboard, MessageSquare, RefreshCw, Shield, Trash2, Users, Utensils, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   deleteAdminCollection, deleteAdminRestaurant, deleteAdminReview, deleteAdminUser,
   getAdminBookings, getAdminBookingsChart, getAdminCollections, getAdminHomeSections,
