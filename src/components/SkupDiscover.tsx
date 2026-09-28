@@ -136,6 +136,16 @@ export default function SkupDiscover(){
   },[searchAsMapMoves]);
 
   useEffect(()=>{
+    if(!mapReady || restaurants.length<2 || !leafletMapRef.current) return;
+    const coords=restaurants
+      .map(item=>[Number(item.latitude),Number(item.longitude)] as [number,number])
+      .filter(([lat,lng])=>Number.isFinite(lat)&&Number.isFinite(lng));
+    if(coords.length>1){
+      leafletMapRef.current.fitBounds(coords,{padding:[70,70],maxZoom:13.4,animate:false});
+    }
+  },[mapReady,restaurants]);
+
+  useEffect(()=>{
     const params=new URLSearchParams(window.location.search);
     setQ(params.get("q")||"");
     setCuisineId(params.get("cuisine_id")||"");
@@ -154,16 +164,7 @@ export default function SkupDiscover(){
         setCuisines((c||[]).sort((a,b)=>(a.name||"").localeCompare(b.name||"")));
         setCollections((col||[]).filter(x=>x.isActive).sort((a,b)=>a.sortOrder-b.sortOrder));
         setRestaurants(r.data||[]);
-        setSelected(r.data?.[0]?.id||"");
-      const coords=(r.data||[])
-        .map(item=>[Number(item.latitude),Number(item.longitude)] as [number,number])
-        .filter(([lat,lng])=>Number.isFinite(lat)&&Number.isFinite(lng));
-      if(coords.length>1) {
-        window.setTimeout(()=>{
-          leafletMapRef.current?.fitBounds(coords,{padding:[70,70],maxZoom:13.4,animate:false});
-        },250);
-      }
-      })
+        setSelected(r.data?.[0]?.id||"");      })
       .catch(()=>setError("Restaurants could not be loaded right now."))
       .finally(()=>setLoading(false));
   },[]);
