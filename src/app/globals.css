@@ -33,10 +33,11 @@ button{cursor:pointer}
 .skup-nav a{transition:color .2s ease}
 .skup-nav a:hover{color:var(--green-dark)}
 .skup-header-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
-.header-icon,.header-menu{width:38px;height:38px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;background:transparent}
-.header-restaurant-link,.header-login{font-size:12px;color:#4e584f;padding:9px 12px;border-radius:999px}
-.header-restaurant-link:hover,.header-login:hover{background:#ece8df}
+.header-icon,.header-menu,.header-logout{width:38px;height:38px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;background:transparent}
+.header-restaurant-link,.header-login,.header-bookings{font-size:12px;color:#4e584f;padding:9px 12px;border-radius:999px}
+.header-restaurant-link:hover,.header-login:hover,.header-bookings:hover,.header-logout:hover{background:#ece8df}
 .header-login{display:flex;align-items:center;gap:6px}
+.header-user{display:flex;align-items:center;gap:7px;color:var(--ink);font-size:12px;padding:4px 8px 4px 4px;border:1px solid var(--line);border-radius:999px}.header-user span{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:#fff;font-size:11px}.header-user b{font-weight:600}.header-logout{cursor:pointer}
 .header-signup{padding:11px 16px;border-radius:999px;background:var(--ink);color:#fff;font-size:12px}
 .header-menu{display:none}
 
