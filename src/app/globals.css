@@ -799,10 +799,7 @@ h3{font-weight:600}
   border-radius:22px;
   box-shadow:0 14px 38px rgba(25,38,31,.08);
 }
-.discover-map-canvas{
-  position:absolute;
-  inset:0;
-}
+.discover-map-canvas{position:absolute;inset:0}
 .discover-map-card .leaflet-container{
   position:absolute;
   inset:0;
@@ -820,43 +817,47 @@ h3{font-weight:600}
   padding:2px 5px;
   border-radius:6px 0 0 0;
 }
-.lukma-map-marker-wrap{
-  background:transparent!important;
-  border:0!important;
-}
+.lukma-map-marker-wrap{background:transparent!important;border:0!important}
 .lukma-map-marker{
+  width:18px;
+  height:18px;
+  padding:0;
+  border:2px solid rgba(255,255,255,.98);
+  border-radius:50%;
+  background:var(--green);
+  color:#fff;
+  box-shadow:0 4px 12px rgba(20,80,55,.28);
+  cursor:pointer;
+  pointer-events:auto;
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:2px;
-  min-width:38px;
+  transition:transform .15s ease,background .15s ease,box-shadow .15s ease;
+}
+.lukma-map-marker:hover{transform:scale(1.18);box-shadow:0 6px 15px rgba(20,80,55,.30)}
+.lukma-map-marker .marker-core{
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:#fff;
+}
+.lukma-map-marker .marker-label{display:none}
+.lukma-map-marker em{display:none;font-style:normal;font-size:7px}
+.lukma-map-marker.selected{
+  width:auto;
+  min-width:40px;
   height:27px;
   padding:0 7px;
+  gap:3px;
   border:1px solid rgba(255,255,255,.96);
   border-radius:999px;
-  background:rgba(255,255,255,.96);
-  color:#1b5b43;
-  box-shadow:0 5px 14px rgba(25,38,31,.18);
-  font-size:9px;
-  font-weight:800;
-  line-height:1;
-  cursor:pointer;
-  transition:transform .15s ease,background .15s ease,color .15s ease,box-shadow .15s ease;
-  pointer-events:auto;
-}
-.lukma-map-marker:hover{
-  transform:translateY(-1px) scale(1.04);
-  box-shadow:0 8px 18px rgba(25,38,31,.22);
-}
-.lukma-map-marker.selected{
   background:var(--green);
-  color:#fff;
-  border-color:var(--green-dark);
-  transform:scale(1.08);
   box-shadow:0 9px 22px rgba(20,122,82,.28);
+  transform:scale(1.06);
 }
-.lukma-map-marker em{font-style:normal;font-size:7px;color:#a65a51}
-.lukma-map-marker.selected em{color:#fff}
+.lukma-map-marker.selected .marker-core{display:none}
+.lukma-map-marker.selected .marker-label{display:inline;font-size:9px;font-weight:800;line-height:1}
+.lukma-map-marker.selected em{display:inline;color:#fff}
 .discover-map-card .map-overlay-top{
   z-index:700;
   left:14px;
