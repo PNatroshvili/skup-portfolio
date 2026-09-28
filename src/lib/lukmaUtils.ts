@@ -43,11 +43,27 @@ export function clearRecentlyViewed() {
   try { localStorage.removeItem(RECENT_KEY); } catch {}
 }
 
+function tbilisiNowParts() {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Tbilisi",
+    weekday: "short",
+    hour: "numeric",
+    hour12: false,
+  }).formatToParts(new Date());
+  const hour = Number(parts.find(part => part.type === "hour")?.value || 0);
+  const weekday = parts.find(part => part.type === "weekday")?.value || "";
+  return { hour, weekend: weekday === "Sat" || weekday === "Sun" };
+}
+
+function tbilisiBookingTimestamp(date: string, time: string) {
+  const [y, m, d] = date.split("-").map(Number);
+  const [hh, mm] = time.split(":").map(Number);
+  return Date.UTC(y, m - 1, d, hh, mm) - 4 * 60 * 60 * 1000;
+}
+
 export function estimateWaitTime(restaurant: Restaurant): number | null {
   if (!restaurant.isOpen) return null;
-  const now = new Date();
-  const hour = now.getHours();
-  const weekend = now.getDay() === 0 || now.getDay() === 6;
+  const { hour, weekend } = tbilisiNowParts();
   const peak = (hour >= 12 && hour <= 14) || (hour >= 19 && hour <= 22);
   const base = peak ? (weekend ? 30 : 20) : (weekend ? 15 : 5);
   return Math.max(5, base + ((restaurant.id.charCodeAt(0) % 10) - 5));
@@ -63,9 +79,10 @@ export function addBookingToCalendar(booking: {
 }) {
   const [y, m, d] = booking.date.split("-").map(Number);
   const [hh, mm] = booking.time.split(":").map(Number);
-  const start = new Date(y, m - 1, d, hh, mm);
-  const end = new Date(start.getTime() + 90 * 60 * 1000);
-  const format = (value: Date) => {
+  const startTimestamp = tbilisiBookingTimestamp(booking.date, booking.time);
+  const endTimestamp = startTimestamp + 90 * 60 * 1000;
+  const format = (timestamp: number) => {
+    const value = new Date(timestamp);
     const pad = (n: number) => String(n).padStart(2, "0");
     return value.getUTCFullYear() + pad(value.getUTCMonth() + 1) + pad(value.getUTCDate()) + "T" + pad(value.getUTCHours()) + pad(value.getUTCMinutes()) + "00Z";
   };
@@ -76,8 +93,8 @@ export function addBookingToCalendar(booking: {
     "BEGIN:VEVENT",
     "UID:" + booking.id + "@lukma.skup.ge",
     "DTSTAMP:" + format(new Date()),
-    "DTSTART:" + format(start),
-    "DTEND:" + format(end),
+    "DTSTART:" + format(startTimestamp),
+    "DTEND:" + format(endTimestamp),
     "SUMMARY:LUKMA · " + booking.restaurantName,
     "LOCATION:" + (booking.address || ""),
     "DESCRIPTION:" + booking.guests + " guests · LUKMA booking #" + booking.id.slice(0, 8).toUpperCase(),
@@ -102,8 +119,8 @@ export function bookingQrUrl(payload: Record<string, unknown>) {
 export function bookingCountdown(date: string, time: string) {
   const [y, m, d] = date.split("-").map(Number);
   const [hh, mm] = time.split(":").map(Number);
-  const target = new Date(y, m - 1, d, hh, mm);
-  const diff = target.getTime() - Date.now();
+  const target = tbilisiBookingTimestamp(date, time);
+  const diff = target - Date.now();
   if (diff <= 0) return "Now";
   const days = Math.floor(diff / 86400000);
   const hours = Math.floor((diff % 86400000) / 3600000);
