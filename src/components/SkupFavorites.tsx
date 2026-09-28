@@ -11,8 +11,22 @@ export default function SkupFavorites(){
   const [items,setItems]=useState<Restaurant[]>([]);
   const [loading,setLoading]=useState(true);
   const [notice,setNotice]=useState("");
-  const token=typeof window!=="undefined"?localStorage.getItem("skup_access_token"):null;
-  useEffect(()=>{if(!token){setLoading(false);return;}getFavorites(token).then(setItems).catch(()=>setNotice("Could not load favorites.")).finally(()=>setLoading(false));},[token]);
+  const [token,setToken]=useState<string|null>(null);
+  useEffect(()=>{
+    const sync=()=>{
+      const next=localStorage.getItem("skup_access_token");
+      setToken(next);
+      if (!next) setItems([]);
+    };
+    sync();
+    window.addEventListener("skup-auth-changed",sync);
+    return()=>window.removeEventListener("skup-auth-changed",sync);
+  },[]);
+  useEffect(()=>{
+    if(!token){setLoading(false);return;}
+    setLoading(true);
+    getFavorites(token).then(setItems).catch(()=>setNotice("Could not load favorites.")).finally(()=>setLoading(false));
+  },[token]);
   const remove=async(id:string)=>{if(!token)return;try{await removeFavorite(token,id);setItems(prev=>prev.filter(r=>r.id!==id));}catch{setNotice("Could not remove this favorite.");}};
   return <div className="skup-site"><SkupHeader/><main className="shell account-page">
     <div className="account-header"><div><span className="kicker">SAVED PLACES</span><h1>My favorites</h1><p>Keep the restaurants you want to come back to.</p></div><Link href="/discover/" className="green-btn">Discover restaurants</Link></div>
