@@ -56,7 +56,7 @@ export default function SkupAdmin(){
     if(t==="content"){const [c,h]=await Promise.all([getAdminCollections(token),getAdminHomeSections(token)]);setCollections(c||[]);setSections(h||[]);}
   }catch(e){setNotice(e instanceof Error?e.message:"Could not load data.");}finally{setLoading(false);}};
   useEffect(()=>{loadOverview();},[token]);
-  useEffect(()=>{if(tab!=="overview")loadTab(tab);},[tab]);
+  useEffect(()=>{if(tab!=="overview" && token)loadTab(tab);},[tab,token]);
 
   if(!token)return <div className="skup-site"><SkupHeader/><main className="shell account-page"><div className="account-login-card"><div className="account-mark">L</div><span className="kicker">ADMIN</span><h1>Open the admin<br/>control center.</h1><p>Use the admin demo account from My LUKMA.</p><Link className="green-btn" href="/account/">Open login</Link></div></main></div>;
 
