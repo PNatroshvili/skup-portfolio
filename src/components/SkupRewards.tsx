@@ -20,7 +20,8 @@ const rewards = [
 ];
 
 export default function SkupRewards() {
-  const [loyalty,setLoyalty]=useState<any>(null);
+  type Loyalty = Awaited<ReturnType<typeof getLoyalty>>;
+  const [loyalty,setLoyalty]=useState<Loyalty|null>(null);
   const [token,setToken]=useState<string|null>(null);
   useEffect(()=>{
     const sync=()=>setToken(localStorage.getItem("skup_access_token"));
@@ -33,7 +34,7 @@ export default function SkupRewards() {
     };
   },[]);
   useEffect(()=>{
-    if(!token){setLoyalty(null);return;}
+    if(!token)return;
     getLoyalty(token).then(setLoyalty).catch(()=>setLoyalty(null));
   },[token]);
   const points=Number(loyalty?.points||0);
