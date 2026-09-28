@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { LocateFixed, Search, SlidersHorizontal, Star, X, Shuffle, ArrowDownUp, Share2 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { LocateFixed, Search, SlidersHorizontal, Star, X, Shuffle, ArrowDownUp, Share2, RotateCcw } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import "leaflet/dist/leaflet.css";
 import { getCollections, getCuisines, getRestaurants, type Cuisine, type Restaurant } from "@/lib/skupApi";
 import { restaurantPhoto } from "@/lib/lukmaUtils";
 import RestaurantCard from "./SkupRestaurantCard";
@@ -20,14 +21,6 @@ function distanceKm(aLat:number,aLng:number,bLat:number,bLng:number){
   const R=6371,dLat=(bLat-aLat)*Math.PI/180,dLng=(bLng-aLng)*Math.PI/180;
   const x=Math.sin(dLat/2)**2+Math.cos(aLat*Math.PI/180)*Math.cos(bLat*Math.PI/180)*Math.sin(dLng/2)**2;
   return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
-}
-function mapUrl(zoom:number,center:{lat:number;lng:number}){
-  const span=0.20/zoom,west=center.lng-span,east=center.lng+span,south=center.lat-span*.7,north=center.lat+span*.7;
-  return "https://www.openstreetmap.org/export/embed.html?bbox="+[west,south,east,north].map(v=>v.toFixed(5)).join("%2C")+"&layer=mapnik";
-}
-function mapPosition(r:Restaurant,zoom:number,center:{lat:number;lng:number}){
-  const span=0.20/zoom,west=center.lng-span,east=center.lng+span,south=center.lat-span*.7,north=center.lat+span*.7;
-  return {left:Math.max(4,Math.min(96,((Number(r.longitude)-west)/(east-west))*100))+"%",top:Math.max(7,Math.min(93,((north-Number(r.latitude))/(north-south))*100))+"%"};
 }
 function readSearchHistory(){try{return JSON.parse(localStorage.getItem("lukma_search_history")||"[]") as string[]}catch{return []}}
 function saveSearchHistory(q:string){try{const next=[q,...readSearchHistory().filter(x=>x!==q)].slice(0,6);localStorage.setItem("lukma_search_history",JSON.stringify(next));return next}catch{return []}}
@@ -47,15 +40,47 @@ export default function SkupDiscover(){
   const [sort,setSort]=useState<"rating"|"name"|"discount"|"distance">("rating");
   const [nearMe,setNearMe]=useState(false);
   const [userLocation,setUserLocation]=useState<{lat:number;lng:number}|null>(null);
-  const [center,setCenter]=useState({lat:41.7151,lng:44.8271});
-  const [zoom,setZoom]=useState(1);
   const [selected,setSelected]=useState("");
+  const mapElementRef=useRef<HTMLDivElement|null>(null);
+  const leafletMapRef=useRef<import("leaflet").Map|null>(null);
+  const markerLayerRef=useRef<import("leaflet").LayerGroup|null>(null);
   const [history,setHistory]=useState<string[]>([]);
   const [showFilters,setShowFilters]=useState(false);
   const [loading,setLoading]=useState(true);
   const [error,setError]=useState("");
   const [visibleCount,setVisibleCount]=useState(20);
   const [searchReady,setSearchReady]=useState(false);
+
+  useEffect(()=>{
+    let disposed=false;
+    let map: import("leaflet").Map|undefined;
+    import("leaflet").then(L=>{
+      if(disposed || !mapElementRef.current || leafletMapRef.current) return;
+      map=L.map(mapElementRef.current,{
+        center:[41.7151,44.8271],
+        zoom:12.4,
+        minZoom:10,
+        maxZoom:18,
+        scrollWheelZoom:false,
+        zoomControl:false,
+        worldCopyJump:true,
+        attributionControl:true,
+      });
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
+        maxZoom:19,
+        attribution:'© OpenStreetMap contributors',
+      }).addTo(map);
+      markerLayerRef.current=L.layerGroup().addTo(map);
+      leafletMapRef.current=map;
+      window.setTimeout(()=>map?.invalidateSize(),0);
+    });
+    return ()=>{
+      disposed=true;
+      if(map){map.remove();}
+      leafletMapRef.current=null;
+      markerLayerRef.current=null;
+    };
+  },[]);
 
   useEffect(()=>{
     const params=new URLSearchParams(window.location.search);
@@ -131,19 +156,92 @@ export default function SkupDiscover(){
   const visible=sorted.slice(0,visibleCount);
   const selectedRestaurant=sorted.find(r=>r.id===selected)||sorted[0];
 
-  const selectRestaurant=(r:Restaurant)=>{
+  useEffect(()=>{
+    if(!sorted.length){setSelected("");return;}
+    if(!sorted.some(r=>r.id===selected))setSelected(sorted[0].id);
+  },[sorted,selected]);
+
+  useEffect(()=>{
+    let disposed=false;
+    const paintMarkers=async()=>{
+      const map=leafletMapRef.current;
+      const layer=markerLayerRef.current;
+      if(!map || !layer)return;
+      const L=await import("leaflet");
+      if(disposed)return;
+      layer.clearLayers();
+      const bounds:L.LatLngExpression[]=[];
+      sorted.slice(0,120).forEach(r=>{
+        const lat=Number(r.latitude),lng=Number(r.longitude);
+        if(!Number.isFinite(lat)||!Number.isFinite(lng))return;
+        bounds.push([lat,lng]);
+        const selectedMarker=r.id===selected;
+        const discount=Number(r.discountPercent||0);
+        const marker=L.marker([lat,lng],{
+          icon:L.divIcon({
+            className:"lukma-map-marker-wrap",
+            html:'<button class="lukma-map-marker '+(selectedMarker?'selected':'')+'" type="button"><span>'+Number(r.ratingAvg||0).toFixed(1)+'</span>'+(discount?'<em>-'+discount+'%</em>':"")+'</button>',
+            iconSize:[48,32],
+            iconAnchor:[24,16],
+          }),
+          keyboard:true,
+          title:r.name,
+          alt:r.name,
+        });
+        marker.on("click",()=>selectRestaurant(r,true));
+        marker.addTo(layer);
+      });
+      if(userLocation){
+        L.circleMarker([userLocation.lat,userLocation.lng],{
+          radius:7,
+          color:"#ffffff",
+          weight:3,
+          fillColor:"#176f4c",
+          fillOpacity:1,
+        }).addTo(layer);
+        L.circle([userLocation.lat,userLocation.lng],{
+          radius:65,
+          color:"#176f4c",
+          weight:1,
+          fillColor:"#176f4c",
+          fillOpacity:.10,
+        }).addTo(layer);
+      }
+    };
+    paintMarkers();
+    return()=>{disposed=true;};
+  },[sorted,selected,userLocation]);
+
+  const selectRestaurant=(r:Restaurant,focusList=false)=>{
     setSelected(r.id);
-    setCenter({lat:Number(r.latitude),lng:Number(r.longitude)});
-    setZoom(2.7);
+    const lat=Number(r.latitude);
+    const lng=Number(r.longitude);
+    if(leafletMapRef.current && Number.isFinite(lat) && Number.isFinite(lng)){
+      leafletMapRef.current.flyTo([lat,lng],Math.max(leafletMapRef.current.getZoom(),14.8),{duration:.45});
+    }
+    if(focusList){
+      const target=Array.from(document.querySelectorAll<HTMLElement>("[data-restaurant-id]"))
+        .find(node=>node.dataset.restaurantId===r.id);
+      target?.scrollIntoView({behavior:"smooth",block:"nearest"});
+    }
   };
 
   const toggleNearMe=()=>{
     if(nearMe){setNearMe(false);if(sort==="distance")setSort("rating");return;}
     if(!navigator.geolocation){setError("Location is not available on this device.");return;}
-    navigator.geolocation.getCurrentPosition(pos=>{setUserLocation({lat:pos.coords.latitude,lng:pos.coords.longitude});setCenter({lat:pos.coords.latitude,lng:pos.coords.longitude});setNearMe(true);setSort("distance");},()=>setError("Could not access your location."),{enableHighAccuracy:false,timeout:8000});
+    navigator.geolocation.getCurrentPosition(pos=>{
+      const next={lat:pos.coords.latitude,lng:pos.coords.longitude};
+      setUserLocation(next);
+      setNearMe(true);
+      setSort("distance");
+      leafletMapRef.current?.flyTo([next.lat,next.lng],14.5,{duration:.5});
+    },()=>setError("Could not access your location."),{enableHighAccuracy:false,timeout:8000});
   };
 
-  const clearFilters=()=>{setQ("");setCuisineId("");setCollectionId("");setIsOpen(false);setMinRating("");setDiscountOnly(false);setPriceLevel("");setDietary([]);setNearMe(false);setSort("rating");};
+  const clearFilters=()=>{
+    setQ("");setCuisineId("");setCollectionId("");setIsOpen(false);setMinRating("");setDiscountOnly(false);setPriceLevel("");setDietary([]);setNearMe(false);setSort("rating");
+  };
+  const resetMap=()=>leafletMapRef.current?.flyTo([41.7151,44.8271],12.4,{duration:.5});
 
   const surprise=()=>{if(!sorted.length)return;const r=sorted[Math.floor(Math.random()*sorted.length)];selectRestaurant(r);};
 
@@ -202,7 +300,7 @@ export default function SkupDiscover(){
         <aside className="discover-list">
           <div className="discover-results-head"><strong>{sorted.length}</strong> restaurants {selectedRestaurant?<span>· {selectedRestaurant.name}</span>:null}</div>
           {loading?<div className="discover-loading-list">{Array.from({length:6}).map((_,i)=><div key={i} className="restaurant-skeleton"/>)}</div>:
-            visible.length?<div className="discover-cards">{visible.map(r=><div key={r.id} onMouseEnter={()=>setSelected(r.id)} onClick={()=>selectRestaurant(r)} className={"discover-card-wrap "+(r.id===selectedRestaurant?.id?"selected":"")}><RestaurantCard restaurant={r}/></div>)}</div>:
+            visible.length?<div className="discover-cards">{visible.map(r=><div key={r.id} data-restaurant-id={r.id} onMouseEnter={()=>setSelected(r.id)} onClick={()=>selectRestaurant(r)} className={"discover-card-wrap "+(r.id===selectedRestaurant?.id?"selected":"")}><RestaurantCard restaurant={r}/></div>)}</div>:
             <div className="discover-empty"><Search size={28}/><h3>Nothing found</h3><p>Change your search or filters and try again.</p><button className="green-btn" onClick={clearFilters}>Clear filters</button></div>}
           {visible.length<sorted.length?<button className="discover-load-more" onClick={()=>setVisibleCount(v=>v+20)}>Show more · {sorted.length-visible.length} left</button>:null}
         </aside>
