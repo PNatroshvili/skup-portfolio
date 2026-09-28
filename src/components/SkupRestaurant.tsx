@@ -208,10 +208,7 @@ export default function SkupRestaurant() {
   }
 
   const currentPhoto = photos[photoIndex]?.url;
-  const avg = Number(restaurant.ratingAvg || 0);
-  const isOpen = Boolean(restaurant.isOpen);
   const availableSlots = availability?.slots.filter(s => s.available) || [];
-  const waitTime = estimateWaitTime(restaurant);
 
   useEffect(() => {
     if (bookingState !== "success") return;
@@ -223,6 +220,10 @@ export default function SkupRestaurant() {
 
   if (loading) return <div className="skup-site"><SkupHeader/><div className="page-loading">Loading...</div></div>;
   if (!restaurant) return <div className="skup-site"><SkupHeader/><div className="page-loading"><h2>Restaurant not found</h2><Link href="/discover/">← Back to Discover</Link></div></div>;
+
+  const avg = Number(restaurant.ratingAvg || 0);
+  const isOpen = Boolean(restaurant.isOpen);
+  const waitTime = estimateWaitTime(restaurant);
 
   return (
     <div className="skup-site">
