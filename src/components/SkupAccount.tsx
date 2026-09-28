@@ -146,7 +146,9 @@ export default function SkupAccount() {
     window.addEventListener("skup-auth-changed", syncSession);
     const params = new URLSearchParams(window.location.search);
     const requestedMode = params.get("mode");
-    if (requestedMode === "register") setMode("register");
+    const requestedReferral = params.get("ref");
+    if (requestedMode === "register" || requestedReferral) setMode("register");
+    if (requestedReferral) setReferralCode(requestedReferral.trim().toUpperCase());
     const t = localStorage.getItem("skup_access_token");
     const rt = localStorage.getItem("skup_refresh_token");
     setToken(t);
