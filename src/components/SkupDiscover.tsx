@@ -55,6 +55,8 @@ export default function SkupDiscover(){
   useEffect(()=>{
     let disposed=false;
     let map: import("leaflet").Map|undefined;
+    let resizeObserver: ResizeObserver|null=null;
+    let wheelHandler: ((event: WheelEvent)=>void)|null=null;
     import("leaflet").then(L=>{
       if(disposed || !mapElementRef.current || leafletMapRef.current) return;
       map=L.map(mapElementRef.current,{
@@ -73,15 +75,23 @@ export default function SkupDiscover(){
       }).addTo(map);
       markerLayerRef.current=L.layerGroup().addTo(map);
       leafletMapRef.current=map;
-      const resizeObserver=new ResizeObserver(()=>map?.invalidateSize());
+      resizeObserver=new ResizeObserver(()=>map?.invalidateSize());
       resizeObserver.observe(mapElementRef.current);
+      wheelHandler=(event:WheelEvent)=>{
+        if(!event.ctrlKey&&!event.metaKey)return;
+        event.preventDefault();
+        const delta=event.deltaY<0?1:-1;
+        map?.setZoom(map.getZoom()+delta,{animate:false});
+      };
+      map.getContainer().addEventListener("wheel",wheelHandler,{passive:false});
       window.setTimeout(()=>map?.invalidateSize(),0);
       map.whenReady(()=>map?.invalidateSize());
-      return;
 
     });
     return ()=>{
       disposed=true;
+      if(resizeObserver)resizeObserver.disconnect();
+      if(map&&wheelHandler)map.getContainer().removeEventListener("wheel",wheelHandler);
       if(map){map.remove();}
       markerRefs.current.clear();
       leafletMapRef.current=null;
