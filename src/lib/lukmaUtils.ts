@@ -77,8 +77,6 @@ export function addBookingToCalendar(booking: {
   address?: string;
   guests: number;
 }) {
-  const [y, m, d] = booking.date.split("-").map(Number);
-  const [hh, mm] = booking.time.split(":").map(Number);
   const startTimestamp = tbilisiBookingTimestamp(booking.date, booking.time);
   const endTimestamp = startTimestamp + 90 * 60 * 1000;
   const format = (timestamp: number) => {
@@ -117,8 +115,6 @@ export function bookingQrUrl(payload: Record<string, unknown>) {
 }
 
 export function bookingCountdown(date: string, time: string) {
-  const [y, m, d] = date.split("-").map(Number);
-  const [hh, mm] = time.split(":").map(Number);
   const target = tbilisiBookingTimestamp(date, time);
   const diff = target - Date.now();
   if (diff <= 0) return "Now";
