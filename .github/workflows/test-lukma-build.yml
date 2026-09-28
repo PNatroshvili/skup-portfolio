@@ -24,5 +24,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm install
+      - name: Show resolved lockfile diff
+        run: git diff -- package-lock.json
       - run: npm run build
       - run: npm run lint
