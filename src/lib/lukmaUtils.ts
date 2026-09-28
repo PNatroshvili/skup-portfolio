@@ -88,6 +88,7 @@ export function addBookingToCalendar(booking: {
     const pad = (n: number) => String(n).padStart(2, "0");
     return value.getUTCFullYear() + pad(value.getUTCMonth() + 1) + pad(value.getUTCDate()) + "T" + pad(value.getUTCHours()) + pad(value.getUTCMinutes()) + "00Z";
   };
+  const escapeIcsText = (value: string) => value.replace(/\\/g, "\\\\").replace(/([,;])/g, "\\$1").replace(/\r?\n/g, "\\n");
   const ics = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
@@ -97,9 +98,9 @@ export function addBookingToCalendar(booking: {
     "DTSTAMP:" + format(Date.now()),
     "DTSTART:" + format(startTimestamp),
     "DTEND:" + format(endTimestamp),
-    "SUMMARY:LUKMA · " + booking.restaurantName,
-    "LOCATION:" + (booking.address || ""),
-    "DESCRIPTION:" + booking.guests + " guests · LUKMA booking #" + booking.id.slice(0, 8).toUpperCase(),
+    "SUMMARY:" + escapeIcsText("LUKMA · " + booking.restaurantName),
+    "LOCATION:" + escapeIcsText(booking.address || ""),
+    "DESCRIPTION:" + escapeIcsText(booking.guests + " guests · LUKMA booking #" + booking.id.slice(0, 8).toUpperCase()),
     "END:VEVENT",
     "END:VCALENDAR",
   ].join("\r\n");
