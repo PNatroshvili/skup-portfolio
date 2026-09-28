@@ -30,8 +30,12 @@ export default function SkupChat(){
       };
       syncAuth();
       window.addEventListener("skup-auth-changed",syncAuth);
+      window.addEventListener("storage",syncAuth);
       setRestaurant(new URLSearchParams(window.location.search).get("restaurant") || "Restaurant");
-      return()=>window.removeEventListener("skup-auth-changed",syncAuth);
+      return()=>{
+        window.removeEventListener("skup-auth-changed",syncAuth);
+        window.removeEventListener("storage",syncAuth);
+      };
     }
   },[]);
 
