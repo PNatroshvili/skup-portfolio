@@ -50,6 +50,7 @@ export default function SkupDiscover(){
   const [searchAsMapMoves,setSearchAsMapMoves]=useState(true);
   const [mapPreviewOpen,setMapPreviewOpen]=useState(true);
   const [mapBounds,setMapBounds]=useState<{south:number;west:number;north:number;east:number}|null>(null);
+  const [mapRenderVersion,setMapRenderVersion]=useState(0);
   const searchAsMapMovesRef=useRef(true);
   const mapInteractionReadyRef=useRef(false);
 
@@ -100,6 +101,7 @@ export default function SkupDiscover(){
         });
       };
       map.on("moveend",onMoveEnd);
+      map.on("zoomend moveend",()=>setMapRenderVersion(v=>v+1));
 
     });
     return ()=>{
@@ -252,20 +254,41 @@ export default function SkupDiscover(){
       if(!map || !layer)return;
       const L=await import("leaflet");
       if(disposed)return;
+
       layer.clearLayers();
       markerRefs.current.clear();
-      sorted.slice(0,120).forEach(r=>{
+
+      const candidates=sorted.slice(0,120).map(r=>{
         const lat=Number(r.latitude),lng=Number(r.longitude);
-        if(!Number.isFinite(lat)||!Number.isFinite(lng))return;
-        const selectedMarker=r.id===selected;
+        return {restaurant:r,lat,lng,point:Number.isFinite(lat)&&Number.isFinite(lng)?map.latLngToContainerPoint([lat,lng]):null};
+      }).filter((item):item is {restaurant:Restaurant;lat:number;lng:number;point:import("leaflet").Point}=>Boolean(item.point));
+
+      const selectedItem=candidates.find(item=>item.restaurant.id===selected);
+      const rest=candidates.filter(item=>item.restaurant.id!==selected);
+      const clusters:{items:typeof rest;point:import("leaflet").Point}[]=[];
+      const threshold=42;
+
+      rest.forEach(item=>{
+        const existing=clusters.find(cluster=>cluster.point.distanceTo(item.point)<=threshold);
+        if(existing){
+          existing.items.push(item);
+          const count=existing.items.length;
+          existing.point=existing.items.reduce((acc,next)=>acc.add(next.point),new L.Point(0,0)).divideBy(count);
+        } else {
+          clusters.push({items:[item],point:item.point});
+        }
+      });
+
+      const addRestaurantMarker=(r:Restaurant,forceSelected=false)=>{
+        const lat=Number(r.latitude),lng=Number(r.longitude);
         const discount=Number(r.discountPercent||0);
         const photo=restaurantPhoto(r).replace(/"/g,"&quot;");
         const marker=L.marker([lat,lng],{
           icon:L.divIcon({
             className:"lukma-map-marker-wrap",
-                        html:'<button class="lukma-map-marker '+(selectedMarker?'selected':'')+'" type="button"><span class="marker-photo" style="background-image:url(&quot;'+photo+'&quot;)"></span><span class="marker-rating">'+Number(r.ratingAvg||0).toFixed(1)+(discount?' · '+discount+'% OFF':"")+'</span></button>',
-            iconSize:[52,46],
-            iconAnchor:[26,23],
+            html:'<button class="lukma-map-marker '+(forceSelected?'selected':'')+'" type="button" aria-label="'+r.name.replace(/"/g,"&quot;")+'"><span class="marker-photo" style="background-image:url(&quot;'+photo+'&quot;)"></span><span class="marker-rating">'+Number(r.ratingAvg||0).toFixed(1)+(discount?' · '+discount+'% OFF':"")+'</span></button>',
+            iconSize:forceSelected?[50,49]:[44,42],
+            iconAnchor:forceSelected?[25,24.5]:[22,21],
           }),
           keyboard:true,
           title:r.name,
@@ -274,7 +297,36 @@ export default function SkupDiscover(){
         marker.on("click",()=>selectRestaurant(r,true));
         marker.addTo(layer);
         markerRefs.current.set(r.id,marker);
+      };
+
+      clusters.forEach(cluster=>{
+        if(cluster.items.length===1){
+          addRestaurantMarker(cluster.items[0].restaurant);
+          return;
+        }
+        const lat=cluster.items.reduce((sum,item)=>sum+item.lat,0)/cluster.items.length;
+        const lng=cluster.items.reduce((sum,item)=>sum+item.lng,0)/cluster.items.length;
+        const rating=(cluster.items.reduce((sum,item)=>sum+Number(item.restaurant.ratingAvg||0),0)/cluster.items.length).toFixed(1);
+        const marker=L.marker([lat,lng],{
+          icon:L.divIcon({
+            className:"lukma-map-cluster-wrap",
+            html:'<button class="lukma-map-cluster" type="button" aria-label="'+cluster.items.length+' restaurants"><strong>'+cluster.items.length+'</strong><span>'+rating+'</span></button>',
+            iconSize:[46,46],
+            iconAnchor:[23,23],
+          }),
+          keyboard:true,
+          title:cluster.items.length+" restaurants",
+          alt=cluster.items.length+" restaurants",
+        });
+        marker.on("click",()=>{
+          const nextZoom=Math.min(18,map.getZoom()+2);
+          map.flyTo([lat,lng],nextZoom,{duration:.35});
+        });
+        marker.addTo(layer);
       });
+
+      if(selectedItem)addRestaurantMarker(selectedItem.restaurant,true);
+
       if(userLocation){
         L.circleMarker([userLocation.lat,userLocation.lng],{
           radius:7,
@@ -294,14 +346,11 @@ export default function SkupDiscover(){
     };
     paintMarkers();
     return()=>{disposed=true;};
-  },[mapReady,sorted,userLocation,selectRestaurant]);
-
+  },[mapReady,mapRenderVersion,sorted,userLocation,selectRestaurant,selected]);
+ 
   useEffect(()=>{
     markerRefs.current.forEach((marker,id)=>{
-      const element=marker.getElement()?.querySelector(".lukma-map-marker");
-      const isSelected=id===selected;
-      element?.classList.toggle("selected",isSelected);
-      marker.setZIndexOffset(isSelected?1000:0);
+      marker.setZIndexOffset(id===selected?1000:0);
     });
   },[selected]);
 
