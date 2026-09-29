@@ -1582,3 +1582,141 @@ h3{font-weight:600}
   .map-bottom-strip{height:61px}
   .map-strip-card{min-width:102px;height:51px}
 }
+
+/* Discover micro-fixes: controls, preview CTA, marker clustering, rail */
+.discover-app .discover-filter-scroll{
+  align-items:center;
+}
+.discover-app .discover-filter-scroll .filter-chip{
+  justify-content:center;
+  line-height:1;
+  vertical-align:middle;
+  overflow:hidden;
+}
+.discover-app .discover-filter-scroll .filter-chip svg{
+  flex:none;
+  stroke-width:2;
+}
+.discover-app .discover-filter-scroll .chip-caret{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:9px;
+  height:10px;
+  margin-left:1px;
+  line-height:1;
+  transform:translateY(-.5px);
+}
+.discover-app .discover-filter-scroll .filter-chip:nth-child(4){
+  min-width:76px;
+}
+.discover-app .filter-icon-button{
+  flex:none;
+  padding:0;
+}
+.discover-app .map-focus-button,
+.discover-app .map-focus-button:visited,
+.discover-app .map-focus-button:hover,
+.discover-app .map-focus-button:active{
+  color:#fff!important;
+  background:#147a52!important;
+  text-decoration:none!important;
+}
+.discover-app .map-focus-button{
+  width:100%;
+  display:flex!important;
+  align-items:center;
+  justify-content:center;
+  font-weight:800;
+  box-shadow:none;
+}
+.discover-app .map-focus-card{
+  overflow:hidden;
+}
+.discover-app .map-focus-copy{
+  min-width:0;
+}
+.discover-app .map-focus-copy strong,
+.discover-app .map-focus-copy>span,
+.discover-app .map-focus-copy>small{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.lukma-map-cluster-wrap{
+  background:transparent!important;
+  border:0!important;
+}
+.lukma-map-cluster{
+  width:44px;
+  height:44px;
+  padding:0;
+  border:3px solid rgba(255,255,255,.98);
+  border-radius:50%;
+  background:var(--green);
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:0;
+  cursor:pointer;
+  box-shadow:0 8px 20px rgba(20,80,55,.28);
+}
+.lukma-map-cluster strong{
+  font-size:12px;
+  line-height:1;
+  font-weight:800;
+}
+.lukma-map-cluster span{
+  margin-top:2px;
+  font-size:6.5px;
+  line-height:1;
+  opacity:.9;
+}
+.lukma-map-cluster:hover{
+  transform:scale(1.05);
+  box-shadow:0 10px 24px rgba(20,80,55,.32);
+}
+.discover-app .map-bottom-strip{
+  width:min(650px,72%);
+  height:60px;
+  bottom:10px;
+  padding:4px 6px;
+  grid-template-columns:20px minmax(0,1fr) 20px;
+  gap:3px;
+}
+.discover-app .map-strip-scroll{
+  height:50px;
+  gap:4px;
+}
+.discover-app .map-strip-card{
+  min-width:96px;
+  height:48px;
+  padding:3px;
+  grid-template-columns:39px minmax(0,1fr);
+}
+.discover-app .map-strip-card img{
+  width:39px;
+  height:42px;
+}
+.discover-app .map-strip-card span{font-size:6.7px}
+.discover-app .map-strip-card small{font-size:5.8px}
+.discover-app .map-strip-arrow{
+  width:20px;
+  height:20px;
+  font-size:15px;
+}
+.discover-app .map-search-toggle{
+  min-width:116px;
+}
+@media(max-width:900px){
+  .discover-app .map-bottom-strip{width:calc(100% - 18px)}
+}
+@media(max-width:560px){
+  .discover-app .map-bottom-strip{height:58px}
+  .discover-app .map-strip-scroll{height:48px}
+  .discover-app .map-strip-card{min-width:90px;height:46px}
+  .discover-app .map-strip-card img{width:37px;height:40px}
+}
