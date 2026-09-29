@@ -117,7 +117,7 @@ export default function SkupDiscover(){
 
   useEffect(()=>{
     searchAsMapMovesRef.current=searchAsMapMoves;
-    if(searchAsMapMoves && leafletMapRef.current){
+    if(searchAsMapMoves && leafletMapRef.current && mapInteractionReadyRef.current){
       const bounds=leafletMapRef.current.getBounds();
       setMapBounds({south:bounds.getSouth(),west:bounds.getWest(),north:bounds.getNorth(),east:bounds.getEast()});
     } else if(!searchAsMapMoves){
@@ -131,7 +131,9 @@ export default function SkupDiscover(){
       .map(item=>[Number(item.latitude),Number(item.longitude)] as [number,number])
       .filter(([lat,lng])=>Number.isFinite(lat)&&Number.isFinite(lng));
     if(coords.length>1){
-      leafletMapRef.current.fitBounds(coords,{padding:[70,70],maxZoom:13.4,animate:false});
+      mapInteractionReadyRef.current=false;
+      leafletMapRef.current.fitBounds(coords,{padding:[56,56],maxZoom:14,animate:false});
+      window.setTimeout(()=>{mapInteractionReadyRef.current=true;},350);
     }
   },[mapReady,restaurants]);
 
