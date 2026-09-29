@@ -1,12 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { LocateFixed, Search, SlidersHorizontal, Star, X, Shuffle, ArrowDownUp, Share2, RotateCcw } from "lucide-react";
+import { LocateFixed, Search, SlidersHorizontal, Star, X, ArrowDownUp } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import { getCollections, getCuisines, getRestaurants, type Cuisine, type Restaurant } from "@/lib/skupApi";
 import { restaurantPhoto } from "@/lib/lukmaUtils";
-import RestaurantCard from "./SkupRestaurantCard";
 import SkupHeader from "./SkupHeader";
 
 const DIETARY: Record<string,string[]> = {
@@ -22,9 +21,6 @@ function distanceKm(aLat:number,aLng:number,bLat:number,bLng:number){
   const x=Math.sin(dLat/2)**2+Math.cos(aLat*Math.PI/180)*Math.cos(bLat*Math.PI/180)*Math.sin(dLng/2)**2;
   return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
 }
-function readSearchHistory(){try{return JSON.parse(localStorage.getItem("lukma_search_history")||"[]") as string[]}catch{return []}}
-function saveSearchHistory(q:string){try{const next=[q,...readSearchHistory().filter(x=>x!==q)].slice(0,6);localStorage.setItem("lukma_search_history",JSON.stringify(next));return next}catch{return []}}
-
 export default function SkupDiscover(){
   const [restaurants,setRestaurants]=useState<Restaurant[]>([]);
   const [cuisines,setCuisines]=useState<Cuisine[]>([]);
@@ -45,7 +41,6 @@ export default function SkupDiscover(){
   const leafletMapRef=useRef<import("leaflet").Map|null>(null);
   const markerLayerRef=useRef<import("leaflet").LayerGroup|null>(null);
   const markerRefs=useRef<Map<string,import("leaflet").Marker>>(new Map());
-  const [history,setHistory]=useState<string[]>([]);
   const [showFilters,setShowFilters]=useState(false);
   const [loading,setLoading]=useState(true);
   const [error,setError]=useState("");
@@ -56,6 +51,7 @@ export default function SkupDiscover(){
   const [mapPreviewOpen,setMapPreviewOpen]=useState(true);
   const [mapBounds,setMapBounds]=useState<{south:number;west:number;north:number;east:number}|null>(null);
   const searchAsMapMovesRef=useRef(true);
+  const mapInteractionReadyRef=useRef(false);
 
   useEffect(()=>{
     let disposed=false;
@@ -93,17 +89,10 @@ export default function SkupDiscover(){
       window.setTimeout(()=>map?.invalidateSize(),0);
       map.whenReady(()=>{
         map?.invalidateSize();
-        const bounds=map?.getBounds();
-        if(bounds) setMapBounds({
-          south:bounds.getSouth(),
-          west:bounds.getWest(),
-          north:bounds.getNorth(),
-          east:bounds.getEast(),
-        });
       });
       const onMoveEnd=()=>{
         const bounds=map?.getBounds();
-        if(bounds && searchAsMapMovesRef.current) setMapBounds({
+        if(bounds && mapInteractionReadyRef.current && searchAsMapMovesRef.current) setMapBounds({
           south:bounds.getSouth(),
           west:bounds.getWest(),
           north:bounds.getNorth(),
@@ -128,7 +117,7 @@ export default function SkupDiscover(){
 
   useEffect(()=>{
     searchAsMapMovesRef.current=searchAsMapMoves;
-    if(searchAsMapMoves && leafletMapRef.current){
+    if(searchAsMapMoves && leafletMapRef.current && mapInteractionReadyRef.current){
       const bounds=leafletMapRef.current.getBounds();
       setMapBounds({south:bounds.getSouth(),west:bounds.getWest(),north:bounds.getNorth(),east:bounds.getEast()});
     } else if(!searchAsMapMoves){
@@ -142,7 +131,9 @@ export default function SkupDiscover(){
       .map(item=>[Number(item.latitude),Number(item.longitude)] as [number,number])
       .filter(([lat,lng])=>Number.isFinite(lat)&&Number.isFinite(lng));
     if(coords.length>1){
-      leafletMapRef.current.fitBounds(coords,{padding:[70,70],maxZoom:13.4,animate:false});
+      mapInteractionReadyRef.current=false;
+      leafletMapRef.current.fitBounds(coords,{padding:[56,56],maxZoom:14,animate:false});
+      window.setTimeout(()=>{mapInteractionReadyRef.current=true;},350);
     }
   },[mapReady,restaurants]);
 
@@ -158,7 +149,6 @@ export default function SkupDiscover(){
     setDietary((params.get("dietary")||"").split(",").filter(x=>DIETARY[x]));
     const requestedSort=params.get("sort");
     if (requestedSort==="name" || requestedSort==="discount" || requestedSort==="distance") setSort(requestedSort);
-    setHistory(readSearchHistory());
     setSearchReady(true);
     Promise.all([getCuisines(),getCollections(),getRestaurants({city:"თბილისი",page:1,limit:200})])
       .then(([c,col,r])=>{
@@ -341,14 +331,6 @@ export default function SkupDiscover(){
   };
 
   const surprise=()=>{if(!sorted.length)return;const r=sorted[Math.floor(Math.random()*sorted.length)];selectRestaurant(r);};
-
-  const shareSearch=async()=>{
-    const url=window.location.href;
-    try {
-      if(navigator.share) await navigator.share({title:"LUKMA restaurant search",text:"Restaurants I found on LUKMA",url});
-      else if(navigator.clipboard){await navigator.clipboard.writeText(url);setError("Search link copied to clipboard.");setTimeout(()=>setError(""),2200);}
-    } catch {}
-  };
 
   return <div className="skup-site discover-app">
     <SkupHeader searchValue={q} onSearchChange={setQ} activeNav="discover"/>
