@@ -316,7 +316,7 @@ export default function SkupDiscover(){
           }),
           keyboard:true,
           title:cluster.items.length+" restaurants",
-          alt=cluster.items.length+" restaurants",
+          alt:cluster.items.length+" restaurants",
         });
         marker.on("click",()=>{
           const nextZoom=Math.min(18,map.getZoom()+2);
