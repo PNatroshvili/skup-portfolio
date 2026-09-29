@@ -1720,3 +1720,64 @@ h3{font-weight:600}
   .discover-app .map-strip-card{min-width:90px;height:46px}
   .discover-app .map-strip-card img{width:37px;height:40px}
 }
+
+/* Discover final micro-alignment */
+.discover-app{overflow-x:clip}
+.discover-app .discover-filter-scroll .filter-chip:nth-child(4) svg{
+  color:#d39b08;
+}
+.discover-app .discover-filter-scroll .filter-chip.active:nth-child(4) svg{
+  color:#fff;
+}
+.discover-app .discover-filter-scroll .filter-chip{
+  min-width:max-content;
+}
+.discover-app .map-focus-card{
+  width:188px!important;
+}
+.discover-app .map-focus-card>img{
+  height:76px!important;
+}
+.discover-app .map-bottom-strip{
+  width:min(590px,64%);
+  height:57px;
+  bottom:12px;
+  padding:4px 5px;
+  grid-template-columns:20px minmax(0,1fr) 20px;
+}
+.discover-app .map-strip-scroll{
+  height:47px;
+  gap:4px;
+}
+.discover-app .map-strip-card{
+  min-width:94px;
+  height:45px;
+  padding:3px;
+  grid-template-columns:37px minmax(0,1fr);
+}
+.discover-app .map-strip-card img{
+  width:37px;
+  height:39px;
+}
+.discover-app .map-strip-card span{font-size:6.5px}
+.discover-app .map-strip-card small{font-size:5.7px}
+.discover-app .map-strip-arrow{
+  width:19px;
+  height:19px;
+  font-size:14px;
+}
+.discover-app .leaflet-control-attribution{
+  right:5px!important;
+  bottom:3px!important;
+  left:auto!important;
+  z-index:850!important;
+}
+@media(max-width:900px){
+  .discover-app .map-bottom-strip{width:calc(100% - 18px)}
+}
+@media(max-width:560px){
+  .discover-app .map-focus-card{width:168px!important}
+  .discover-app .map-bottom-strip{height:55px}
+  .discover-app .map-strip-scroll{height:45px}
+  .discover-app .map-strip-card{min-width:88px;height:43px}
+}
