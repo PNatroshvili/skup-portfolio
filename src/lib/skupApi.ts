@@ -200,6 +200,14 @@ export async function getEvents(id: string) {
   return request<RestaurantEvent[]>("/events/restaurant/" + encodeURIComponent(id));
 }
 
+export async function getAvailabilitySummary(date: string, guests = 2, limit = 24) {
+  return request<{ date: string; guests: number; restaurants: (Restaurant & { availableTimes?: string[] })[] }>(
+    "/bookings/availability-summary?date=" + encodeURIComponent(date) +
+    "&guests=" + encodeURIComponent(String(guests)) +
+    "&limit=" + encodeURIComponent(String(limit)),
+  );
+}
+
 export async function getOffers(params: { restaurantId?: string; date?: string; time?: string; guests?: number } = {}) {
   const search = new URLSearchParams();
   if (params.restaurantId) search.set("restaurant_id", params.restaurantId);
