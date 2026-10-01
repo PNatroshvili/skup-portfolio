@@ -54,6 +54,7 @@ export default function SkupRestaurant() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [events, setEvents] = useState<RestaurantEvent[]>([]);
   const [offers, setOffers] = useState<RestaurantOffer[]>([]);
+  const [selectedOffer, setSelectedOffer] = useState<RestaurantOffer | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [photoIndex, setPhotoIndex] = useState(0);
@@ -408,6 +409,7 @@ export default function SkupRestaurant() {
             {availabilityError ? <div className="booking-inline-error">{availabilityError}</div> : null}
             <label className="booking-comment">Note<textarea value={comment} onChange={e => setComment(e.target.value.slice(0,200))} placeholder="Allergy, birthday, special request..." /></label>
             <button className="booking-submit" onClick={submitBooking} disabled={bookingState==="submitting" || !time || availabilityLoading}>{bookingState==="submitting" ? "Sending..." : "Continue"} <span>→</span></button>
+            {selectedOffer ? <div className="booking-offer-summary"><span>%</span><div><strong>{selectedOffer.title}</strong><small>{selectedOffer.discountPercent ? selectedOffer.discountPercent + "% discount applied to eligible booking." : (selectedOffer.description || "Special offer available for this booking.")}</small></div></div> : null}
             <div className="booking-note"><CheckCircle2 size={13}/> Your request is sent to the restaurant for confirmation</div>
           </aside>
         </section>
