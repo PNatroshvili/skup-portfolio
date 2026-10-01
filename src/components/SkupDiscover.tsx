@@ -4,7 +4,7 @@ import Link from "next/link";
 import { LocateFixed, Search, SlidersHorizontal, Star, X, ArrowDownUp, ChevronDown } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
-import { getCollections, getCuisines, getRestaurants, type Cuisine, type Restaurant } from "@/lib/skupApi";
+import { addFavorite, getCollections, getCuisines, getFavorites, getRestaurants, removeFavorite, type Cuisine, type Restaurant } from "@/lib/skupApi";
 import { restaurantPhoto } from "@/lib/lukmaUtils";
 import SkupHeader from "./SkupHeader";
 
@@ -37,6 +37,8 @@ export default function SkupDiscover(){
   const [nearMe,setNearMe]=useState(false);
   const [userLocation,setUserLocation]=useState<{lat:number;lng:number}|null>(null);
   const [selected,setSelected]=useState("");
+  const [favoriteIds,setFavoriteIds]=useState<Set<string>>(new Set());
+  const [favoriteBusyId,setFavoriteBusyId]=useState<string|null>(null);
   const mapElementRef=useRef<HTMLDivElement|null>(null);
   const leafletMapRef=useRef<import("leaflet").Map|null>(null);
   const markerLayerRef=useRef<import("leaflet").LayerGroup|null>(null);
@@ -167,6 +169,21 @@ export default function SkupDiscover(){
         setSelected(r.data?.[0]?.id||"");      })
       .catch(()=>setError("Restaurants could not be loaded right now."))
       .finally(()=>setLoading(false));
+  },[]);
+
+  useEffect(()=>{
+    const syncFavorites=()=>{
+      const token=localStorage.getItem("skup_access_token");
+      if(!token){setFavoriteIds(new Set());return;}
+      getFavorites(token).then(list=>setFavoriteIds(new Set((list||[]).map(r=>r.id)))).catch(()=>{});
+    };
+    syncFavorites();
+    window.addEventListener("skup-auth-changed",syncFavorites);
+    window.addEventListener("storage",syncFavorites);
+    return()=>{
+      window.removeEventListener("skup-auth-changed",syncFavorites);
+      window.removeEventListener("storage",syncFavorites);
+    };
   },[]);
 
   useEffect(()=>{
@@ -381,6 +398,25 @@ export default function SkupDiscover(){
     },()=>setError("Could not access your location."),{enableHighAccuracy:false,timeout:8000});
   };
 
+  const toggleDiscoverFavorite=async(id:string)=>{
+    const token=localStorage.getItem("skup_access_token");
+    if(!token){window.location.href="/account/?mode=login";return;}
+    if(favoriteBusyId)return;
+    setFavoriteBusyId(id);
+    setError("");
+    try{
+      if(favoriteIds.has(id)){
+        await removeFavorite(token,id);
+        setFavoriteIds(prev=>{const next=new Set(prev);next.delete(id);return next;});
+      }else{
+        await addFavorite(token,id);
+        setFavoriteIds(prev=>new Set(prev).add(id));
+      }
+    }catch(e){
+      setError(e instanceof Error ? e.message : "Could not update favorites.");
+    }finally{setFavoriteBusyId(null);}
+  };
+
   const clearFilters=()=>{
     setQ("");setCuisineId("");setCollectionId("");setIsOpen(false);setMinRating("");setDiscountOnly(false);setPriceLevel("");setDietary([]);setNearMe(false);setUserLocation(null);setSort("rating");setOpenMenu(null);
   };
@@ -540,7 +576,7 @@ export default function SkupDiscover(){
                   <div className="discover-card-photo">
                     <img src={restaurantPhoto(r)} alt="" loading="lazy"/>
                     {r.discountPercent ? <span className="discover-card-deal">-{r.discountPercent}%</span> : null}
-                    <Link href={"/favorites/"} className="discover-card-heart" aria-label="Favorites" onClick={e=>e.stopPropagation()}><HeartMini/></Link>
+                    <button type="button" className={"discover-card-heart "+(favoriteIds.has(r.id)?"is-saved":"")} aria-label={favoriteIds.has(r.id) ? "Remove from favorites" : "Save to favorites"} aria-pressed={favoriteIds.has(r.id)} disabled={favoriteBusyId===r.id} onClick={e=>{e.stopPropagation();toggleDiscoverFavorite(r.id)}}><HeartMini/></button>
                   </div>
                   <div className="discover-card-body">
                     <div className="discover-card-title-row">
