@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Bell, Heart, LogIn, LogOut, Map, Menu, Shield, Search, Utensils, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { getNotifications } from "@/lib/skupApi";
 
 export default function SkupHeader({
   searchValue,
@@ -17,8 +18,14 @@ export default function SkupHeader({
   const [role, setRole] = useState("");
   const [userName, setUserName] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
   useEffect(() => {
     const hasToken = Boolean(localStorage.getItem("skup_access_token"));
+    const refreshNotificationCount = async () => {
+      const token = localStorage.getItem("skup_access_token");
+      if (!token) { setNotificationCount(0); return; }
+      try { const result = await getNotifications(token); setNotificationCount(result.unreadCount || 0); } catch { setNotificationCount(0); }
+    };
     if (hasToken) {
       try {
         const user = JSON.parse(localStorage.getItem("skup_user") || "{}");
@@ -28,7 +35,8 @@ export default function SkupHeader({
         setRole("");
         setUserName("");
       }
-    }
+      refreshNotificationCount();
+    } else setNotificationCount(0);
     setAuthenticated(hasToken);
     const sync = () => {
       const hasToken = Boolean(localStorage.getItem("skup_access_token"));
@@ -36,6 +44,7 @@ export default function SkupHeader({
         setRole("");
         setUserName("");
         setAuthenticated(false);
+        setNotificationCount(0);
         return;
       }
       try {
@@ -43,6 +52,7 @@ export default function SkupHeader({
         setRole(String(user?.role || ""));
         setUserName(String(user?.name || user?.email || ""));
         setAuthenticated(true);
+        refreshNotificationCount();
       } catch {
         setRole("");
         setUserName("");
@@ -70,7 +80,7 @@ export default function SkupHeader({
         </nav>
         <div className="skup-header-actions">
           {onSearchChange ? <label className="header-search"><Search size={15}/><input value={searchValue || ""} onChange={e => onSearchChange(e.target.value)} placeholder="Search restaurants, cuisine…" aria-label="Search restaurants, cuisine" /></label> : null}
-          <Link className="header-icon" href="/notifications/" aria-label="Notifications"><Bell size={17}/></Link><Link className="header-icon" href="/favorites/" aria-label="Favorites"><Heart size={18} /></Link>
+          <Link className="header-icon header-notification" href="/notifications/" aria-label="Notifications"><Bell size={17}/>{notificationCount > 0 ? <span className="header-notification-badge">{notificationCount > 9 ? "9+" : notificationCount}</span> : null}</Link><Link className="header-icon" href="/favorites/" aria-label="Favorites"><Heart size={18} /></Link>
           {role === "restaurant_manager" ? <Link className="header-restaurant-link" href="/for-restaurants/dashboard/"><Utensils size={14}/> Manager</Link> : null}
           {role === "admin" ? <Link className="header-restaurant-link" href="/admin/"><Shield size={14}/> Admin</Link> : null}
           {authenticated ? <>
