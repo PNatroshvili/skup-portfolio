@@ -64,6 +64,21 @@ export type RestaurantEvent = {
   isActive: boolean;
 };
 
+export type RestaurantOffer = {
+  id: string;
+  restaurantId: string;
+  title: string;
+  description?: string | null;
+  discountPercent?: number | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  startTime?: string | null;
+  endTime?: string | null;
+  minimumGuests?: number | null;
+  maximumGuests?: number | null;
+  isActive: boolean;
+};
+
 let refreshPromise: Promise<string | null> | null = null;
 
 function getHeaderValue(headers: HeadersInit | undefined, name: string) {
@@ -172,6 +187,16 @@ export async function getReviews(id: string) {
 
 export async function getEvents(id: string) {
   return request<RestaurantEvent[]>("/events/restaurant/" + encodeURIComponent(id));
+}
+
+export async function getOffers(params: { restaurantId?: string; date?: string; time?: string; guests?: number } = {}) {
+  const search = new URLSearchParams();
+  if (params.restaurantId) search.set("restaurant_id", params.restaurantId);
+  if (params.date) search.set("date", params.date);
+  if (params.time) search.set("time", params.time);
+  if (params.guests) search.set("guests", String(params.guests));
+  const query = search.toString() ? "?" + search.toString() : "";
+  return request<RestaurantOffer[]>("/offers" + query);
 }
 
 export async function getCuisines() {
