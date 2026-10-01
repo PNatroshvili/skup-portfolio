@@ -521,7 +521,7 @@ export default function SkupDiscover(){
             <button className="sort-button" onClick={()=>setOpenMenu(openMenu==="sort"?null:"sort")} aria-expanded={openMenu==="sort"}><ArrowDownUp size={13}/>{sort==="rating"?"Rating":sort==="name"?"Name":sort==="discount"?"Offers":"Distance"}<ChevronDown className="chip-caret" size={11}/></button>
             {openMenu==="sort"?<div className="filter-popover sort-popover">
               <span className="filter-popover-title">Sort by</span>
-              {(["rating","name","discount",...(nearMe?["distance"]:[])] as const).map(v=><button key={v} className={sort===v?"selected":""} onClick={()=>{setSort(v);setOpenMenu(null)}}>{v==="rating"?"Rating":v==="name"?"Name":v==="discount"?"Offers":"Distance"}{sort===v?<span className="popover-check">✓</span>:null}</button>)}
+              {(nearMe ? (["rating","name","discount","distance"] as const) : (["rating","name","discount"] as const)).map(v=><button key={v} className={sort===v?"selected":""} onClick={()=>{setSort(v);setOpenMenu(null)}}>{v==="rating"?"Rating":v==="name"?"Name":v==="discount"?"Offers":"Distance"}{sort===v?<span className="popover-check">✓</span>:null}</button>)}
             </div>:null}
           </div>
         </div>
