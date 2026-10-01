@@ -38,6 +38,7 @@ export default function SkupDiscover(){
   const [bookingTime,setBookingTime]=useState("");
   const [bookingSlots,setBookingSlots]=useState<string[]>([]);
   const [bookingLoading,setBookingLoading]=useState(false);
+  const [availabilityByRestaurant,setAvailabilityByRestaurant]=useState<Record<string,string[]>>({});
   const [sort,setSort]=useState<"rating"|"name"|"discount"|"distance">("rating");
   const [nearMe,setNearMe]=useState(false);
   const [userLocation,setUserLocation]=useState<{lat:number;lng:number}|null>(null);
