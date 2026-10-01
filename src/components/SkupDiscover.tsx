@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { LocateFixed, Search, SlidersHorizontal, Star, X, ArrowDownUp, ChevronDown } from "lucide-react";
+import { LocateFixed, Search, SlidersHorizontal, Star, X, ArrowDownUp, ChevronDown, Heart, CalendarDays, Users, Clock3 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
-import { addFavorite, getCollections, getCuisines, getFavorites, getRestaurants, removeFavorite, type Cuisine, type Restaurant } from "@/lib/skupApi";
+import { addFavorite, getAvailability, getCollections, getCuisines, getFavorites, getRestaurants, removeFavorite, type Cuisine, type Restaurant } from "@/lib/skupApi";
 import { restaurantPhoto } from "@/lib/lukmaUtils";
 import SkupHeader from "./SkupHeader";
 
@@ -33,6 +33,11 @@ export default function SkupDiscover(){
   const [discountOnly,setDiscountOnly]=useState(false);
   const [priceLevel,setPriceLevel]=useState("");
   const [dietary,setDietary]=useState<string[]>([]);
+  const [bookingDate,setBookingDate]=useState(() => new Date().toISOString().slice(0,10));
+  const [bookingGuests,setBookingGuests]=useState(2);
+  const [bookingTime,setBookingTime]=useState("");
+  const [bookingSlots,setBookingSlots]=useState<string[]>([]);
+  const [bookingLoading,setBookingLoading]=useState(false);
   const [sort,setSort]=useState<"rating"|"name"|"discount"|"distance">("rating");
   const [nearMe,setNearMe]=useState(false);
   const [userLocation,setUserLocation]=useState<{lat:number;lng:number}|null>(null);
@@ -158,6 +163,9 @@ export default function SkupDiscover(){
     setDiscountOnly(params.get("offers")==="true");
     setPriceLevel(params.get("price")||"");
     setDietary((params.get("dietary")||"").split(",").filter(x=>DIETARY[x]));
+    setBookingDate(params.get("date") || new Date().toISOString().slice(0,10));
+    setBookingGuests(Math.max(1, Math.min(12, Number(params.get("guests") || 2))));
+    setBookingTime(params.get("time") || "");
     const requestedSort=params.get("sort");
     if (requestedSort==="name" || requestedSort==="discount" || requestedSort==="distance") setSort(requestedSort);
     setSearchReady(true);
@@ -202,9 +210,12 @@ export default function SkupDiscover(){
     if(discountOnly)params.set("offers","true");
     if(priceLevel)params.set("price",priceLevel);
     if(dietary.length)params.set("dietary",dietary.join(","));
+    if(bookingDate)params.set("date",bookingDate);
+    if(bookingGuests!==2)params.set("guests",String(bookingGuests));
+    if(bookingTime)params.set("time",bookingTime);
     if(sort!=="rating")params.set("sort",sort);
     window.history.replaceState(null,"",params.toString()?"/discover/?"+params.toString():"/discover/");
-  },[searchReady,q,cuisineId,collectionId,isOpen,minRating,discountOnly,priceLevel,dietary,sort,nearMe]);
+  },[searchReady,q,cuisineId,collectionId,isOpen,minRating,discountOnly,priceLevel,dietary,sort,nearMe,bookingDate,bookingGuests,bookingTime]);
 
   const filtered=useMemo(()=>{
     return restaurants.filter(r=>{
@@ -421,8 +432,24 @@ export default function SkupDiscover(){
     }finally{setFavoriteBusyId(null);}
   };
 
-  const clearFilters=()=>{
-    setQ("");setCuisineId("");setCollectionId("");setIsOpen(false);setMinRating("");setDiscountOnly(false);setPriceLevel("");setDietary([]);setNearMe(false);setUserLocation(null);setSort("rating");setOpenMenu(null);
+  useEffect(()=>{
+    if(!selectedRestaurant){setBookingSlots([]);setBookingTime("");return;}
+    let cancelled=false;
+    setBookingLoading(true);
+    getAvailability(selectedRestaurant.id,bookingDate,bookingGuests)
+      .then(result=>{
+        if(cancelled)return;
+        const available=(result?.slots||[]).filter(slot=>slot.available).map(slot=>String(slot.time).slice(0,5));
+        setBookingSlots(available.slice(0,8));
+        setBookingTime(prev=>prev && available.includes(prev) ? prev : "");
+      })
+      .catch(()=>{if(!cancelled){setBookingSlots([]);setBookingTime("");}})
+      .finally(()=>{if(!cancelled)setBookingLoading(false);});
+    return()=>{cancelled=true;};
+  },[selectedRestaurant?.id,bookingDate,bookingGuests]);
+
+  const clearFilters()=>{
+    setQ("");setCuisineId("");setCollectionId("");setIsOpen(false);setMinRating("");setDiscountOnly(false);setPriceLevel("");setDietary([]);setNearMe(false);setUserLocation(null);setSort("rating");setBookingDate(new Date().toISOString().slice(0,10));setBookingGuests(2);setBookingTime("");setOpenMenu(null);
   };
   const resetMap=()=>{
     mapUserInteractedRef.current=false;
@@ -510,6 +537,11 @@ export default function SkupDiscover(){
       </section>
 
       <section className="discover-toolbar shell" ref={toolbarRef}>
+        <div className="discover-booking-context" aria-label="Booking context">
+          <label className="context-control"><CalendarDays size={14}/><span>Date</span><input type="date" min={new Date().toISOString().slice(0,10)} value={bookingDate} onChange={e=>{setBookingDate(e.target.value);setBookingTime("");}}/></label>
+          <label className="context-control"><Users size={14}/><span>Guests</span><select value={bookingGuests} onChange={e=>{setBookingGuests(Number(e.target.value));setBookingTime("");}}>{Array.from({length:12},(_,i)=>i+1).map(n=><option key={n} value={n}>{n}</option>)}</select></label>
+          <div className="context-availability">{bookingLoading ? <span><Clock3 size={13}/> Checking availability…</span> : bookingSlots.length ? <><span><Clock3 size={13}/> Available times</span><div>{bookingSlots.map(slot=><button type="button" key={slot} className={bookingTime===slot?"selected":""} onClick={()=>setBookingTime(bookingTime===slot?"":slot)}>{slot}</button>)}</div></> : <span><Clock3 size={13}/> Select a restaurant to see availability</span>}</div>
+        </div>
         <div className="discover-filter-scroll">
           <div className="filter-menu-wrap">
             <button className={"filter-chip dropdown-chip location-chip "+(nearMe?"active":"")} onClick={()=>setOpenMenu(openMenu==="location"?null:"location")} aria-expanded={openMenu==="location"}><LocateFixed size={14}/> <span>{nearMe?"Near me":"Tbilisi"}</span> <ChevronDown className="chip-caret" size={12}/></button>
