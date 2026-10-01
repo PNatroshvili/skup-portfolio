@@ -367,6 +367,22 @@ export async function getMe(token: string) {
   });
 }
 
+export type ManagerAnalytics = {
+  restaurantId: string;
+  totalBookings: number;
+  todayBookings: number;
+  confirmedBookings: number;
+  cancelledBookings: number;
+  guests: number;
+  ratingAvg: number;
+  reviewsCount: number;
+  daily: { date: string; bookings: number; guests: number }[];
+};
+
+export async function getManagerAnalytics(token: string) {
+  return request<ManagerAnalytics>("/restaurants/mine/analytics", { headers: { Authorization: "Bearer " + token } });
+}
+
 export async function getMyRestaurant(token: string) {
   return request<Restaurant & { menuCategories?: MenuCategory[] } & { workingHours?: Restaurant["workingHours"] }>("/restaurants/mine", {
     headers: { Authorization: "Bearer " + token },
