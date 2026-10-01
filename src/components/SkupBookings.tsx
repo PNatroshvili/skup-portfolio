@@ -148,7 +148,7 @@ export default function SkupBookings() {
                             <button className="outline-btn" onClick={() => setQrBooking(b)}><QrCode size={14}/> Check-in QR</button>
                             <Link className="outline-btn" href={"/chat/?booking_id="+encodeURIComponent(b.id)+"&restaurant="+encodeURIComponent(restaurant?.name || "Restaurant")}><MessageCircle size={14}/> Chat</Link>
                           </> : null}
-                          {b.status === "confirmed" || b.status === "cancelled" ? <button className="outline-btn" onClick={() => setReviewBooking(b)}><Star size={14}/> Review</button> : null}
+                          {b.status === "confirmed" && !isBookingUpcoming(b.date,b.time) ? <button className="outline-btn" onClick={() => setReviewBooking(b)}><Star size={14}/> Review</button> : null}
                           {b.status === "pending" && isBookingUpcoming(b.date,b.time) ? <button className="outline-btn danger" disabled={busy===b.id} onClick={() => cancel(b.id)}><XCircle size={14}/> {busy===b.id ? "Cancelling…" : "Cancel"}</button> : null}
                         </div>
                       </div>
