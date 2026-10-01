@@ -21,6 +21,8 @@ export type Restaurant = {
   ratingAvg: number;
   reviewsCount: number;
   status: string;
+  avgMenuPrice?: number | null;
+  priceLevel?: "1" | "2" | "3" | null;
   isOpen?: boolean;
   cuisine?: Cuisine | null;
   cover_photo?: string | null;
