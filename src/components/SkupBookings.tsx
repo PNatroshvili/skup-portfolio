@@ -140,6 +140,7 @@ export default function SkupBookings() {
                         <div className="booking-card-top">
                           <div><span className={"status " + status.className}>{status.label}</span><h2>{restaurant?.name || "Restaurant"}</h2><p>{restaurant?.address || "Tbilisi"} · {guests} guest{guests === 1 ? "" : "s"}</p></div>
                           <div className="booking-date-large"><strong>{b.date}</strong><span>{b.time}</span>{b.status==="confirmed" ? <small>{isBookingUpcoming(b.date,b.time) ? bookingCountdown(b.date,b.time) : "Past booking"}</small> : null}</div>
+                          {Number(b.discountPercentApplied || 0) > 0 ? <span className="booking-offer-badge">-{b.discountPercentApplied}% offer applied</span> : null}
                         </div>
                         {b.comment ? <p className="booking-note">{b.comment}</p> : null}
                         <div className="booking-actions">
