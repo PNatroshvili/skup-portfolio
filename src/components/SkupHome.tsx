@@ -14,6 +14,7 @@ export default function SkupHome() {
   const [collections, setCollections] = useState<Awaited<ReturnType<typeof getCollections>>>([]);
   const [recent, setRecent] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [search, setSearch] = useState("");
 
   useEffect(() => {
@@ -28,7 +29,7 @@ export default function SkupHome() {
         setCuisines((c || []).sort((a,b) => (a.name || "").localeCompare(b.name || "")));
         setCollections((col || []).filter(x => x.isActive).sort((a, b) => a.sortOrder - b.sortOrder));
       })
-      .catch(() => {})
+      .catch(() => setLoadError("Restaurants are temporarily unavailable. Please try again."))
       .finally(() => setLoading(false));
   }, []);
 
@@ -64,8 +65,9 @@ export default function SkupHome() {
 
         <section className="section shell">
           <div className="section-head"><div><span className="kicker">In the city now</span><h2>Popular right now</h2></div><Link href="/discover/">View all <ArrowRight size={15}/></Link></div>
+          {loadError ? <div className="home-data-error"><span>{loadError}</span><Link href="/discover/" className="outline-btn small">Open Discover</Link></div> : null}
           <div className="restaurant-grid four">
-            {loading ? Array.from({length:4}).map((_, i) => <div className="restaurant-skeleton" key={i}/>) : trending.map(r => <RestaurantCard key={r.id} restaurant={r}/>)}
+            {loading ? Array.from({length:4}).map((_, i) => <div className="restaurant-skeleton" key={i}/>) : trending.length ? trending.map(r => <RestaurantCard key={r.id} restaurant={r}/>) : <div className="home-empty">No restaurants available right now.</div>}
           </div>
         </section>
 
