@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { CalendarDays, Gift, Heart, Lock, Star, Users } from "lucide-react";
+import { CalendarDays, Gift, Lock, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getLoyalty } from "@/lib/skupApi";
 import SkupHeader from "./SkupHeader";
