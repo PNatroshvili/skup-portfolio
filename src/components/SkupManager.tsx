@@ -60,6 +60,7 @@ export default function SkupManager() {
   const [events, setEvents] = useState<RestaurantEvent[]>([]);
   const [offers, setOffers] = useState<RestaurantOffer[]>([]);
   const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([]);
+  const [analytics, setAnalytics] = useState<import('@/lib/skupApi').ManagerAnalytics | null>(null);
   const [tab, setTab] = useState<"overview"|"bookings"|"menu"|"hours"|"events"|"photos"|"offers"|"waitlist">("overview");
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -84,15 +85,18 @@ export default function SkupManager() {
       getMyRestaurantBookings(activeToken),
       getMyRestaurantEvents(activeToken),
       getMyOffers(activeToken),
+      getManagerAnalytics(activeToken),
     ]);
     if (restaurantResult.status !== "fulfilled") throw restaurantResult.reason;
     const r = restaurantResult.value;
     const b = bookingsResult.status === "fulfilled" ? bookingsResult.value : [];
     const e = eventsResult.status === "fulfilled" ? eventsResult.value : [];
     const o = offersResult.status === "fulfilled" ? offersResult.value : [];
+    const a = analyticsResult.status === "fulfilled" ? analyticsResult.value : null;
     if (bookingsResult.status !== "fulfilled") setError("Restaurant loaded, but bookings could not be refreshed.");
     if (eventsResult.status !== "fulfilled") setError(prev => prev || "Restaurant loaded, but events could not be refreshed.");
     if (offersResult.status !== "fulfilled") setError(prev => prev || "Restaurant loaded, but offers could not be refreshed.");
+    if (analyticsResult.status !== "fulfilled") setError(prev => prev || "Restaurant loaded, but analytics could not be refreshed.");
     let waitlistRows: WaitlistEntry[] = [];
     try { if (r?.id) waitlistRows = await getRestaurantWaitlist(activeToken, r.id); } catch { setError(prev => prev || "Restaurant loaded, but waitlist could not be refreshed."); }
     setRestaurant(r);
@@ -100,6 +104,7 @@ export default function SkupManager() {
     setEvents(e || []);
     setOffers(o || []);
     setWaitlist(waitlistRows || []);
+    setAnalytics(a);
     setForm({
       name: r?.name || "",
       description: r?.description || "",
@@ -358,6 +363,14 @@ export default function SkupManager() {
 
         {tab === "overview" ? (
           <>
+            {analytics ? <section className="manager-stat-grid analytics-stat-grid">
+              <div><span>Today</span><strong>{analytics.todayBookings}</strong><small>Bookings</small></div>
+              <div><span>Guests</span><strong>{analytics.guests}</strong><small>Total covers</small></div>
+              <div><span>Confirmed</span><strong>{analytics.confirmedBookings}</strong><small>All time</small></div>
+              <div><span>Cancellation</span><strong>{analytics.totalBookings ? Math.round((analytics.cancelledBookings / analytics.totalBookings) * 100) + "%" : "0%"}</strong><small>Booking rate</small></div>
+              <div><span>Rating</span><strong>{analytics.ratingAvg.toFixed(1)}</strong><small>{analytics.reviewsCount} reviews</small></div>
+            </section> : null}
+
             <section className="manager-stat-grid">
               <div><span>New requests</span><strong>{pending.length}</strong><small>Need a response</small></div>
               <div><span>Today</span><strong>{todayBookings.length}</strong><small>Pending or confirmed</small></div>
