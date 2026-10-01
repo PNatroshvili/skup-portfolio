@@ -239,6 +239,7 @@ export default function SkupDiscover(){
         if(level!==priceLevel)return false;
       }
       if(dietary.length&&!dietary.every(key=>DIETARY[key].some(word=>hay.includes(word))))return false;
+      if(bookingTime && !(availabilityByRestaurant[r.id] || []).includes(bookingTime)) return false;
       if(searchAsMapMoves && mapBounds){
         const lat=Number(r.latitude),lng=Number(r.longitude);
         if(!Number.isFinite(lat)||!Number.isFinite(lng)) return false;
@@ -246,7 +247,7 @@ export default function SkupDiscover(){
       }
       return true;
     });
-  },[restaurants,q,cuisineId,collectionId,collections,isOpen,minRating,discountOnly,priceLevel,dietary,searchAsMapMoves,mapBounds]);
+  },[restaurants,q,cuisineId,collectionId,collections,isOpen,minRating,discountOnly,priceLevel,dietary,searchAsMapMoves,mapBounds,availabilityByRestaurant,bookingTime]);
 
   const sorted=useMemo(()=>{
     const list=[...filtered];
@@ -629,9 +630,10 @@ export default function SkupDiscover(){
                       {r.district ? <span>{r.district}</span> : null}
                       {r.discountPercent ? <span className="deal-tag">Offer</span> : null}
                     </div>
+                    {(availabilityByRestaurant[r.id] || []).length ? <div className="discover-available-times"><small>Available</small>{(availabilityByRestaurant[r.id] || []).slice(0,4).map(t => <Link key={t} href={"/restaurant/?id="+encodeURIComponent(r.id)+"&date="+encodeURIComponent(bookingDate)+"&guests="+bookingGuests+"&time="+encodeURIComponent(t)} onClick={e=>e.stopPropagation()} className={bookingTime===t?"active":""}>{t}</Link>)}</div> : null}
                     <div className="discover-card-bottom">
                       <span className={"discover-open-state "+(r.isOpen?"open":"closed")}><i></i>{r.isOpen?"Open":"Closed"}{r.isOpen && r.workingHours?.find(h=>h.day===new Date().getDay())?.close ? <> · Closes {r.workingHours.find(h=>h.day===new Date().getDay())?.close}</> : null}</span>
-                      <Link className="discover-view" href={"/restaurant/?id="+encodeURIComponent(r.id)} onClick={e=>e.stopPropagation()}>View</Link>
+                      <Link className="discover-view" href={"/restaurant/?id="+encodeURIComponent(r.id)+"&date="+encodeURIComponent(bookingDate)+"&guests="+bookingGuests+(bookingTime?"&time="+encodeURIComponent(bookingTime):"")} onClick={e=>e.stopPropagation()}>View</Link>
                     </div>
                   </div>
                 </article>;
