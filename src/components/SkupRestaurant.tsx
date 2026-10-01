@@ -138,6 +138,17 @@ export default function SkupRestaurant() {
     return () => { cancelled = true; };
   }, [id, date, guests]);
 
+  useEffect(() => {
+    if (!id || !date) { setSelectedOffer(null); return; }
+    let cancelled = false;
+    getOffers({ restaurantId: id, date, time: time || undefined, guests })
+      .then(result => {
+        if (!cancelled) setSelectedOffer((result || []).filter(x => x.isActive)[0] || null);
+      })
+      .catch(() => { if (!cancelled) setSelectedOffer(null); });
+    return () => { cancelled = true; };
+  }, [id, date, time, guests]);
+
   const photos = useMemo(() => {
     if (!restaurant) return [];
     const all = (restaurant.photos || []).filter(p => p.url).sort((a,b) => Number(a.sortOrder||0) - Number(b.sortOrder||0));
