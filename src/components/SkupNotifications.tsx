@@ -32,7 +32,8 @@ export default function SkupNotifications() {
   useEffect(() => { load(); }, []);
   async function read(id: string) {
     const token = localStorage.getItem("skup_access_token"); if (!token) return;
-    try { await markNotificationRead(token, id); setItems(prev => prev.map(item => item.id === id ? { ...item, readAt: new Date().toISOString() } : item)); setUnread(prev => Math.max(0, prev - 1)); }
+    try { await markNotificationRead(token, id); setItems(prev => prev.map(item => item.id === id ? { ...item, readAt: new Date().toISOString() } : item)); setUnread(prev => Math.max(0, prev - 1));
+      window.dispatchEvent(new Event("skup-notifications-changed")); }
     catch (e) { setError(e instanceof Error ? e.message : "შეტყობინების გახსნა ვერ მოხერხდა."); }
   }
 
@@ -49,7 +50,8 @@ export default function SkupNotifications() {
   }
   async function readAll() {
     const token = localStorage.getItem("skup_access_token"); if (!token || unread === 0) return;
-    try { await markAllNotificationsRead(token); setItems(prev => prev.map(item => item.readAt ? item : { ...item, readAt: new Date().toISOString() })); setUnread(0); }
+    try { await markAllNotificationsRead(token); setItems(prev => prev.map(item => item.readAt ? item : { ...item, readAt: new Date().toISOString() })); setUnread(0);
+      window.dispatchEvent(new Event("skup-notifications-changed")); }
     catch (e) { setError(e instanceof Error ? e.message : "შეტყობინებების მონიშვნა ვერ მოხერხდა."); }
   }
   const token = typeof window !== "undefined" ? localStorage.getItem("skup_access_token") : null;
