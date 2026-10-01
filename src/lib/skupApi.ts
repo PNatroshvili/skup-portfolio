@@ -577,7 +577,7 @@ export async function getFavorites(token: string) {
 }
 
 export async function getLoyalty(token: string) {
-  return request<{ points: number; tier: string; nextTier?: string | null; progress: number; referralCode?: string | null }>("/auth/me/loyalty", {
+  return request<{ points: number; tier: string; nextTier?: string | null; progress: number; referralCode?: string | null; transactions?: { id:string; delta:number; balanceAfter:number; type:string; description?:string|null; createdAt:string }[]; tiers?: { name:string; min:number; max:number }[] }>("/auth/me/loyalty", {
     headers: { Authorization: "Bearer " + token },
   });
 }
