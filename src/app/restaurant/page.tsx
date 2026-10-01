@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import SkupRestaurant from "@/components/SkupRestaurant";
 
 export const metadata: Metadata = {
-  title: "რესტორანი — Skup",
+  title: "რესტორანი — LUKMA",
   description: "რესტორნის დეტალები, მენიუ, მიმოხილვები და მაგიდის დაჯავშნა.",
 };
 
