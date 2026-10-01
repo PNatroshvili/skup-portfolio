@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Clock3, MapPin, Star } from "lucide-react";
+import { MapPin, Star } from "lucide-react";
 import type { Restaurant } from "@/lib/skupApi";
 import { restaurantPhoto } from "@/lib/lukmaUtils";
 
