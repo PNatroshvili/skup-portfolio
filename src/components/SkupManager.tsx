@@ -67,6 +67,7 @@ export default function SkupManager() {
   const [eventForm, setEventForm] = useState({ title:"", description:"", emoji:"✦", eventDate:"" });
   const [photoBusy, setPhotoBusy] = useState(false);
   const runQueueRef = useRef<Promise<void>>(Promise.resolve());
+  const runBusyRef = useRef(false);
 
   const reload = async (t: string) => {
     const activeToken = typeof window !== "undefined" ? localStorage.getItem("skup_access_token") || t : t;
@@ -176,6 +177,8 @@ export default function SkupManager() {
   };
 
   const run = (fn: () => Promise<unknown>, success: string): Promise<boolean> => {
+    if (runBusyRef.current) return Promise.resolve(false);
+    runBusyRef.current = true;
     const execute = async (): Promise<boolean> => {
       setBusy(true); setError(""); setMessage("");
       try {
@@ -194,6 +197,7 @@ export default function SkupManager() {
         return false;
       } finally {
         setBusy(false);
+        runBusyRef.current = false;
       }
     };
     const next = runQueueRef.current.then(execute, execute);
