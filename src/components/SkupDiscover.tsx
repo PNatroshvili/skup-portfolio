@@ -41,7 +41,8 @@ export default function SkupDiscover(){
   const leafletMapRef=useRef<import("leaflet").Map|null>(null);
   const markerLayerRef=useRef<import("leaflet").LayerGroup|null>(null);
   const markerRefs=useRef<Map<string,import("leaflet").Marker>>(new Map());
-  const [showFilters,setShowFilters]=useState(false);
+  type FilterMenu = "location"|"cuisine"|"price"|"rating"|"more"|"sort"|null;
+  const [openMenu,setOpenMenu]=useState<FilterMenu>(null);
   const [loading,setLoading]=useState(true);
   const [error,setError]=useState("");
   const [visibleCount,setVisibleCount]=useState(20);
@@ -53,6 +54,8 @@ export default function SkupDiscover(){
   const [mapRenderVersion,setMapRenderVersion]=useState(0);
   const searchAsMapMovesRef=useRef(true);
   const mapInteractionReadyRef=useRef(false);
+  const mapUserInteractedRef=useRef(false);
+  const toolbarRef=useRef<HTMLDivElement|null>(null);
 
   useEffect(()=>{
     let disposed=false;
@@ -91,9 +94,10 @@ export default function SkupDiscover(){
       map.whenReady(()=>{
         map?.invalidateSize();
       });
+      const onUserMapInteraction=()=>{mapUserInteractedRef.current=true;};
       const onMoveEnd=()=>{
         const bounds=map?.getBounds();
-        if(bounds && mapInteractionReadyRef.current && searchAsMapMovesRef.current) setMapBounds({
+        if(bounds && mapInteractionReadyRef.current && mapUserInteractedRef.current && searchAsMapMovesRef.current) setMapBounds({
           south:bounds.getSouth(),
           west:bounds.getWest(),
           north:bounds.getNorth(),
@@ -101,6 +105,7 @@ export default function SkupDiscover(){
         });
       };
       map.on("moveend",onMoveEnd);
+      map.on("dragstart zoomstart",onUserMapInteraction);
       map.on("zoomend moveend",()=>setMapRenderVersion(v=>v+1));
 
     });
@@ -123,6 +128,8 @@ export default function SkupDiscover(){
       const bounds=leafletMapRef.current.getBounds();
       setMapBounds({south:bounds.getSouth(),west:bounds.getWest(),north:bounds.getNorth(),east:bounds.getEast()});
     } else if(!searchAsMapMoves){
+      setMapBounds(null);
+    } else if(!mapUserInteractedRef.current){
       setMapBounds(null);
     }
   },[searchAsMapMoves]);
@@ -194,7 +201,10 @@ export default function SkupDiscover(){
       if(isOpen&&!r.isOpen)return false;
       if(minRating&&Number(r.ratingAvg)<Number(minRating))return false;
       if(discountOnly&&!Number(r.discountPercent||0))return false;
-      if(priceLevel&&String((r as any).priceLevel||"")!==priceLevel)return false;
+      if(priceLevel){
+        const level=(r.priceLevel || (Number(r.avgMenuPrice||NaN)<15?"1":Number(r.avgMenuPrice||NaN)<30?"2":Number.isFinite(Number(r.avgMenuPrice))?"3":"" )) as string;
+        if(level!==priceLevel)return false;
+      }
       if(dietary.length&&!dietary.every(key=>DIETARY[key].some(word=>hay.includes(word))))return false;
       if(searchAsMapMoves && mapBounds){
         const lat=Number(r.latitude),lng=Number(r.longitude);
@@ -372,14 +382,30 @@ export default function SkupDiscover(){
   };
 
   const clearFilters=()=>{
-    setQ("");setCuisineId("");setCollectionId("");setIsOpen(false);setMinRating("");setDiscountOnly(false);setPriceLevel("");setDietary([]);setNearMe(false);setUserLocation(null);setSort("rating");
+    setQ("");setCuisineId("");setCollectionId("");setIsOpen(false);setMinRating("");setDiscountOnly(false);setPriceLevel("");setDietary([]);setNearMe(false);setUserLocation(null);setSort("rating");setOpenMenu(null);
   };
   const resetMap=()=>{
+    mapUserInteractedRef.current=false;
+    setMapBounds(null);
+    setNearMe(false);
+    setUserLocation(null);
+    setSort("rating");
     setSearchAsMapMoves(true);
+    setOpenMenu(null);
     leafletMapRef.current?.flyTo([41.7151,44.8271],12.4,{duration:.5});
   };
 
-  const surprise=()=>{if(!sorted.length)return;const r=sorted[Math.floor(Math.random()*sorted.length)];selectRestaurant(r);};
+  const surprise=()=>{if(!sorted.length)return;const r=sorted[Math.floor(Math.random()*sorted.length)];selectRestaurant(r);setOpenMenu(null);};
+
+  useEffect(()=>{
+    const closeOnOutside=(event:MouseEvent)=>{
+      if(!toolbarRef.current?.contains(event.target as Node)) setOpenMenu(null);
+    };
+    const onKey=(event:KeyboardEvent)=>{if(event.key==="Escape")setOpenMenu(null);};
+    document.addEventListener("mousedown",closeOnOutside);
+    document.addEventListener("keydown",onKey);
+    return()=>{document.removeEventListener("mousedown",closeOnOutside);document.removeEventListener("keydown",onKey);};
+  },[]);
 
   const stripScrollRef=useRef<HTMLDivElement|null>(null);
   const stripDragRef=useRef({active:false,startX:0,scrollLeft:0,moved:false});
@@ -443,24 +469,62 @@ export default function SkupDiscover(){
         </div>
       </section>
 
-      <section className="discover-toolbar shell">
+      <section className="discover-toolbar shell" ref={toolbarRef}>
         <div className="discover-filter-scroll">
-          <button className="filter-chip location-chip" onClick={resetMap}><LocateFixed size={14}/> <span>Tbilisi</span> <ChevronDown className="chip-caret" size={12}/></button>
-          <button className={"filter-chip dropdown-chip "+(cuisineId?"active":"")} onClick={()=>setShowFilters(v=>!v)}>{cuisineId ? (cuisines.find(c=>c.id===cuisineId)?.name || "Cuisine") : "All cuisines"} <ChevronDown className="chip-caret" size={12}/></button>
-          <button className={"filter-chip dropdown-chip "+(priceLevel?"active":"")} onClick={()=>setPriceLevel(priceLevel==="3" ? "" : String(Number(priceLevel||0)+1))}><span>₾ Price</span> <ChevronDown className="chip-caret" size={12}/></button>
-          <button className={"filter-chip dropdown-chip "+(minRating?"active":"")} onClick={()=>setMinRating(minRating ? "" : "4")}><Star size={13} fill="currentColor"/> <span>{minRating ? minRating+"+" : "Rating"}</span> <ChevronDown className="chip-caret" size={12}/></button>
-          <button className={"filter-chip "+(isOpen?"active":"")} onClick={()=>setIsOpen(v=>!v)}><span className={"filter-dot "+(isOpen?"on":"")}></span> Open now</button>
-          <button className={"filter-icon-button "+(showFilters?"active":"")} onClick={()=>setShowFilters(v=>!v)} aria-label="More filters"><SlidersHorizontal size={16}/></button>
-        </div>
-        <div className="discover-toolbar-right">
-          <button className="sort-button" onClick={()=>setSort(sort==="rating"?"name":sort==="name"?"discount":sort==="discount"?(nearMe?"distance":"rating"):"rating")}><ArrowDownUp size={13}/>{sort==="rating"?"Rating":sort==="name"?"Name":sort==="discount"?"Offers":"Distance"}</button>
-        </div>
-      </section>
+          <div className="filter-menu-wrap">
+            <button className={"filter-chip dropdown-chip location-chip "+(nearMe?"active":"")} onClick={()=>setOpenMenu(openMenu==="location"?null:"location")} aria-expanded={openMenu==="location"}><LocateFixed size={14}/> <span>{nearMe?"Near me":"Tbilisi"}</span> <ChevronDown className="chip-caret" size={12}/></button>
+            {openMenu==="location"?<div className="filter-popover location-popover">
+              <span className="filter-popover-title">Location</span>
+              <button className={!nearMe?"selected":""} onClick={resetMap}><LocateFixed size={14}/><span>Tbilisi</span>{!nearMe?<span className="popover-check">✓</span>:null}</button>
+              <button className={nearMe?"selected":""} onClick={toggleNearMe}><LocateFixed size={14}/><span>Near me</span>{nearMe?<span className="popover-check">✓</span>:null}</button>
+            </div>:null}
+          </div>
 
-      <section className={"discover-filter-panel shell "+(showFilters?"open":"")} aria-hidden={!showFilters}>
-        <div><span className="filter-panel-label">Cuisine</span><div className="filter-options">{cuisines.map(c=><button key={c.id} className={cuisineId===c.id?"selected":""} onClick={()=>setCuisineId(cuisineId===c.id?"":c.id)}>{c.icon||"•"} {c.name}</button>)}</div></div>
-        <div><span className="filter-panel-label">Price</span><div className="filter-options">{["1","2","3"].map(v=><button key={v} className={priceLevel===v?"selected":""} onClick={()=>setPriceLevel(priceLevel===v?"":v)}>{"₾".repeat(Number(v))} <small>{v==="1"?"Everyday":v==="2"?"Mid-range":"Premium"}</small></button>)}</div></div>
-        <div><span className="filter-panel-label">Dietary</span><div className="filter-options">{Object.keys(DIETARY).map(v=><button key={v} className={dietary.includes(v)?"selected":""} onClick={()=>setDietary(prev=>prev.includes(v)?prev.filter(x=>x!==v):[...prev,v])}>{v==="vegan"?"🌱":v==="vegetarian"?"🥗":v==="halal"?"☪️":v==="glutenfree"?"🌾":"🦐"} {v}</button>)}</div></div>
+          <div className="filter-menu-wrap">
+            <button className={"filter-chip dropdown-chip "+(cuisineId?"active":"")} onClick={()=>setOpenMenu(openMenu==="cuisine"?null:"cuisine")} aria-expanded={openMenu==="cuisine"}>{cuisineId ? (cuisines.find(c=>c.id===cuisineId)?.name || "Cuisine") : "All cuisines"} <ChevronDown className="chip-caret" size={12}/></button>
+            {openMenu==="cuisine"?<div className="filter-popover cuisine-popover">
+              <div className="filter-popover-head"><span className="filter-popover-title">Cuisine</span><button onClick={()=>{setCuisineId("");setOpenMenu(null)}}>Clear</button></div>
+              <div className="filter-popover-options">{cuisines.map(c=><button key={c.id} className={cuisineId===c.id?"selected":""} onClick={()=>{setCuisineId(cuisineId===c.id?"":c.id);setOpenMenu(null)}}>{c.icon||"•"}<span>{c.name}</span></button>)}</div>
+            </div>:null}
+          </div>
+
+          <div className="filter-menu-wrap">
+            <button className={"filter-chip dropdown-chip "+(priceLevel?"active":"")} onClick={()=>setOpenMenu(openMenu==="price"?null:"price")} aria-expanded={openMenu==="price"}><span>{priceLevel?"₾".repeat(Number(priceLevel))+" Price":"₾ Price"}</span> <ChevronDown className="chip-caret" size={12}/></button>
+            {openMenu==="price"?<div className="filter-popover">
+              <div className="filter-popover-head"><span className="filter-popover-title">Price level</span><button onClick={()=>{setPriceLevel("");setOpenMenu(null)}}>Clear</button></div>
+              <div className="filter-popover-options">{["1","2","3"].map(v=><button key={v} className={priceLevel===v?"selected":""} onClick={()=>{setPriceLevel(priceLevel===v?"":v);setOpenMenu(null)}}><strong>{"₾".repeat(Number(v))}</strong><span>{v==="1"?"Everyday":v==="2"?"Mid-range":"Premium"}</span></button>)}</div>
+            </div>:null}
+          </div>
+
+          <div className="filter-menu-wrap">
+            <button className={"filter-chip dropdown-chip "+(minRating?"active":"")} onClick={()=>setOpenMenu(openMenu==="rating"?null:"rating")} aria-expanded={openMenu==="rating"}><Star size={13} fill="currentColor"/> <span>{minRating ? minRating+"+" : "Rating"}</span> <ChevronDown className="chip-caret" size={12}/></button>
+            {openMenu==="rating"?<div className="filter-popover">
+              <div className="filter-popover-head"><span className="filter-popover-title">Minimum rating</span><button onClick={()=>{setMinRating("");setOpenMenu(null)}}>Clear</button></div>
+              <div className="filter-popover-options rating-options">{["3","3.5","4","4.5"].map(v=><button key={v} className={minRating===v?"selected":""} onClick={()=>{setMinRating(minRating===v?"":v);setOpenMenu(null)}}><Star size={13} fill="currentColor"/><span>{v}+</span></button>)}</div>
+            </div>:null}
+          </div>
+
+          <button className={"filter-chip "+(isOpen?"active":"")} onClick={()=>{setIsOpen(v=>!v);setOpenMenu(null)}}><span className={"filter-dot "+(isOpen?"on":"")}></span> Open now</button>
+
+          <div className="filter-menu-wrap">
+            <button className={"filter-icon-button "+(openMenu==="more"?"active":"")} onClick={()=>setOpenMenu(openMenu==="more"?null:"more")} aria-label="More filters" aria-expanded={openMenu==="more"}><SlidersHorizontal size={16}/></button>
+            {openMenu==="more"?<div className="filter-popover more-popover">
+              <div className="filter-popover-head"><span className="filter-popover-title">More filters</span><button onClick={clearFilters}>Clear all</button></div>
+              <div className="popover-section"><span className="filter-popover-label">Dietary</span><div className="filter-popover-options multi">{Object.keys(DIETARY).map(v=><button key={v} className={dietary.includes(v)?"selected":""} onClick={()=>setDietary(prev=>prev.includes(v)?prev.filter(x=>x!==v):[...prev,v])}>{v==="vegan"?"🌱":v==="vegetarian"?"🥗":v==="halal"?"☪️":v==="glutenfree"?"🌾":"🦐"}<span>{v}</span></button>)}</div></div>
+              <div className="popover-section"><span className="filter-popover-label">Offers</span><button className={"popover-toggle "+(discountOnly?"selected":"")} onClick={()=>setDiscountOnly(v=>!v)}><span className="filter-dot on"></span><span>Restaurants with offers</span>{discountOnly?<span className="popover-check">✓</span>:null}</button></div>
+            </div>:null}
+          </div>
+        </div>
+
+        <div className="discover-toolbar-right">
+          <div className="filter-menu-wrap">
+            <button className="sort-button" onClick={()=>setOpenMenu(openMenu==="sort"?null:"sort")} aria-expanded={openMenu==="sort"}><ArrowDownUp size={13}/>{sort==="rating"?"Rating":sort==="name"?"Name":sort==="discount"?"Offers":"Distance"}<ChevronDown className="chip-caret" size={11}/></button>
+            {openMenu==="sort"?<div className="filter-popover sort-popover">
+              <span className="filter-popover-title">Sort by</span>
+              {(["rating","name","discount",...(nearMe?["distance"]:[])] as const).map(v=><button key={v} className={sort===v?"selected":""} onClick={()=>{setSort(v);setOpenMenu(null)}}>{v==="rating"?"Rating":v==="name"?"Name":v==="discount"?"Offers":"Distance"}{sort===v?<span className="popover-check">✓</span>:null}</button>)}
+            </div>:null}
+          </div>
+        </div>
       </section>
 
       {error?<div className="shell inline-error discover-error">{error}</div>:null}
