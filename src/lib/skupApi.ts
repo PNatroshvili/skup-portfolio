@@ -55,6 +55,8 @@ export type Review = {
   reviewerAvatar?: string | null;
   createdAt: string;
   status: string;
+  verified?: boolean;
+  photos?: { id: string; url: string; createdAt?: string }[];
   user?: { name?: string | null; lastName?: string | null };
 };
 
