@@ -38,7 +38,7 @@ function currentTbilisiMinutes() {
     timeZone: "Asia/Tbilisi",
     hour: "2-digit",
     minute: "2-digit",
-    hour12: false,
+    hourCycle: "h23",
   }).formatToParts(new Date());
   return Number(parts.find(part => part.type === "hour")?.value || 0) * 60
     + Number(parts.find(part => part.type === "minute")?.value || 0);
