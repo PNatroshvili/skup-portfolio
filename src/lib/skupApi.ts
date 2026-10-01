@@ -786,3 +786,29 @@ export async function updateWaitlistStatus(token: string, id: string, status: "w
     body: JSON.stringify({ status }),
   });
 }
+
+
+export type RestaurantTable = {
+  id: string;
+  restaurantId: string;
+  name: string;
+  capacity: number;
+  shape: "round" | "square" | "rectangle";
+  posX: number;
+  posY: number;
+  zone?: string | null;
+  isActive: boolean;
+};
+
+export async function getRestaurantTables(token: string, restaurantId: string) {
+  return request<RestaurantTable[]>("/restaurants/" + encodeURIComponent(restaurantId) + "/tables", { headers: { Authorization: "Bearer " + token } });
+}
+export async function createRestaurantTable(token: string, restaurantId: string, payload: Partial<RestaurantTable> & { name: string; capacity: number }) {
+  return request<RestaurantTable>("/restaurants/" + encodeURIComponent(restaurantId) + "/tables", { method: "POST", headers: { Authorization: "Bearer " + token }, body: JSON.stringify(payload) });
+}
+export async function updateRestaurantTable(token: string, tableId: string, payload: Partial<RestaurantTable>) {
+  return request<RestaurantTable>("/restaurants/tables/" + encodeURIComponent(tableId), { method: "PATCH", headers: { Authorization: "Bearer " + token }, body: JSON.stringify(payload) });
+}
+export async function deleteRestaurantTable(token: string, tableId: string) {
+  return request<{ ok: boolean }>("/restaurants/tables/" + encodeURIComponent(tableId), { method: "DELETE", headers: { Authorization: "Bearer " + token } });
+}
