@@ -3025,3 +3025,9 @@ button,input,textarea,select{outline-color:var(--lukma-brand)}
 
 .header-notification{position:relative}
 .header-notification-badge{position:absolute;top:-4px;right:-4px;min-width:15px;height:15px;padding:0 4px;border-radius:8px;background:var(--lukma-brand);color:#fff;font-size:8px;font-weight:800;display:grid;place-items:center;border:2px solid #fff}
+
+.booking-no-availability{display:grid;gap:7px;padding:13px;border:1px solid rgba(211,88,57,.2);background:#fff5f1;border-radius:11px}
+.booking-no-availability strong{font-size:11px;color:var(--lukma-ink)}
+.booking-no-availability span{font-size:9px;line-height:1.5;color:#727872}
+.waitlist-web-btn{height:36px;border:0;border-radius:9px;background:var(--lukma-brand);color:#fff;font-size:10px;font-weight:800}
+.waitlist-web-btn:hover{background:var(--lukma-brand-dark)}
