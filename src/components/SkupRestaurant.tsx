@@ -12,6 +12,7 @@ import {
   getEvents,
   getFavorites,
   getMenu,
+  getOffers,
   getRestaurant,
   getReviews,
   login,
@@ -20,6 +21,7 @@ import {
   type MenuCategory,
   type Restaurant,
   type RestaurantEvent,
+  type RestaurantOffer,
   type Review,
 } from "@/lib/skupApi";
 import SkupHeader from "./SkupHeader";
@@ -50,6 +52,7 @@ export default function SkupRestaurant() {
   const [menu, setMenu] = useState<MenuCategory[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [events, setEvents] = useState<RestaurantEvent[]>([]);
+  const [offers, setOffers] = useState<RestaurantOffer[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [photoIndex, setPhotoIndex] = useState(0);
@@ -79,8 +82,8 @@ export default function SkupRestaurant() {
     const nextId = new URLSearchParams(window.location.search).get("id") || "";
     setId(nextId);
     if (!nextId) { setLoading(false); return; }
-    Promise.allSettled([getRestaurant(nextId), getMenu(nextId), getReviews(nextId), getEvents(nextId)])
-      .then(([restaurantResult, menuResult, reviewsResult, eventsResult]) => {
+    Promise.allSettled([getRestaurant(nextId), getMenu(nextId), getReviews(nextId), getEvents(nextId), getOffers({ restaurantId: nextId, date: date, guests })])
+      .then(([restaurantResult, menuResult, reviewsResult, eventsResult, offersResult]) => {
         if (restaurantResult.status !== "fulfilled") throw restaurantResult.reason;
         const r = restaurantResult.value;
         setRestaurant(r);
@@ -88,6 +91,7 @@ export default function SkupRestaurant() {
         if (menuResult.status === "fulfilled") setMenu(menuResult.value || []);
         if (reviewsResult.status === "fulfilled") setReviews(reviewsResult.value?.data || []);
         if (eventsResult.status === "fulfilled") setEvents((eventsResult.value || []).filter(x => x.isActive));
+        if (offersResult.status === "fulfilled") setOffers((offersResult.value || []).filter(x => x.isActive));
       })
       .catch(() => setLoadError("Restaurant could not be loaded right now."))
       .finally(() => setLoading(false));
@@ -357,6 +361,12 @@ export default function SkupRestaurant() {
               {restaurant.discountPercent ? <span className="badge-deal">-{restaurant.discountPercent}% offer</span> : null}
               <span className={"badge-open " + (!isOpen ? "closed" : "")}><span/> {isOpen ? "Open now" : "Closed now"}</span>
             </div>
+            {offers.length ? <div className="restaurant-offer-stack" aria-label="Available offers">
+              {offers.slice(0,2).map(offer => <div className="restaurant-offer-banner" key={offer.id}>
+                <span className="offer-icon">%</span>
+                <div><strong>{offer.title}</strong><p>{offer.description || (offer.discountPercent ? offer.discountPercent + "% off" : "Special offer")}</p></div>
+              </div>)}
+            </div> : null}
             <h1>{restaurant.name}</h1>
             <div className="restaurant-subline">{restaurant.cuisine?.name || "Restaurant"} <span>·</span> {restaurant.district || restaurant.city}</div>
             <div className="restaurant-rating-line"><Star size={14} fill="currentColor"/><strong>{avg.toFixed(1)}</strong><span>({restaurant.reviewsCount} reviews)</span><span className="dot"/> <MapPin size={14}/><span>{restaurant.address}</span></div>
