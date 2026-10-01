@@ -50,7 +50,7 @@ export default function Footer() {
 
         <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-line pt-8 sm:flex-row">
           <div className="flex items-center gap-2.5">
-            <LogoMark className="h-4 w-4 text-subtle" />
+            <img src="/lukma-logo.svg" alt="LUKMA" className="h-5 w-5 object-contain" />
             <span className="text-[12px] text-subtle">
               © {year} {nav.brand}. {t(siteContent.footer.text)}
             </span>
