@@ -448,7 +448,7 @@ export default function SkupDiscover(){
     return()=>{cancelled=true;};
   },[selectedRestaurant?.id,bookingDate,bookingGuests]);
 
-  const clearFilters()=>{
+  const clearFilters=()=>{
     setQ("");setCuisineId("");setCollectionId("");setIsOpen(false);setMinRating("");setDiscountOnly(false);setPriceLevel("");setDietary([]);setNearMe(false);setUserLocation(null);setSort("rating");setBookingDate(new Date().toISOString().slice(0,10));setBookingGuests(2);setBookingTime("");setOpenMenu(null);
   };
   const resetMap=()=>{
