@@ -108,7 +108,7 @@ export default function SkupManager() {
     let tableRows: RestaurantTable[] = [];
     try { if (r?.id) tableRows = await getRestaurantTables(activeToken, r.id); } catch { setError(prev => prev || "Restaurant loaded, but tables could not be refreshed."); }
     let reviewRows: Review[] = [];
-    try { if (r?.id) reviewRows = await getReviews(r.id); } catch { setError(prev => prev || "Restaurant loaded, but reviews could not be refreshed."); }
+    try { if (r?.id) { const reviewResult = await getReviews(r.id); reviewRows = reviewResult.data || []; } } catch { setError(prev => prev || "Restaurant loaded, but reviews could not be refreshed."); }
     setRestaurant(r);
     setBookings((b || []) as ManagerBooking[]);
     setEvents(e || []);
