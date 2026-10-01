@@ -746,3 +746,16 @@ export async function cancelWaitlist(token: string, id: string) {
     headers: { Authorization: "Bearer " + token },
   });
 }
+
+
+export async function getRestaurantWaitlist(token: string, restaurantId: string) {
+  return request<WaitlistEntry[]>("/waitlist/restaurant/" + encodeURIComponent(restaurantId), { headers: { Authorization: "Bearer " + token } });
+}
+
+export async function updateWaitlistStatus(token: string, id: string, status: "waiting" | "notified" | "booked" | "cancelled" | "expired") {
+  return request<WaitlistEntry>("/waitlist/" + encodeURIComponent(id) + "/status", {
+    method: "PATCH",
+    headers: { Authorization: "Bearer " + token },
+    body: JSON.stringify({ status }),
+  });
+}
