@@ -2631,3 +2631,348 @@ select:focus{
 @media(max-width:560px){
   .home-data-error{align-items:flex-start;flex-direction:column}
 }
+
+
+/* ==========================================================
+   LUKMA MARKETPLACE V2 — THEFORK-INSPIRED PRODUCT POLISH
+   Visual direction: dense, premium, food-first, transactional.
+   Keep LUKMA brand identity; do not turn the UI into a clone.
+   ========================================================== */
+
+:root{
+  --lukma-brand:#d35839;
+  --lukma-brand-dark:#ad4028;
+  --lukma-brand-soft:#f9e6df;
+  --lukma-success:#16724f;
+  --lukma-ink:#171a18;
+  --lukma-muted:#6f746f;
+  --lukma-line:rgba(23,26,24,.11);
+  --lukma-surface:#ffffff;
+}
+
+body{background:#f7f5f1;color:var(--lukma-ink)}
+button,input,textarea,select{outline-color:var(--lukma-brand)}
+.skup-header{
+  background:rgba(255,253,249,.94);
+  border-bottom-color:rgba(23,26,24,.09);
+  box-shadow:0 1px 0 rgba(23,26,24,.02);
+}
+.skup-header-inner{height:70px;gap:28px}
+.skup-logo{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  font-family:var(--sans);
+  font-weight:800;
+  font-size:22px;
+  letter-spacing:-.045em;
+  flex:none;
+}
+.skup-logo img{width:25px;height:28px;display:block;object-fit:contain}
+.skup-logo .skup-logo-word{color:var(--lukma-ink)}
+.skup-nav{gap:22px;font-size:12px}
+.skup-nav a{position:relative;padding:25px 0;color:#4f5751}
+.skup-nav a.active{color:var(--lukma-brand);font-weight:700}
+.skup-nav a.active:after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;border-radius:2px;background:var(--lukma-brand)}
+.header-icon,.header-menu,.header-logout{border-radius:11px;background:#fff}
+.header-icon:hover,.header-menu:hover,.header-logout:hover{border-color:rgba(211,88,57,.25);color:var(--lukma-brand)}
+.header-signup{background:var(--lukma-brand)}
+.header-signup:hover{background:var(--lukma-brand-dark)}
+.header-search{
+  height:38px;
+  width:250px;
+  border:1px solid var(--lukma-line);
+  background:#f8f7f3;
+  border-radius:11px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:0 11px;
+  color:#767c77;
+}
+.header-search input{border:0;background:transparent;min-width:0;flex:1;font-size:11px;outline:0}
+
+.home-hero{min-height:670px}
+.home-hero-content{min-height:670px;padding-top:40px;padding-bottom:40px}
+.home-hero h1{font-size:clamp(48px,6.2vw,82px)}
+.hero-search{
+  width:min(1120px,100%);
+  border-radius:14px;
+  padding:5px;
+}
+.search-segment{min-height:50px;padding:0 14px}
+.hero-search-btn{
+  width:52px;
+  height:50px;
+  border-radius:11px;
+  background:var(--lukma-brand);
+}
+.hero-search-btn:hover{background:var(--lukma-brand-dark)}
+.hero-chip{
+  border-color:rgba(255,255,255,.2);
+  background:rgba(255,255,255,.09);
+  border-radius:10px;
+  padding:8px 11px;
+}
+
+.section{padding-top:72px;padding-bottom:72px}
+.section-head{margin-bottom:22px}
+.section-head h2{font-size:clamp(30px,3.2vw,46px)}
+.restaurant-grid{gap:13px}
+.restaurant-card{border-radius:14px;box-shadow:0 4px 16px rgba(26,29,27,.04)}
+.restaurant-card:hover,.restaurant-card.is-selected{transform:translateY(-2px);box-shadow:0 14px 30px rgba(26,29,27,.10)}
+.restaurant-photo-wrap{aspect-ratio:1.25/1}
+.restaurant-card-body{padding:13px 14px 14px}
+.restaurant-card h3{font-size:14px}
+.restaurant-meta,.restaurant-bottom-meta{font-size:10px}
+.restaurant-card-context{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-top:9px;
+  font-size:10px;
+  color:#535a55;
+}
+.restaurant-open-mini{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.restaurant-open-mini i,.discover-open-state i,.map-focus-open i{
+  width:6px;height:6px;border-radius:50%;background:#b2b7b3;display:inline-block
+}
+.restaurant-open-mini.open,.discover-open-state.open,.map-focus-open.open{color:var(--lukma-success)}
+.restaurant-open-mini.open i,.discover-open-state.open i,.map-focus-open.open i{background:#26a16f}
+.restaurant-open-mini.closed{color:#878c87}
+
+.discover-page{background:#f7f5f1}
+.discover-head{padding-top:30px;padding-bottom:15px}
+.discover-head h1{font-size:46px}
+.discover-toolbar{
+  position:sticky;
+  top:70px;
+  z-index:30;
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+  padding-top:9px;
+  padding-bottom:10px;
+  background:rgba(247,245,241,.94);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(23,26,24,.07);
+}
+.discover-booking-context{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  min-height:42px;
+}
+.context-control{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  height:38px;
+  padding:0 10px;
+  background:#fff;
+  border:1px solid var(--lukma-line);
+  border-radius:10px;
+  color:#626862;
+  font-size:10px;
+}
+.context-control input,.context-control select{
+  border:0;
+  background:transparent;
+  color:var(--lukma-ink);
+  font-size:10px;
+  min-width:94px;
+  outline:0;
+}
+.context-control select{min-width:36px}
+.context-availability{
+  min-width:0;
+  flex:1;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:10px;
+  color:#707671;
+}
+.context-availability>span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.context-availability>div{
+  display:flex;
+  gap:5px;
+  min-width:0;
+  overflow:auto;
+  scrollbar-width:none;
+}
+.context-availability>div::-webkit-scrollbar{display:none}
+.context-availability button{
+  height:30px;
+  padding:0 9px;
+  border-radius:8px;
+  border:1px solid var(--lukma-line);
+  background:#fff;
+  font-size:10px;
+  color:#555c56;
+  white-space:nowrap;
+}
+.context-availability button:hover,.context-availability button.selected{
+  background:var(--lukma-brand-soft);
+  border-color:rgba(211,88,57,.3);
+  color:var(--lukma-brand-dark);
+}
+.discover-filter-scroll{display:flex;gap:6px;min-width:0}
+.filter-scroll button,.filter-actions button,.filter-chip,.sort-button,.filter-icon-button{
+  height:34px;
+  border-radius:9px;
+  background:#fff;
+  border-color:var(--lukma-line);
+}
+.filter-scroll button.active,.filter-actions button.active,.filter-chip.active,.filter-icon-button.active{
+  background:var(--lukma-brand-soft);
+  border-color:rgba(211,88,57,.26);
+  color:var(--lukma-brand-dark);
+}
+.discover-layout{
+  grid-template-columns:390px minmax(0,1fr);
+  gap:13px;
+  padding-top:10px;
+}
+.discover-list{max-height:calc(100vh - 205px)}
+.discover-card-wrap{
+  background:#fff;
+  border:1px solid var(--lukma-line);
+  border-radius:14px;
+  overflow:hidden;
+  display:grid;
+  grid-template-columns:116px 1fr;
+  margin-bottom:8px;
+  cursor:pointer;
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+}
+.discover-card-wrap:hover,.discover-card-wrap.selected{
+  border-color:rgba(211,88,57,.24);
+  box-shadow:0 8px 24px rgba(20,24,21,.07);
+}
+.discover-card-photo{position:relative;min-height:132px}
+.discover-card-photo img{width:100%;height:100%;position:absolute;inset:0;object-fit:cover}
+.discover-card-deal{
+  left:8px;top:8px;padding:5px 7px;border-radius:7px;
+  background:#fff;color:var(--lukma-brand-dark);font-size:9px;font-weight:800
+}
+.discover-card-heart{
+  right:7px;top:7px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.94);
+  border:0;position:absolute;display:grid;place-items:center;color:#686e69
+}
+.discover-card-heart.is-saved{color:var(--lukma-brand);background:#fff4ef}
+.discover-heart-glyph{font-size:18px;line-height:1}
+.discover-card-body{padding:11px 12px}
+.discover-card-title-row{gap:8px}
+.discover-card-title-row h3{font-size:13px}
+.discover-card-rating{font-size:10px}
+.discover-card-rating small{font-size:9px;color:#8c918d}
+.discover-card-meta{font-size:10px;margin-top:5px}
+.discover-card-body p{font-size:10px;line-height:1.45;margin:7px 0 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:#7a807b}
+.discover-card-tags{gap:4px;margin-top:7px}
+.discover-card-tags span{padding:3px 6px;border-radius:6px;background:#f4f2ee;color:#777d78;font-size:8px}
+.discover-card-tags .deal-tag{background:#fff1ec;color:var(--lukma-brand-dark)}
+.discover-card-bottom{margin-top:7px;padding-top:7px}
+.discover-view{color:var(--lukma-brand-dark)}
+.discover-map-card{
+  min-height:calc(100vh - 205px);
+  border-radius:18px;
+  box-shadow:0 10px 30px rgba(20,24,21,.07);
+}
+.discover-map-canvas{border-radius:18px}
+.map-focus-button{background:var(--lukma-brand)}
+.map-focus-button:hover{background:var(--lukma-brand-dark)}
+.map-strip-card.selected{border-color:rgba(211,88,57,.5);box-shadow:0 8px 22px rgba(211,88,57,.14)}
+.map-strip-card:hover{border-color:rgba(211,88,57,.25)}
+.map-focus-open.open{color:var(--lukma-success)}
+.discover-load-more{height:40px;border-radius:10px;background:#fff;border:1px solid var(--lukma-line);font-size:11px;color:#555b57}
+.discover-load-more:hover{border-color:rgba(211,88,57,.3);color:var(--lukma-brand-dark)}
+
+.restaurant-page{background:#f7f5f1}
+.restaurant-detail-top{padding-top:18px}
+.restaurant-gallery{height:540px;grid-template-columns:minmax(0,1fr) 220px;gap:8px}
+.gallery-main{border-radius:18px}
+.gallery-thumbs{gap:8px}
+.gallery-thumbs button{border-radius:12px}
+.restaurant-info{grid-template-columns:minmax(0,1fr) 370px;gap:42px;padding-top:28px;padding-bottom:28px}
+.restaurant-main-copy h1{font-size:58px}
+.booking-card{top:86px;border-radius:18px;padding:18px;box-shadow:0 12px 34px rgba(20,24,21,.08)}
+.booking-card h2{font-size:27px}
+.booking-submit{background:var(--lukma-brand)!important}
+.booking-submit:hover{background:var(--lukma-brand-dark)!important}
+.detail-tabs{
+  position:sticky;top:70px;z-index:20;background:rgba(247,245,241,.94);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--lukma-line);display:flex;gap:4px;padding:7px 0;margin-bottom:0
+}
+.detail-tabs a{padding:8px 11px;border-radius:8px;font-size:10px;color:#6e746f}
+.detail-tabs a:hover,.detail-tabs a.active{background:#fff;color:var(--lukma-brand-dark)}
+.detail-section{padding:30px 0;border-bottom:1px solid var(--lukma-line)}
+.feature-facts span{border-radius:8px;background:#fff;border:1px solid var(--lukma-line)}
+.review-compose{border-radius:14px;background:#fff;border:1px solid var(--lukma-line)}
+.location-card{border-radius:14px;background:#fff;border:1px solid var(--lukma-line)}
+
+.tonight-banner{border-radius:16px;padding:30px;background:#fff;border-color:var(--lukma-line)}
+.tonight-banner h2{font-size:38px}
+.green-btn{background:var(--lukma-brand)}
+.green-btn:hover{background:var(--lukma-brand-dark)}
+.outline-btn:hover{border-color:rgba(211,88,57,.25);color:var(--lukma-brand-dark)}
+.collection-card{min-height:205px;border-radius:16px}
+.journal-feature{border-radius:18px}
+.skup-footer{padding:22px 0}
+
+@media (max-width: 980px){
+  .skup-nav{display:none}
+  .skup-header-inner{height:64px;padding:0 18px}
+  .skup-header-actions{gap:7px}
+  .header-search{display:none}
+  .header-bookings,.header-restaurant-link,.header-logout,.header-login,.header-signup{display:none}
+  .header-menu{display:grid}
+  .skup-mobile-nav{box-shadow:0 12px 35px rgba(20,24,21,.08)}
+  .discover-toolbar{top:64px}
+  .discover-booking-context{overflow:auto;padding-bottom:1px}
+  .discover-booking-context::-webkit-scrollbar{display:none}
+  .context-control{flex:none}
+  .context-availability{min-width:220px;flex:none}
+  .discover-layout{grid-template-columns:1fr}
+  .discover-list{max-height:none}
+  .discover-map-card{position:relative;min-height:62vh}
+  .restaurant-gallery{height:430px;grid-template-columns:minmax(0,1fr) 150px}
+  .restaurant-info{grid-template-columns:1fr;gap:20px}
+  .booking-card{position:static}
+}
+@media (max-width: 640px){
+  .shell{padding-left:16px;padding-right:16px}
+  .home-hero{min-height:620px}
+  .home-hero-content{min-height:620px;padding-top:55px}
+  .home-hero h1{font-size:48px}
+  .hero-search{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+  .search-segment{min-height:46px;border:0;border-radius:8px;background:#f8f8f6}
+  .search-segment.wide{grid-column:1/-1}
+  .hero-search .button-segment{display:none}
+  .hero-search-btn{width:100%;grid-column:1/-1;border-radius:9px}
+  .restaurant-grid.four{grid-template-columns:1fr 1fr;gap:9px}
+  .restaurant-card-body{padding:10px}
+  .restaurant-card h3{font-size:12px}
+  .restaurant-meta{font-size:9px}
+  .restaurant-card-context{font-size:9px}
+  .section{padding-top:52px;padding-bottom:52px}
+  .section-head h2{font-size:31px}
+  .discover-head h1{font-size:38px}
+  .discover-head{padding-top:23px}
+  .discover-toolbar{padding-left:12px;padding-right:12px}
+  .discover-card-wrap{grid-template-columns:102px 1fr}
+  .discover-card-photo{min-height:118px}
+  .discover-card-body{padding:10px}
+  .discover-card-tags{display:none}
+  .discover-map-card{min-height:58vh;border-radius:14px}
+  .map-strip-card{min-width:220px}
+  .restaurant-gallery{height:300px;grid-template-columns:1fr}
+  .gallery-thumbs{display:none}
+  .restaurant-main-copy h1{font-size:44px}
+  .detail-tabs{overflow:auto;white-space:nowrap}
+  .detail-section{padding:24px 0}
+  .tonight-banner{display:block;padding:24px}
+  .tonight-banner h2{font-size:32px}
+  .tonight-banner .dark-btn{margin-top:16px;width:100%}
+}
