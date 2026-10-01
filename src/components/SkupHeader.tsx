@@ -60,9 +60,11 @@ export default function SkupHeader({
       }
     };
     window.addEventListener("storage", sync);
+    window.addEventListener("skup-notifications-changed", refreshNotificationCount);
     window.addEventListener("skup-auth-changed", sync);
     return () => {
       window.removeEventListener("storage", sync);
+      window.removeEventListener("skup-notifications-changed", refreshNotificationCount);
       window.removeEventListener("skup-auth-changed", sync);
     };
   }, []);
