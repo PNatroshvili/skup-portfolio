@@ -73,6 +73,9 @@ export default function SkupRestaurant() {
   const [favorite, setFavorite] = useState(false);
   const [favoriteBusy, setFavoriteBusy] = useState(false);
   const [reviewRating, setReviewRating] = useState(5);
+  const [foodRating, setFoodRating] = useState(5);
+  const [serviceRating, setServiceRating] = useState(5);
+  const [ambienceRating, setAmbienceRating] = useState(5);
   const [reviewComment, setReviewComment] = useState("");
   const [reviewBusy, setReviewBusy] = useState(false);
   const [reviewMessage, setReviewMessage] = useState("");
@@ -305,10 +308,14 @@ export default function SkupRestaurant() {
       await createReview(token, {
         restaurant_id: id,
         rating: reviewRating,
+        food_rating: foodRating,
+        service_rating: serviceRating,
+        ambience_rating: ambienceRating,
         comment: reviewComment.trim() || undefined,
       });
       setReviewComment("");
       setReviewRating(5);
+      setFoodRating(5); setServiceRating(5); setAmbienceRating(5);
       setReviewMessage("Review published.");
       try {
         const [freshReviews, freshRestaurant] = await Promise.all([getReviews(id), getRestaurant(id)]);
@@ -450,7 +457,11 @@ export default function SkupRestaurant() {
               <div className="section-title-small">Reviews <span>{restaurant.reviewsCount}</span></div>
               <div className="review-compose">
                 <div className="review-compose-head"><strong>Rate this place</strong><span>1–5 stars</span></div>
-                <div className="review-stars">{[1,2,3,4,5].map(value => <button key={value} type="button" aria-label={value + " stars"} className={value <= reviewRating ? "active" : ""} onClick={() => setReviewRating(value)}><Star size={18} fill="currentColor"/></button>)}</div>
+                <div className="review-stars">{[1,2,3,4,5].map(value => <button key={value} type="button" aria-label={value + " stars"} className={value <= reviewRating ? "active" : ""} onClick={() => setReviewRating(value)}><Star size={18} fill="currentColor"/></button>)}</div>                <div className="review-dimensions">
+                  <div className="review-dimension"><span>Food</span><div>{[1,2,3,4,5].map(n => <button type="button" key={n} aria-label={"Food " + n + " stars"} className={n <= foodRating ? "active" : ""} onClick={() => setFoodRating(n)}><Star size={13} fill="currentColor"/></button>)}</div></div>
+                  <div className="review-dimension"><span>Service</span><div>{[1,2,3,4,5].map(n => <button type="button" key={n} aria-label={"Service " + n + " stars"} className={n <= serviceRating ? "active" : ""} onClick={() => setServiceRating(n)}><Star size={13} fill="currentColor"/></button>)}</div></div>
+                  <div className="review-dimension"><span>Ambience</span><div>{[1,2,3,4,5].map(n => <button type="button" key={n} aria-label={"Ambience " + n + " stars"} className={n <= ambienceRating ? "active" : ""} onClick={() => setAmbienceRating(n)}><Star size={13} fill="currentColor"/></button>)}</div></div>
+                </div>
                 <textarea value={reviewComment} onChange={e => setReviewComment(e.target.value.slice(0,1000))} placeholder="What did you like? What would you recommend to others?" />
                 {reviewMessage ? <div className="review-message">{reviewMessage}</div> : null}
                 <button className="green-btn small" onClick={submitReview} disabled={reviewBusy}>{reviewBusy ? "Sending…" : "Publish"}</button>
