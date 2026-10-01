@@ -2591,3 +2591,43 @@ select:focus{
     height:27px!important;
   }
 }
+
+
+/* Final interaction/error states */
+.home-data-error{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin:0 0 12px;
+  padding:12px 14px;
+  border:1px solid #e7d2d0;
+  border-radius:12px;
+  background:#fff8f7;
+  color:#8d554f;
+  font-size:10px;
+}
+.home-empty{
+  grid-column:1/-1;
+  padding:28px 20px;
+  border:1px dashed var(--line);
+  border-radius:14px;
+  color:var(--muted);
+  font-size:11px;
+  text-align:center;
+}
+.discover-card-heart{
+  cursor:pointer;
+  transition:
+    transform var(--motion-fast) var(--ease-spring),
+    color var(--motion-base) var(--ease-soft),
+    background-color var(--motion-base) var(--ease-soft),
+    border-color var(--motion-base) var(--ease-soft);
+}
+.discover-card-heart:hover{color:#a34e48}
+.discover-card-heart.is-saved{color:#c3574c}
+.discover-card-heart:disabled{opacity:.55;cursor:wait}
+.restaurant-action-message{margin-top:8px;font-size:9px;color:var(--muted)}
+@media(max-width:560px){
+  .home-data-error{align-items:flex-start;flex-direction:column}
+}
