@@ -57,6 +57,8 @@ export type Review = {
   status: string;
   verified?: boolean;
   photos?: { id: string; url: string; createdAt?: string }[];
+  restaurantReply?: string | null;
+  restaurantReplyAt?: string | null;
   user?: { name?: string | null; lastName?: string | null };
 };
 
@@ -825,4 +827,13 @@ export async function updateRestaurantTable(token: string, tableId: string, payl
 }
 export async function deleteRestaurantTable(token: string, tableId: string) {
   return request<{ ok: boolean }>("/restaurants/tables/" + encodeURIComponent(tableId), { method: "DELETE", headers: { Authorization: "Bearer " + token } });
+}
+
+
+export async function replyToReview(token: string, reviewId: string, reply: string) {
+  return request<Review>("/reviews/" + encodeURIComponent(reviewId) + "/reply", {
+    method: "PATCH",
+    headers: { Authorization: "Bearer " + token },
+    body: JSON.stringify({ reply }),
+  });
 }
