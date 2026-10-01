@@ -713,3 +713,36 @@ export async function markNotificationRead(token: string, id: string) {
 export async function markAllNotificationsRead(token: string) {
   return request<{ ok: boolean }>("/notifications/read-all", { method: "PATCH", headers: { Authorization: "Bearer " + token } });
 }
+
+
+export type WaitlistEntry = {
+  id: string;
+  restaurantId: string;
+  userId: string;
+  date: string;
+  timeFrom?: string | null;
+  timeTo?: string | null;
+  guestsCount: number;
+  status: string;
+  expiresAt?: string | null;
+  createdAt: string;
+};
+
+export async function joinWaitlist(token: string, payload: { restaurant_id: string; date: string; time_from?: string; time_to?: string; guests_count: number }) {
+  return request<WaitlistEntry>("/waitlist", {
+    method: "POST",
+    headers: { Authorization: "Bearer " + token },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function getMyWaitlist(token: string) {
+  return request<WaitlistEntry[]>("/waitlist/mine", { headers: { Authorization: "Bearer " + token } });
+}
+
+export async function cancelWaitlist(token: string, id: string) {
+  return request<WaitlistEntry>("/waitlist/" + encodeURIComponent(id), {
+    method: "DELETE",
+    headers: { Authorization: "Bearer " + token },
+  });
+}
