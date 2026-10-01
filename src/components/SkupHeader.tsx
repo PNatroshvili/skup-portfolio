@@ -59,7 +59,7 @@ export default function SkupHeader({
   return (
     <header className="skup-header">
       <div className="skup-header-inner">
-        <Link href="/" className="skup-logo">LUKMA<span>.</span></Link>
+        <Link href="/" className="skup-logo" aria-label="LUKMA home"><img src="/lukma-logo.svg" alt="LUKMA" /><span className="skup-logo-word">LUKMA</span></Link>
         <nav className="skup-nav">
           <Link className={activeNav === "discover" ? "active" : ""} href="/discover/">Discover</Link>
           <Link className={activeNav === "map" ? "active" : ""} href="/discover/#map">Map</Link>
