@@ -36,6 +36,7 @@ export default function SkupAdmin(){
   const [token,setToken]=useState<string|null>(null);
   const [actionBusy,setActionBusy]=useState(false);
   const actionQueueRef=useRef<Promise<void>>(Promise.resolve());
+  const actionPendingRef=useRef(false);
 
   useEffect(()=>{
     const sync=()=>setToken(getToken());
@@ -62,7 +63,8 @@ export default function SkupAdmin(){
   if(!token)return <div className="skup-site"><SkupHeader/><main className="shell account-page"><div className="account-login-card"><div className="account-mark">L</div><span className="kicker">ADMIN</span><h1>Open the admin<br/>control center.</h1><p>Use the admin demo account from My LUKMA.</p><Link className="green-btn" href="/account/">Open login</Link></div></main></div>;
 
   const doAction=(fn:()=>Promise<any>, ok:string)=>{
-    if(!token) return Promise.resolve();
+    if(!token || actionPendingRef.current) return Promise.resolve();
+    actionPendingRef.current=true;
     const execute=async()=>{
       setActionBusy(true); setNotice("");
       try{
