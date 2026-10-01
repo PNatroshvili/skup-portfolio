@@ -7,19 +7,23 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   addMenuCategory,
   addMenuItem,
+  createOffer,
   createRestaurantEvent,
   deleteMenuCategory,
   deleteMenuItem,
+  deleteOffer,
   deleteRestaurantEvent,
   deleteRestaurantPhoto,
   setCoverPhoto,
   uploadRestaurantPhoto,
   getMyRestaurant,
   getMyRestaurantBookings,
+  getMyOffers,
   getMyRestaurantEvents,
   type MenuCategory,
   type Restaurant,
   type RestaurantEvent,
+  type RestaurantOffer,
   updateBookingStatus,
   updateMenuItem,
   uploadMenuItemPhoto,
@@ -53,7 +57,8 @@ export default function SkupManager() {
   const [restaurant, setRestaurant] = useState<ManagedRestaurant | null>(null);
   const [bookings, setBookings] = useState<ManagerBooking[]>([]);
   const [events, setEvents] = useState<RestaurantEvent[]>([]);
-  const [tab, setTab] = useState<"overview"|"bookings"|"menu"|"hours"|"events"|"photos">("overview");
+  const [offers, setOffers] = useState<RestaurantOffer[]>([]);
+  const [tab, setTab] = useState<"overview"|"bookings"|"menu"|"hours"|"events"|"photos"|"offers">("overview");
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
@@ -65,26 +70,31 @@ export default function SkupManager() {
   const [newItemCategory, setNewItemCategory] = useState("");
   const [newItem, setNewItem] = useState({ name:"", description:"", price:"", available:true });
   const [eventForm, setEventForm] = useState({ title:"", description:"", emoji:"✦", eventDate:"" });
+  const [offerForm, setOfferForm] = useState({ title:"", description:"", discountPercent:"", startDate:"", endDate:"", startTime:"", endTime:"", minimumGuests:"", maximumGuests:"" });
   const [photoBusy, setPhotoBusy] = useState(false);
   const runQueueRef = useRef<Promise<void>>(Promise.resolve());
   const runBusyRef = useRef(false);
 
   const reload = async (t: string) => {
     const activeToken = typeof window !== "undefined" ? localStorage.getItem("skup_access_token") || t : t;
-    const [restaurantResult, bookingsResult, eventsResult] = await Promise.allSettled([
+    const [restaurantResult, bookingsResult, eventsResult, offersResult] = await Promise.allSettled([
       getMyRestaurant(activeToken),
       getMyRestaurantBookings(activeToken),
       getMyRestaurantEvents(activeToken),
+      getMyOffers(activeToken),
     ]);
     if (restaurantResult.status !== "fulfilled") throw restaurantResult.reason;
     const r = restaurantResult.value;
     const b = bookingsResult.status === "fulfilled" ? bookingsResult.value : [];
     const e = eventsResult.status === "fulfilled" ? eventsResult.value : [];
+    const o = offersResult.status === "fulfilled" ? offersResult.value : [];
     if (bookingsResult.status !== "fulfilled") setError("Restaurant loaded, but bookings could not be refreshed.");
     if (eventsResult.status !== "fulfilled") setError(prev => prev || "Restaurant loaded, but events could not be refreshed.");
+    if (offersResult.status !== "fulfilled") setError(prev => prev || "Restaurant loaded, but offers could not be refreshed.");
     setRestaurant(r);
     setBookings((b || []) as ManagerBooking[]);
     setEvents(e || []);
+    setOffers(o || []);
     setForm({
       name: r?.name || "",
       description: r?.description || "",
@@ -276,6 +286,25 @@ export default function SkupManager() {
     }
   };
 
+  const addOffer = () => {
+    if (!offerForm.title.trim()) { setError("Offer title is required."); return; }
+    run(
+      () => createOffer(token, restaurant.id, {
+        title: offerForm.title.trim(),
+        description: offerForm.description.trim() || undefined,
+        discountPercent: offerForm.discountPercent === "" ? null : Number(offerForm.discountPercent),
+        startDate: offerForm.startDate || null,
+        endDate: offerForm.endDate || null,
+        startTime: offerForm.startTime || null,
+        endTime: offerForm.endTime || null,
+        minimumGuests: offerForm.minimumGuests === "" ? null : Number(offerForm.minimumGuests),
+        maximumGuests: offerForm.maximumGuests === "" ? null : Number(offerForm.maximumGuests),
+        isActive: true,
+      }),
+      "Offer created."
+    ).then(ok => { if (ok) setOfferForm({ title:"", description:"", discountPercent:"", startDate:"", endDate:"", startTime:"", endTime:"", minimumGuests:"", maximumGuests:"" }); });
+  };
+
   const addEvent = () => {
     if (!eventForm.title.trim()) return;
     run(
@@ -316,7 +345,8 @@ export default function SkupManager() {
             ["menu","Menu"],
             ["hours","Opening hours"],
             ["events","Events"],
-    ["photos","Photos"],
+            ["offers","Offers"],
+            ["photos","Photos"],
           ].map(([key,label]) => <button key={key} className={tab===key ? "active" : ""} onClick={() => setTab(key as typeof tab)}>{label}</button>)}
         </nav>
 
@@ -446,6 +476,27 @@ export default function SkupManager() {
                 </div>
               ))}
               {!restaurant.photos?.length ? <div className="empty-state">No photos have been added yet.</div> : null}
+            </div>
+          </section>
+        ) : null}
+
+        {tab === "offers" ? (
+          <section className="manager-panel">
+            <div className="section-head"><div><span className="kicker">PROMOTIONS</span><h2>Restaurant offers</h2><p className="manager-section-note">Create time-bound offers that appear on customer restaurant pages.</p></div></div>
+            <div className="manager-form-grid offer-manager-grid">
+              <input value={offerForm.title} onChange={e=>setOfferForm({...offerForm,title:e.target.value})} placeholder="Offer title"/>
+              <input value={offerForm.discountPercent} onChange={e=>setOfferForm({...offerForm,discountPercent:e.target.value.replace(/\D/g,"").slice(0,2)})} placeholder="Discount %" inputMode="numeric"/>
+              <input value={offerForm.startDate} onChange={e=>setOfferForm({...offerForm,startDate:e.target.value})} type="date"/>
+              <input value={offerForm.endDate} onChange={e=>setOfferForm({...offerForm,endDate:e.target.value})} type="date"/>
+              <input value={offerForm.startTime} onChange={e=>setOfferForm({...offerForm,startTime:e.target.value})} type="time"/>
+              <input value={offerForm.endTime} onChange={e=>setOfferForm({...offerForm,endTime:e.target.value})} type="time"/>
+              <input value={offerForm.minimumGuests} onChange={e=>setOfferForm({...offerForm,minimumGuests:e.target.value.replace(/\D/g,"").slice(0,2)})} placeholder="Min guests"/>
+              <input value={offerForm.maximumGuests} onChange={e=>setOfferForm({...offerForm,maximumGuests:e.target.value.replace(/\D/g,"").slice(0,2)})} placeholder="Max guests"/>
+              <textarea value={offerForm.description} onChange={e=>setOfferForm({...offerForm,description:e.target.value})} placeholder="Offer description"/>
+              <button className="green-btn small" onClick={addOffer}><Plus size={14}/> Create offer</button>
+            </div>
+            <div className="manager-offer-list">
+              {offers.length ? offers.map(offer => <div className="manager-offer-row" key={offer.id}><div><strong>{offer.title}</strong><span>{offer.discountPercent ? "-"+offer.discountPercent+"%" : "Special offer"}{offer.startDate ? " · "+offer.startDate : ""}{offer.endDate ? " → "+offer.endDate : ""}</span>{offer.description ? <small>{offer.description}</small> : null}</div><span className={"status "+(offer.isActive ? "status-confirmed" : "status-cancelled")}>{offer.isActive ? "active" : "inactive"}</span><button className="red-mini" onClick={()=>run(()=>deleteOffer(token,offer.id),"Offer deleted.")}><Trash2 size={13}/></button></div>) : <div className="empty-state"><h3>No offers yet</h3><p>Create your first customer-facing promotion above.</p></div>}
             </div>
           </section>
         ) : null}
