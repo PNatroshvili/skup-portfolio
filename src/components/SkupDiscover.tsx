@@ -161,13 +161,17 @@ export default function SkupDiscover(){
     const requestedSort=params.get("sort");
     if (requestedSort==="name" || requestedSort==="discount" || requestedSort==="distance") setSort(requestedSort);
     setSearchReady(true);
-    Promise.all([getCuisines(),getCollections(),getRestaurants({city:"თბილისი",page:1,limit:200})])
+    Promise.allSettled([getCuisines(),getCollections(),getRestaurants({city:"თბილისი",page:1,limit:200})])
       .then(([c,col,r])=>{
-        setCuisines((c||[]).sort((a,b)=>(a.name||"").localeCompare(b.name||"")));
-        setCollections((col||[]).filter(x=>x.isActive).sort((a,b)=>a.sortOrder-b.sortOrder));
-        setRestaurants(r.data||[]);
-        setSelected(r.data?.[0]?.id||"");      })
-      .catch(()=>setError("Restaurants could not be loaded right now."))
+        if(c.status==="fulfilled") setCuisines((c.value||[]).sort((a,b)=>(a.name||"").localeCompare(b.name||"")));
+        if(col.status==="fulfilled") setCollections((col.value||[]).filter(x=>x.isActive).sort((a,b)=>a.sortOrder-b.sortOrder));
+        if(r.status==="fulfilled"){
+          setRestaurants(r.value.data||[]);
+          setSelected(r.value.data?.[0]?.id||"");
+        }else{
+          setError("Restaurants could not be loaded right now.");
+        }
+      })
       .finally(()=>setLoading(false));
   },[]);
 
@@ -584,7 +588,7 @@ export default function SkupDiscover(){
                       <span className="discover-card-rating"><Star size={12} fill="currentColor"/> {Number(r.ratingAvg||0).toFixed(1)} <small>({r.reviewsCount || 0})</small></span>
                     </div>
                     <div className="discover-card-meta">
-                      <span>{r.cuisine?.name || "Restaurant"}</span><span>·</span><span>{"₾".repeat(Math.max(1,Math.min(3,Number((r as any).priceLevel)||1)))}</span>{distance !== null ? <><span>·</span><span>{distance.toFixed(1)} km</span></> : null}
+                      <span>{r.cuisine?.name || "Restaurant"}</span>{(r.priceLevel || Number.isFinite(Number(r.avgMenuPrice)) ? <><span>·</span><span>{"₾".repeat(Math.max(1,Math.min(3,Number(r.priceLevel || (Number(r.avgMenuPrice)<15 ? "1" : Number(r.avgMenuPrice)<30 ? "2" : "3")))))}</span></> : null)}{distance !== null ? <><span>·</span><span>{distance.toFixed(1)} km</span></> : null}
                     </div>
                     {r.description ? <p>{r.description}</p> : <p>{r.address}</p>}
                     <div className="discover-card-tags">
