@@ -89,6 +89,9 @@ export default function SkupHeader({
         <div className="skup-mobile-nav">
           <Link href="/discover/" onClick={() => setOpen(false)}><Search size={17}/> Discover</Link>
           <Link href="/discover/#map" onClick={() => setOpen(false)}><Map size={17}/> Map</Link>
+          <Link href="/discover/?is_open=true" onClick={() => setOpen(false)}>Tonight</Link>
+          <Link href="/discover/#collections" onClick={() => setOpen(false)}>Collections</Link>
+          <Link href="/journal/" onClick={() => setOpen(false)}>Journal</Link>
           <Link href="/bookings/" onClick={() => setOpen(false)}>My bookings</Link>
           <Link href="/favorites/" onClick={() => setOpen(false)}>Favorites</Link>
           <Link href="/rewards/" onClick={() => setOpen(false)}>Rewards</Link>
