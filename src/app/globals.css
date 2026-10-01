@@ -1995,3 +1995,122 @@ h3{font-weight:600}
   .discover-app .more-popover{width:min(290px,calc(100vw - 32px))}
   .discover-app .sort-popover{right:0}
 }
+
+/* LUKMA global interaction motion — soft, consistent feedback everywhere */
+:root{
+  --motion-fast:180ms;
+  --motion-base:220ms;
+  --motion-slow:320ms;
+  --ease-soft:cubic-bezier(.22,.75,.24,1);
+  --ease-spring:cubic-bezier(.2,.8,.2,1);
+}
+
+a,
+button,
+[role="button"]{
+  -webkit-tap-highlight-color:transparent;
+  transition:
+    color var(--motion-base) var(--ease-soft),
+    background-color var(--motion-base) var(--ease-soft),
+    border-color var(--motion-base) var(--ease-soft),
+    box-shadow var(--motion-base) var(--ease-soft),
+    opacity var(--motion-fast) var(--ease-soft),
+    transform var(--motion-fast) var(--ease-spring);
+}
+
+button:active,
+a:active,
+[role="button"]:active{
+  transform:translateY(1px) scale(.985);
+}
+
+button:disabled,
+[role="button"][aria-disabled="true"]{
+  transition:opacity var(--motion-fast) var(--ease-soft);
+}
+
+:focus-visible{
+  outline:2px solid rgba(20,122,82,.48);
+  outline-offset:3px;
+  transition:outline-color var(--motion-fast) var(--ease-soft),outline-offset var(--motion-fast) var(--ease-soft);
+}
+
+.skup-mobile-nav,
+.filter-popover,
+.map-focus-card,
+.map-selected-card{
+  animation:lukma-soft-enter var(--motion-base) var(--ease-soft) both;
+  transform-origin:top center;
+}
+
+@keyframes lukma-soft-enter{
+  from{opacity:0;transform:translateY(-5px) scale(.985)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+
+.hero-search,
+.search-segment,
+.discover-search,
+.booking-card input,
+.booking-card textarea,
+.stepper,
+.time-grid button{
+  transition:
+    border-color var(--motion-base) var(--ease-soft),
+    background-color var(--motion-base) var(--ease-soft),
+    box-shadow var(--motion-base) var(--ease-soft),
+    color var(--motion-base) var(--ease-soft);
+}
+
+input,
+textarea,
+select{
+  transition:
+    border-color var(--motion-base) var(--ease-soft),
+    background-color var(--motion-base) var(--ease-soft),
+    box-shadow var(--motion-base) var(--ease-soft);
+}
+
+input:focus,
+textarea:focus,
+select:focus{
+  border-color:rgba(20,122,82,.38);
+  box-shadow:0 0 0 3px rgba(20,122,82,.08);
+}
+
+.discover-app .filter-chip,
+.discover-app .filter-icon-button,
+.discover-app .sort-button,
+.discover-app .map-controls button,
+.discover-app .map-strip-arrow,
+.discover-app .map-strip-card,
+.discover-app .discover-card-wrap,
+.discover-app .map-focus-button,
+.discover-app .map-focus-close,
+.discover-app .map-search-toggle{
+  transition:
+    transform var(--motion-fast) var(--ease-spring),
+    color var(--motion-base) var(--ease-soft),
+    background-color var(--motion-base) var(--ease-soft),
+    border-color var(--motion-base) var(--ease-soft),
+    box-shadow var(--motion-base) var(--ease-soft),
+    opacity var(--motion-fast) var(--ease-soft);
+}
+
+.discover-app .map-strip-card:active,
+.discover-app .map-controls button:active,
+.discover-app .map-strip-arrow:active{
+  transform:scale(.965);
+}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,
+  *::before,
+  *::after{
+    scroll-behavior:auto !important;
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+  }
+}
