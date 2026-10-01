@@ -83,12 +83,24 @@ export default function SkupAccount() {
 
   const loadAccount = async (accessToken: string) => {
     const activeToken = typeof window !== "undefined" ? localStorage.getItem("skup_access_token") || accessToken : accessToken;
-    const [u,b,f,l] = await Promise.all([
+    const [userResult, bookingsResult, favoritesResult, loyaltyResult] = await Promise.allSettled([
       getMe(activeToken),
-      getMyBookings(activeToken).catch(() => []),
-      getFavorites(activeToken).catch(() => []),
-      getLoyalty(activeToken).catch(() => null),
+      getMyBookings(activeToken),
+      getFavorites(activeToken),
+      getLoyalty(activeToken),
     ]);
+    if (userResult.status !== "fulfilled") throw userResult.reason;
+
+    const u = userResult.value;
+    const b = bookingsResult.status === "fulfilled" ? bookingsResult.value : [];
+    const f = favoritesResult.status === "fulfilled" ? favoritesResult.value : [];
+    const l = loyaltyResult.status === "fulfilled" ? loyaltyResult.value : null;
+    const partialFailures = [
+      bookingsResult.status !== "fulfilled" ? "bookings" : "",
+      favoritesResult.status !== "fulfilled" ? "favorites" : "",
+      loyaltyResult.status !== "fulfilled" ? "rewards" : "",
+    ].filter(Boolean);
+
     setUser(u);
     setBookings((b || []) as Booking[]);
     setFavorites(f || []);
@@ -97,6 +109,7 @@ export default function SkupAccount() {
     setLastName(String(u?.lastName ?? ""));
     setPhone(String(u?.phone ?? ""));
     setProfileEmail(String(u?.email ?? ""));
+    setNotice(partialFailures.length ? "Some account data could not be loaded. Please refresh to retry." : "");
   };
 
   useEffect(() => {
