@@ -64,6 +64,17 @@ export type RestaurantEvent = {
   isActive: boolean;
 };
 
+export type UserNotification = {
+  id: string;
+  userId: string;
+  title: string;
+  body: string;
+  type: string;
+  data?: Record<string, unknown> | null;
+  readAt?: string | null;
+  createdAt: string;
+};
+
 export type RestaurantOffer = {
   id: string;
   restaurantId: string;
@@ -688,4 +699,17 @@ export async function removeFavorite(token: string, restaurantId: string) {
     method: "DELETE",
     headers: { Authorization: "Bearer " + token },
   });
+}
+
+
+export async function getNotifications(token: string) {
+  return request<{ data: UserNotification[]; unreadCount: number }>("/notifications", { headers: { Authorization: "Bearer " + token } });
+}
+
+export async function markNotificationRead(token: string, id: string) {
+  return request<UserNotification>("/notifications/" + encodeURIComponent(id) + "/read", { method: "PATCH", headers: { Authorization: "Bearer " + token } });
+}
+
+export async function markAllNotificationsRead(token: string) {
+  return request<{ ok: boolean }>("/notifications/read-all", { method: "PATCH", headers: { Authorization: "Bearer " + token } });
 }
