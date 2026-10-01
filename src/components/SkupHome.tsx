@@ -23,8 +23,9 @@ export default function SkupHome() {
       getRestaurants({ city: "თბილისი", page: 1, limit: 200 }),
       getCuisines(),
       getCollections(),
+      getOffers({ date: new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Tbilisi" }), guests: 2 }),
     ])
-      .then(([r, c, col]) => {
+      .then(([r, c, col, offerResult]) => {
         if (r.status === "fulfilled") {
           setRestaurants(r.value.data || []);
         } else {
@@ -79,7 +80,7 @@ export default function SkupHome() {
         </section>
         {restaurants.some(r => Number(r.discountPercent) > 0) ? <section className="section shell">
           <div className="section-head"><div><span className="kicker">Save on your table</span><h2>Best offers</h2></div><Link href="/discover/?offers=true">All offers <ArrowRight size={15}/></Link></div>
-          <div className="restaurant-grid four">{restaurants.filter(r => Number(r.discountPercent) > 0).sort((a,b) => Number(b.discountPercent||0) - Number(a.discountPercent||0)).slice(0,4).map(r => <RestaurantCard key={r.id} restaurant={r}/>)}</div>
+          <div className="restaurant-grid four">{restaurants.filter(r => Number(r.discountPercent) > 0 || offers.some(o => o.restaurantId === r.id)).sort((a,b) => Math.max(Number(b.discountPercent||0), Number(offers.find(o=>o.restaurantId===b.id)?.discountPercent||0)) - Math.max(Number(a.discountPercent||0), Number(offers.find(o=>o.restaurantId===a.id)?.discountPercent||0))).slice(0,4).map(r => <RestaurantCard key={r.id} restaurant={r}/>)}</div>
         </section> : null}
 
         {cuisines.length ? <section className="section section-soft">
