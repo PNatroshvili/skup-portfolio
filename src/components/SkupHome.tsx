@@ -86,7 +86,7 @@ export default function SkupHome() {
           <div className="journal-feature">{trending[1] ? <img src={restaurantPhoto(trending[1])} alt="" /> : <div className="journal-image-fallback"/>}<div className="journal-feature-copy"><span>Guide</span><h3>Places worth your next evening</h3><p>LUKMA · curated for you</p></div></div>
         </div></section>
       </main>
-      <footer className="skup-footer"><div className="shell"><div className="footer-brand">LUKMA<span>.</span></div><div><Link href="/about/">About</Link> · <Link href="/privacy/">Privacy</Link> · <Link href="/terms/">Terms</Link></div><div>Tbilisi, Georgia</div><div>© {new Date().getFullYear()} LUKMA</div></div></footer>
+      <footer className="skup-footer"><div className="shell"><div className="footer-brand"><img src="/lukma-logo.svg" alt="LUKMA" /><span>LUKMA</span></div><div><Link href="/about/">About</Link> · <Link href="/privacy/">Privacy</Link> · <Link href="/terms/">Terms</Link></div><div>Tbilisi, Georgia</div><div>© {new Date().getFullYear()} LUKMA</div></div></footer>
     </div>
   );
 }
