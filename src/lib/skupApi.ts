@@ -199,6 +199,28 @@ export async function getOffers(params: { restaurantId?: string; date?: string; 
   return request<RestaurantOffer[]>("/offers" + query);
 }
 
+export async function getMyOffers(token: string) {
+  return request<RestaurantOffer[]>("/offers/mine", { headers: { Authorization: "Bearer " + token } });
+}
+
+export async function createOffer(token: string, restaurantId: string, payload: Partial<RestaurantOffer> & { title: string }) {
+  return request<RestaurantOffer>("/offers/" + encodeURIComponent(restaurantId), {
+    method: "POST", headers: { Authorization: "Bearer " + token }, body: JSON.stringify(payload),
+  });
+}
+
+export async function updateOffer(token: string, offerId: string, payload: Partial<RestaurantOffer>) {
+  return request<RestaurantOffer>("/offers/" + encodeURIComponent(offerId), {
+    method: "PATCH", headers: { Authorization: "Bearer " + token }, body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteOffer(token: string, offerId: string) {
+  return request<{ ok: boolean }>("/offers/" + encodeURIComponent(offerId), {
+    method: "DELETE", headers: { Authorization: "Bearer " + token },
+  });
+}
+
 export async function getCuisines() {
   return request<Cuisine[]>("/cuisines");
 }
