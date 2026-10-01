@@ -60,7 +60,7 @@ export default function SkupChat(){
         socket=mod.io("https://api.skup.ge/chat",{transports:["websocket"],path:"/socket.io",auth:{token:authToken}});
         socket.emit("joinBookingRoom",bookingId);
         socket.on("newMessage",(msg:ChatMessage)=>setMessages(prev=>prev.some(x=>x.id===msg.id)?prev:[...prev,msg]));
-      }catch{}
+      }catch(e){ if(!disposed) setError(e instanceof Error ? e.message : "Could not connect to the booking chat."); }
     })();
     return()=>{disposed=true;if(socket)socket.disconnect();};
   },[bookingId,userId,authToken]);
@@ -100,6 +100,7 @@ export default function SkupChat(){
   };
 
   if(!bookingId) return <div className="skup-site"><SkupHeader/><main className="shell page-loading"><h2>Choose a booking first</h2><Link href="/bookings/">Back to bookings</Link></main></div>;
+  if(!authToken) return <div className="skup-site"><SkupHeader/><main className="shell page-loading"><h2>Sign in to open your booking chat.</h2><p>Your reservation conversation is available after signing in.</p><Link href="/account/?mode=login" className="green-btn">Log in</Link></main></div>;
 
   return <div className="skup-site"><SkupHeader/><main className="shell chat-page">
     <div className="chat-head"><Link href="/bookings/" className="back-link"><ArrowLeft size={15}/> Back</Link><div><span className="kicker">BOOKING CHAT</span><h1>{restaurant}</h1><p>Message the restaurant about your reservation.</p></div></div>
