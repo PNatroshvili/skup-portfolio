@@ -47,6 +47,9 @@ export type MenuCategory = {
 export type Review = {
   id: string;
   rating: number;
+  foodRating?: number | null;
+  serviceRating?: number | null;
+  ambienceRating?: number | null;
   comment?: string | null;
   reviewerName?: string | null;
   reviewerAvatar?: string | null;
@@ -184,7 +187,7 @@ export async function getMenu(id: string) {
   return request<MenuCategory[]>("/restaurants/" + encodeURIComponent(id) + "/menu");
 }
 
-export async function createReview(token: string, payload: { restaurant_id: string; rating: number; comment?: string }) {
+export async function createReview(token: string, payload: { restaurant_id: string; rating: number; food_rating?: number; service_rating?: number; ambience_rating?: number; comment?: string }) {
   return request<any>("/reviews", {
     method: "POST",
     headers: { Authorization: "Bearer " + token },
