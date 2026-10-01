@@ -77,6 +77,22 @@ export default function SkupHome() {
             {loading ? Array.from({length:4}).map((_, i) => <div className="restaurant-skeleton" key={i}/>) : trending.length ? trending.map(r => <RestaurantCard key={r.id} restaurant={r}/>) : <div className="home-empty">No restaurants available right now.</div>}
           </div>
         </section>
+        {restaurants.some(r => Number(r.discountPercent) > 0) ? <section className="section shell">
+          <div className="section-head"><div><span className="kicker">Save on your table</span><h2>Best offers</h2></div><Link href="/discover/?offers=true">All offers <ArrowRight size={15}/></Link></div>
+          <div className="restaurant-grid four">{restaurants.filter(r => Number(r.discountPercent) > 0).sort((a,b) => Number(b.discountPercent||0) - Number(a.discountPercent||0)).slice(0,4).map(r => <RestaurantCard key={r.id} restaurant={r}/>)}</div>
+        </section> : null}
+
+        {cuisines.length ? <section className="section section-soft">
+          <div className="shell">
+            <div className="section-head"><div><span className="kicker">Explore by taste</span><h2>Cuisines</h2></div><Link href="/discover/">Explore <ArrowRight size={15}/></Link></div>
+            <div className="home-cuisine-row">{cuisines.slice(0,10).map(c => <Link key={c.id} href={"/discover/?cuisine_id="+encodeURIComponent(c.id)} className="home-cuisine-card"><span>{c.icon || "🍽️"}</span><strong>{c.name}</strong><small>Explore</small></Link>)}</div>
+          </div>
+        </section> : null}
+
+        {restaurants.some(r => r.isOpen) ? <section className="section shell">
+          <div className="section-head"><div><span className="kicker">Right now</span><h2>Open now</h2></div><Link href="/discover/?is_open=true">See all <ArrowRight size={15}/></Link></div>
+          <div className="restaurant-grid four">{restaurants.filter(r => r.isOpen).slice(0,4).map(r => <RestaurantCard key={r.id} restaurant={r}/>)}</div>
+        </section> : null}
 
         {recent.length ? <section className="section shell">
           <div className="section-head"><div><span className="kicker">Welcome back</span><h2>Recently viewed</h2></div><Link href="/discover/">Discover more <ArrowRight size={15}/></Link></div>
