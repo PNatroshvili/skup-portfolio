@@ -43,18 +43,6 @@ export function clearRecentlyViewed() {
   try { localStorage.removeItem(RECENT_KEY); } catch {}
 }
 
-function tbilisiNowParts() {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: "Asia/Tbilisi",
-    weekday: "short",
-    hour: "numeric",
-    hour12: false,
-  }).formatToParts(new Date());
-  const hour = Number(parts.find(part => part.type === "hour")?.value || 0);
-  const weekday = parts.find(part => part.type === "weekday")?.value || "";
-  return { hour, weekend: weekday === "Sat" || weekday === "Sun" };
-}
-
 export function bookingTimestamp(date: string, time: string) {
   const [y, m, d] = date.split("-").map(Number);
   const [hh, mm] = time.split(":").map(Number);
