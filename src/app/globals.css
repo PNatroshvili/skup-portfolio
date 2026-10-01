@@ -3038,3 +3038,7 @@ button,input,textarea,select{outline-color:var(--lukma-brand)}
 .manager-waitlist-row span{font-size:9px;color:#777d78}
 .manager-waitlist-row select{height:34px;border:1px solid var(--lukma-line);border-radius:8px;background:#faf9f6;font-size:9px;padding:0 8px}
 @media(max-width:640px){.manager-waitlist-row{grid-template-columns:1fr auto}.manager-waitlist-row select{grid-column:2;grid-row:1 / span 2}}
+
+.home-availability-times{display:flex;gap:5px;margin-top:7px}
+.home-availability-times a{flex:1;min-height:30px;display:grid;place-items:center;border-radius:8px;border:1px solid rgba(211,88,57,.22);background:#fff;color:var(--lukma-brand-dark);font-size:9px;font-weight:800}
+.home-availability-times a:hover{background:var(--lukma-brand-soft);border-color:rgba(211,88,57,.35)}
