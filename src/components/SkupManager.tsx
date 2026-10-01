@@ -24,6 +24,7 @@ import {
   type Restaurant,
   type RestaurantEvent,
   type RestaurantOffer,
+  type WaitlistEntry,
   updateBookingStatus,
   updateMenuItem,
   uploadMenuItemPhoto,
@@ -58,7 +59,8 @@ export default function SkupManager() {
   const [bookings, setBookings] = useState<ManagerBooking[]>([]);
   const [events, setEvents] = useState<RestaurantEvent[]>([]);
   const [offers, setOffers] = useState<RestaurantOffer[]>([]);
-  const [tab, setTab] = useState<"overview"|"bookings"|"menu"|"hours"|"events"|"photos"|"offers">("overview");
+  const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([]);
+  const [tab, setTab] = useState<"overview"|"bookings"|"menu"|"hours"|"events"|"photos"|"offers"|"waitlist">("overview");
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
@@ -91,10 +93,13 @@ export default function SkupManager() {
     if (bookingsResult.status !== "fulfilled") setError("Restaurant loaded, but bookings could not be refreshed.");
     if (eventsResult.status !== "fulfilled") setError(prev => prev || "Restaurant loaded, but events could not be refreshed.");
     if (offersResult.status !== "fulfilled") setError(prev => prev || "Restaurant loaded, but offers could not be refreshed.");
+    let waitlistRows: WaitlistEntry[] = [];
+    try { if (r?.id) waitlistRows = await getRestaurantWaitlist(activeToken, r.id); } catch { setError(prev => prev || "Restaurant loaded, but waitlist could not be refreshed."); }
     setRestaurant(r);
     setBookings((b || []) as ManagerBooking[]);
     setEvents(e || []);
     setOffers(o || []);
+    setWaitlist(waitlistRows || []);
     setForm({
       name: r?.name || "",
       description: r?.description || "",
@@ -346,6 +351,7 @@ export default function SkupManager() {
             ["hours","Opening hours"],
             ["events","Events"],
             ["offers","Offers"],
+            ["waitlist","Waitlist"],
             ["photos","Photos"],
           ].map(([key,label]) => <button key={key} className={tab===key ? "active" : ""} onClick={() => setTab(key as typeof tab)}>{label}</button>)}
         </nav>
@@ -477,6 +483,19 @@ export default function SkupManager() {
               ))}
               {!restaurant.photos?.length ? <div className="empty-state">No photos have been added yet.</div> : null}
             </div>
+          </section>
+        ) : null}
+
+        {tab === "waitlist" ? (
+          <section className="manager-panel">
+            <div className="section-head"><div><span className="kicker">WAITLIST</span><h2>Waiting guests</h2><p className="manager-section-note">Guests who asked to be notified when a table becomes available.</p></div></div>
+            {waitlist.length ? waitlist.map(entry => <div className="manager-waitlist-row" key={entry.id}>
+              <div><strong>{entry.date}</strong><span>{entry.timeFrom || "Any time"}{entry.timeTo ? " → " + entry.timeTo : ""}</span></div>
+              <div><strong>{entry.guestsCount} guests</strong><span>{entry.status}</span></div>
+              <select value={entry.status} onChange={e=>run(()=>updateWaitlistStatus(token,entry.id,e.target.value as "waiting"|"notified"|"booked"|"cancelled"|"expired"),"Waitlist updated.")}>
+                <option value="waiting">waiting</option><option value="notified">notified</option><option value="booked">booked</option><option value="cancelled">cancelled</option><option value="expired">expired</option>
+              </select>
+            </div>) : <div className="empty-state"><h3>No guests waiting</h3><p>When a booking is unavailable, customers can join your waiting list.</p></div>}
           </section>
         ) : null}
 
