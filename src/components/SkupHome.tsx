@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, CalendarDays, MapPin, Search, Sparkles, Users } from "lucide-react";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { getCollections, getCuisines, getRestaurants, type Cuisine, type Restaurant } from "@/lib/skupApi";
+import { getCollections, getCuisines, getOffers, getRestaurants, type Cuisine, type Restaurant, type RestaurantOffer } from "@/lib/skupApi";
 import { readRecentlyViewed, restaurantPhoto } from "@/lib/lukmaUtils";
 import RestaurantCard from "./SkupRestaurantCard";
 import SkupHeader from "./SkupHeader";
@@ -12,6 +12,7 @@ export default function SkupHome() {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [cuisines, setCuisines] = useState<Cuisine[]>([]);
   const [collections, setCollections] = useState<Awaited<ReturnType<typeof getCollections>>>([]);
+  const [offers, setOffers] = useState<RestaurantOffer[]>([]);
   const [recent, setRecent] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -36,6 +37,9 @@ export default function SkupHome() {
         }
         if (col.status === "fulfilled") {
           setCollections((col.value || []).filter(x => x.isActive).sort((a, b) => a.sortOrder - b.sortOrder));
+        }
+        if (offerResult.status === "fulfilled") {
+          setOffers((offerResult.value || []).filter(x => x.isActive));
         }
       })
       .finally(() => setLoading(false));
@@ -78,7 +82,7 @@ export default function SkupHome() {
             {loading ? Array.from({length:4}).map((_, i) => <div className="restaurant-skeleton" key={i}/>) : trending.length ? trending.map(r => <RestaurantCard key={r.id} restaurant={r}/>) : <div className="home-empty">No restaurants available right now.</div>}
           </div>
         </section>
-        {restaurants.some(r => Number(r.discountPercent) > 0) ? <section className="section shell">
+        {restaurants.some(r => Number(r.discountPercent) > 0) || offers.length > 0 ? <section className="section shell">
           <div className="section-head"><div><span className="kicker">Save on your table</span><h2>Best offers</h2></div><Link href="/discover/?offers=true">All offers <ArrowRight size={15}/></Link></div>
           <div className="restaurant-grid four">{restaurants.filter(r => Number(r.discountPercent) > 0 || offers.some(o => o.restaurantId === r.id)).sort((a,b) => Math.max(Number(b.discountPercent||0), Number(offers.find(o=>o.restaurantId===b.id)?.discountPercent||0)) - Math.max(Number(a.discountPercent||0), Number(offers.find(o=>o.restaurantId===a.id)?.discountPercent||0))).slice(0,4).map(r => <RestaurantCard key={r.id} restaurant={r}/>)}</div>
         </section> : null}
