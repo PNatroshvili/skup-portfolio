@@ -70,11 +70,17 @@ export default function SkupManager() {
 
   const reload = async (t: string) => {
     const activeToken = typeof window !== "undefined" ? localStorage.getItem("skup_access_token") || t : t;
-    const [r,b,e] = await Promise.all([
+    const [restaurantResult, bookingsResult, eventsResult] = await Promise.allSettled([
       getMyRestaurant(activeToken),
       getMyRestaurantBookings(activeToken),
-      getMyRestaurantEvents(activeToken).catch(() => []),
+      getMyRestaurantEvents(activeToken),
     ]);
+    if (restaurantResult.status !== "fulfilled") throw restaurantResult.reason;
+    const r = restaurantResult.value;
+    const b = bookingsResult.status === "fulfilled" ? bookingsResult.value : [];
+    const e = eventsResult.status === "fulfilled" ? eventsResult.value : [];
+    if (bookingsResult.status !== "fulfilled") setError("Restaurant loaded, but bookings could not be refreshed.");
+    if (eventsResult.status !== "fulfilled") setError(prev => prev || "Restaurant loaded, but events could not be refreshed.");
     setRestaurant(r);
     setBookings((b || []) as ManagerBooking[]);
     setEvents(e || []);
@@ -409,14 +415,14 @@ export default function SkupManager() {
           <section className="manager-panel">
             <div className="section-head"><div><span className="kicker">GALLERY</span><h2>Gallery management</h2></div></div>
             <div className="manager-photo-upload">
-              <label className="photo-upload-button">+ + Add photo
+              <label className="photo-upload-button">+ Add photo
                 <input type="file" accept="image/jpeg,image/png,image/webp" disabled={photoBusy} onChange={e => {
                   const file = e.target.files?.[0];
                   if (file) uploadPhoto(file, false);
                   e.currentTarget.value = "";
                 }} />
               </label>
-              <label className="photo-upload-button">+ + Change cover photo
+              <label className="photo-upload-button">Change cover photo
                 <input type="file" accept="image/jpeg,image/png,image/webp" disabled={photoBusy} onChange={e => {
                   const file = e.target.files?.[0];
                   if (file) uploadPhoto(file, true);
