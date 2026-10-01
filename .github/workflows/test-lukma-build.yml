@@ -2,7 +2,7 @@ name: Lukma Web Build Check
 
 on:
   push:
-    branches: ["feat/skup-web-platform-v1"]
+    branches: ["feat/skup-web-platform-v1", "feat/lukma-thefork-upgrade-v2"]
   workflow_dispatch:
   pull_request:
     branches: ["main"]
