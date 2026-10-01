@@ -64,6 +64,7 @@ export default function SkupHeader({
           <Link className={activeNav === "discover" ? "active" : ""} href="/discover/">Discover</Link>
           <Link className={activeNav === "map" ? "active" : ""} href="/discover/#map">Map</Link>
           <Link className={activeNav === "tonight" ? "active" : ""} href="/discover/?is_open=true">Tonight</Link>
+          <Link className={activeNav === "offers" ? "active" : ""} href="/discover/?offers=true">Offers</Link>
           <Link className={activeNav === "collections" ? "active" : ""} href="/discover/#collections">Collections</Link>
           <Link href="/journal/">Journal</Link>
         </nav>
@@ -90,6 +91,7 @@ export default function SkupHeader({
           <Link href="/discover/" onClick={() => setOpen(false)}><Search size={17}/> Discover</Link>
           <Link href="/discover/#map" onClick={() => setOpen(false)}><Map size={17}/> Map</Link>
           <Link href="/discover/?is_open=true" onClick={() => setOpen(false)}>Tonight</Link>
+          <Link href="/discover/?offers=true" onClick={() => setOpen(false)}>Offers</Link>
           <Link href="/discover/#collections" onClick={() => setOpen(false)}>Collections</Link>
           <Link href="/journal/" onClick={() => setOpen(false)}>Journal</Link>
           <Link href="/bookings/" onClick={() => setOpen(false)}>My bookings</Link>
