@@ -24,6 +24,7 @@ import {
   type Restaurant,
   type RestaurantEvent,
   type RestaurantOffer,
+  type Review,
   type WaitlistEntry,
   updateBookingStatus,
   updateMenuItem,
@@ -60,10 +61,13 @@ export default function SkupManager() {
   const [events, setEvents] = useState<RestaurantEvent[]>([]);
   const [offers, setOffers] = useState<RestaurantOffer[]>([]);
   const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([]);
+  const [managerReviews, setManagerReviews] = useState<Review[]>([]);
+  const [replyReviewId, setReplyReviewId] = useState<string | null>(null);
+  const [replyDraft, setReplyDraft] = useState('');
   const [analytics, setAnalytics] = useState<import('@/lib/skupApi').ManagerAnalytics | null>(null);
   const [tables, setTables] = useState<RestaurantTable[]>([]);
   const [tableForm, setTableForm] = useState({ name:"", capacity:"2", shape:"square" as RestaurantTable["shape"], zone:"" });
-  const [tab, setTab] = useState<"overview"|"bookings"|"menu"|"hours"|"events"|"photos"|"offers"|"waitlist"|"tables">("overview");
+  const [tab, setTab] = useState<"overview"|"bookings"|"menu"|"hours"|"events"|"photos"|"offers"|"waitlist"|"tables"|"reviews">("overview");
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
@@ -103,12 +107,15 @@ export default function SkupManager() {
     try { if (r?.id) waitlistRows = await getRestaurantWaitlist(activeToken, r.id); } catch { setError(prev => prev || "Restaurant loaded, but waitlist could not be refreshed."); }
     let tableRows: RestaurantTable[] = [];
     try { if (r?.id) tableRows = await getRestaurantTables(activeToken, r.id); } catch { setError(prev => prev || "Restaurant loaded, but tables could not be refreshed."); }
+    let reviewRows: Review[] = [];
+    try { if (r?.id) reviewRows = await getReviews(r.id); } catch { setError(prev => prev || "Restaurant loaded, but reviews could not be refreshed."); }
     setRestaurant(r);
     setBookings((b || []) as ManagerBooking[]);
     setEvents(e || []);
     setOffers(o || []);
     setWaitlist(waitlistRows || []);
     setTables(tableRows || []);
+    setManagerReviews(reviewRows || []);
     setAnalytics(a);
     setForm({
       name: r?.name || "",
@@ -301,6 +308,13 @@ export default function SkupManager() {
     }
   };
 
+  const sendReviewReply = (reviewId: string) => {
+    if (!replyDraft.trim()) { setError("Reply cannot be empty."); return; }
+    run(() => replyToReview(token, reviewId, replyDraft.trim()), "Review response sent.").then(ok => {
+      if (ok) { setReplyReviewId(null); setReplyDraft(""); }
+    });
+  };
+
   const addTable = () => {
     const name = tableForm.name.trim();
     const capacity = Number(tableForm.capacity);
@@ -375,6 +389,7 @@ export default function SkupManager() {
             ["offers","Offers"],
             ["waitlist","Waitlist"],
             ["tables","Tables"],
+            ["reviews","Reviews"],
             ["photos","Photos"],
           ].map(([key,label]) => <button key={key} className={tab===key ? "active" : ""} onClick={() => setTab(key as typeof tab)}>{label}</button>)}
         </nav>
@@ -514,6 +529,18 @@ export default function SkupManager() {
               ))}
               {!restaurant.photos?.length ? <div className="empty-state">No photos have been added yet.</div> : null}
             </div>
+          </section>
+        ) : null}
+
+        {tab === "reviews" ? (
+          <section className="manager-panel">
+            <div className="section-head"><div><span className="kicker">REVIEWS</span><h2>Customer reviews</h2><p className="manager-section-note">Reply directly to guests from the restaurant manager.</p></div></div>
+            {managerReviews.length ? <div className="manager-review-list">{managerReviews.slice(0,30).map(review => <div className="manager-review-row" key={review.id}>
+              <div className="manager-review-head"><strong>{review.user?.name || "Guest"}</strong><span>★ {Number(review.rating || 0).toFixed(1)} · {new Date(review.createdAt).toLocaleDateString("ka-GE")}</span></div>
+              {review.comment ? <p>{review.comment}</p> : <small>No comment.</small>}
+              {review.restaurantReply ? <div className="manager-existing-reply"><strong>Your response</strong><p>{review.restaurantReply}</p></div> : null}
+              {replyReviewId === review.id ? <div className="manager-reply-editor"><textarea value={replyDraft} maxLength={1000} onChange={e=>setReplyDraft(e.target.value)} placeholder="Write a helpful response…"/><div><button className="outline-btn small" onClick={()=>{setReplyReviewId(null);setReplyDraft("");}}>Cancel</button><button className="green-btn small" onClick={()=>sendReviewReply(review.id)} disabled={busy}>Reply</button></div></div> : <button className="outline-btn small" onClick={()=>{setReplyReviewId(review.id);setReplyDraft(review.restaurantReply || "");}}>Reply to review</button>}
+            </div>)}</div> : <div className="empty-state"><h3>No reviews yet</h3><p>Verified customer reviews will appear here.</p></div>}
           </section>
         ) : null}
 
