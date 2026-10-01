@@ -172,6 +172,18 @@ async function request<T>(path: string, init?: RequestInit, retry = true): Promi
   return response.json();
 }
 
+export async function getRecommended(limit = 12, geo?: { lat: number; lng: number }) {
+  const search = new URLSearchParams({ limit: String(limit) });
+  if (geo) { search.set("lat", String(geo.lat)); search.set("lng", String(geo.lng)); }
+  return request<(Restaurant & { recommendationReason?: string; recommendationScore?: number; distanceKm?: number | null })[]>("/restaurants/recommended?" + search.toString());
+}
+
+export async function getRecommendedForUser(token: string, limit = 12, geo?: { lat: number; lng: number }) {
+  const search = new URLSearchParams({ limit: String(limit) });
+  if (geo) { search.set("lat", String(geo.lat)); search.set("lng", String(geo.lng)); }
+  return request<(Restaurant & { recommendationReason?: string; recommendationScore?: number; distanceKm?: number | null })[]>("/restaurants/recommended/me?" + search.toString(), { headers: { Authorization: "Bearer " + token } });
+}
+
 export async function getRestaurants(params: Record<string, string | number | boolean | undefined> = {}) {
   const search = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {
