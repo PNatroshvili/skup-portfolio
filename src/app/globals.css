@@ -3031,3 +3031,10 @@ button,input,textarea,select{outline-color:var(--lukma-brand)}
 .booking-no-availability span{font-size:9px;line-height:1.5;color:#727872}
 .waitlist-web-btn{height:36px;border:0;border-radius:9px;background:var(--lukma-brand);color:#fff;font-size:10px;font-weight:800}
 .waitlist-web-btn:hover{background:var(--lukma-brand-dark)}
+
+.manager-waitlist-row{display:grid;grid-template-columns:1fr 1fr auto;align-items:center;gap:12px;padding:12px;border:1px solid var(--lukma-line);background:#fff;border-radius:11px;margin-bottom:7px}
+.manager-waitlist-row>div{display:grid;gap:3px}
+.manager-waitlist-row strong{font-size:11px}
+.manager-waitlist-row span{font-size:9px;color:#777d78}
+.manager-waitlist-row select{height:34px;border:1px solid var(--lukma-line);border-radius:8px;background:#faf9f6;font-size:9px;padding:0 8px}
+@media(max-width:640px){.manager-waitlist-row{grid-template-columns:1fr auto}.manager-waitlist-row select{grid-column:2;grid-row:1 / span 2}}
