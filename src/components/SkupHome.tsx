@@ -19,17 +19,24 @@ export default function SkupHome() {
 
   useEffect(() => {
     setRecent(readRecentlyViewed());
-    Promise.all([
+    Promise.allSettled([
       getRestaurants({ city: "თბილისი", page: 1, limit: 200 }),
       getCuisines(),
       getCollections(),
     ])
       .then(([r, c, col]) => {
-        setRestaurants(r.data || []);
-        setCuisines((c || []).sort((a,b) => (a.name || "").localeCompare(b.name || "")));
-        setCollections((col || []).filter(x => x.isActive).sort((a, b) => a.sortOrder - b.sortOrder));
+        if (r.status === "fulfilled") {
+          setRestaurants(r.value.data || []);
+        } else {
+          setLoadError("Restaurants are temporarily unavailable. Please try again.");
+        }
+        if (c.status === "fulfilled") {
+          setCuisines((c.value || []).sort((a,b) => (a.name || "").localeCompare(b.name || "")));
+        }
+        if (col.status === "fulfilled") {
+          setCollections((col.value || []).filter(x => x.isActive).sort((a, b) => a.sortOrder - b.sortOrder));
+        }
       })
-      .catch(() => setLoadError("Restaurants are temporarily unavailable. Please try again."))
       .finally(() => setLoading(false));
   }, []);
 
