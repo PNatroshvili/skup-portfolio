@@ -233,6 +233,20 @@ export async function getHomeConfig() {
   return request<{ id: number; sectionKey: string; titleKa: string; isActive: boolean; sortOrder: number }[]>("/home-config");
 }
 
+export type BookingRecord = {
+  id: string;
+  restaurantId: string;
+  userId: string;
+  date: string;
+  time: string;
+  guestsCount: number;
+  comment?: string | null;
+  offerId?: string | null;
+  discountPercentApplied?: number | null;
+  status: string;
+  restaurant?: { id: string; name: string; address: string; cover_photo?: string | null };
+};
+
 export type AvailabilitySlot = { time: string; available: boolean };
 export type Availability = {
   date: string;
@@ -338,7 +352,7 @@ export async function getMyRestaurant(token: string) {
 }
 
 export async function getMyRestaurantBookings(token: string) {
-  return request<any[]>("/bookings/my-restaurant", {
+  return request<BookingRecord[]>("/bookings/my-restaurant", {
     headers: { Authorization: "Bearer " + token },
   });
 }
@@ -491,7 +505,7 @@ export async function deleteRestaurantEvent(token: string, eventId: string) {
 }
 
 export async function getMyBookings(token: string) {
-  return request<any[]>("/bookings/my", {
+  return request<BookingRecord[]>("/bookings/my", {
     headers: { Authorization: "Bearer " + token },
   });
 }
