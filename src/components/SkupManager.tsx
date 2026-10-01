@@ -80,7 +80,7 @@ export default function SkupManager() {
 
   const reload = async (t: string) => {
     const activeToken = typeof window !== "undefined" ? localStorage.getItem("skup_access_token") || t : t;
-    const [restaurantResult, bookingsResult, eventsResult, offersResult] = await Promise.allSettled([
+    const [restaurantResult, bookingsResult, eventsResult, offersResult, analyticsResult] = await Promise.allSettled([
       getMyRestaurant(activeToken),
       getMyRestaurantBookings(activeToken),
       getMyRestaurantEvents(activeToken),
