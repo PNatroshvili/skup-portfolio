@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     siteName: "LUKMA",
     title: "LUKMA — Restaurants and bookings in Tbilisi",
     description: "Discover, save, and book.",
-    images: [{url:"/og-image.svg",width:1200,height:630,alt:"LUKMA"}],
+    images: [{url:"/og-image.svg",width:1200,height:630,alt:"LUKMA — restaurant discovery and bookings"}],
   },
 };
 
