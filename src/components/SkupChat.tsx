@@ -72,7 +72,6 @@ export default function SkupChat(){
     try{
       const mod=await import("socket.io-client");
       const socket=mod.io("https://api.skup.ge/chat",{transports:["websocket"],path:"/socket.io",auth:{token:authToken}});
-      const senderRole=String(JSON.parse(localStorage.getItem("skup_user")||"{}")?.role||"user");
       await new Promise<void>((resolve,reject)=>{
         let settled=false;
         const finish=(error?:Error)=>{
