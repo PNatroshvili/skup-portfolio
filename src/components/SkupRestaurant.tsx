@@ -13,6 +13,7 @@ import {
   getFavorites,
   getMenu,
   getOffers,
+  joinWaitlist,
   getRestaurant,
   getReviews,
   login,
@@ -76,6 +77,8 @@ export default function SkupRestaurant() {
   const [reviewMessage, setReviewMessage] = useState("");
   const [shareMessage, setShareMessage] = useState("");
   const [favoriteMessage, setFavoriteMessage] = useState("");
+  const [waitlistJoined, setWaitlistJoined] = useState(false);
+  const [waitlistBusy, setWaitlistBusy] = useState(false);
   const bookingSubmitRef = useRef(false);
 
   useEffect(() => {
@@ -264,6 +267,20 @@ export default function SkupRestaurant() {
     }
   }
 
+  async function joinWaitlistForDate() {
+    const token = localStorage.getItem("skup_access_token");
+    if (!token) { window.location.href = "/account/?mode=login"; return; }
+    if (waitlistBusy || waitlistJoined) return;
+    setWaitlistBusy(true);
+    setAvailabilityError("");
+    try {
+      await joinWaitlist(token, { restaurant_id: id, date, guests_count: guests });
+      setWaitlistJoined(true);
+    } catch (e) {
+      setAvailabilityError(e instanceof Error ? e.message : "Could not join the waitlist.");
+    } finally { setWaitlistBusy(false); }
+  }
+
   async function submitReview() {
     const token = localStorage.getItem("skup_access_token");
     if (!token) {
@@ -388,6 +405,7 @@ export default function SkupRestaurant() {
             {availabilityLoading ? <div className="time-loading">Loading available times…</div> :
               availability?.open === false ? <div className="time-empty">The restaurant is closed on this date.</div> :
               availableSlots.length && availability ? <div className="time-grid">{availability.slots.map(slot => <button key={slot.time} disabled={!slot.available} onClick={() => { setTime(slot.time); setAvailabilityError(""); }} className={slot.time===time ? "active":""}>{slot.time}</button>)}</div> :
+              (!availabilityLoading && availability?.open && availableSlots.length === 0) ? <div className="booking-no-availability"><strong>ამ დროს თავისუფალი მაგიდა აღარ არის.</strong><span>დაგვატოვე მოთხოვნა და თავისუფალი ადგილის გამოჩენისას შეგატყობინებთ.</span><button className="waitlist-web-btn" onClick={joinWaitlistForDate} disabled={waitlistBusy || waitlistJoined}>{waitlistBusy ? "მოთხოვნა იგზავნება…" : waitlistJoined ? "მოლოდინის სიაში ხარ ✓" : "მოლოდინის სიაში დამატება"}</button></div> :
               <div className="time-empty">No available times remain for this date.</div>}
             {availabilityError ? <div className="booking-inline-error">{availabilityError}</div> : null}
             <label className="booking-comment">Note<textarea value={comment} onChange={e => setComment(e.target.value.slice(0,200))} placeholder="Allergy, birthday, special request..." /></label>
