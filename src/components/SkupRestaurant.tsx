@@ -72,6 +72,7 @@ export default function SkupRestaurant() {
   const [reviewBusy, setReviewBusy] = useState(false);
   const [reviewMessage, setReviewMessage] = useState("");
   const [shareMessage, setShareMessage] = useState("");
+  const [favoriteMessage, setFavoriteMessage] = useState("");
   const bookingSubmitRef = useRef(false);
 
   useEffect(() => {
@@ -294,12 +295,12 @@ export default function SkupRestaurant() {
     const token = localStorage.getItem("skup_access_token");
     if (!token) { window.location.href = "/account/?mode=login"; return; }
     setFavoriteBusy(true);
-    setReviewMessage("");
+    setFavoriteMessage("");
     try {
       if (favorite) { await removeFavorite(token,id); setFavorite(false); }
       else { await addFavorite(token,id); setFavorite(true); }
     } catch(e) {
-      setReviewMessage(e instanceof Error ? e.message : "Could not update favorites.");
+      setFavoriteMessage(e instanceof Error ? e.message : "Could not update favorites.");
     } finally { setFavoriteBusy(false); }
   }
 
@@ -361,9 +362,10 @@ export default function SkupRestaurant() {
             <div className="restaurant-rating-line"><Star size={14} fill="currentColor"/><strong>{avg.toFixed(1)}</strong><span>({restaurant.reviewsCount} reviews)</span><span className="dot"/> <MapPin size={14}/><span>{restaurant.address}</span></div>
             <div className="restaurant-actions">
               <button onClick={toggleFavorite} disabled={favoriteBusy} className="outline-btn"><Heart size={15} fill={favorite ? "currentColor":"none"}/> {favorite ? "Saved" : "Save"}</button>
-              <button className="outline-btn" onClick={shareRestaurant}><Share2 size={15}/> Share</button>{shareMessage ? <span className="review-message">{shareMessage}</span> : null}
+              <button className="outline-btn" onClick={shareRestaurant}><Share2 size={15}/> Share</button>
               <a className="outline-btn" href={"https://www.google.com/maps/search/?api=1&query="+restaurant.latitude+","+restaurant.longitude} target="_blank" rel="noreferrer"><MapPin size={15}/> Directions</a>
             </div>
+            {favoriteMessage || shareMessage ? <div className="restaurant-action-message">{favoriteMessage || shareMessage}</div> : null}
             {waitTime !== null ? <div className="live-wait"><Clock3 size={14}/><strong>~{waitTime} min wait</strong><span>Estimated from current demand</span><i style={{width:Math.min(100,waitTime*2.4)+"%"}}/></div> : null}
           </div>
 
