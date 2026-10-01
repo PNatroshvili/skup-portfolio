@@ -61,7 +61,9 @@ export default function SkupManager() {
   const [offers, setOffers] = useState<RestaurantOffer[]>([]);
   const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([]);
   const [analytics, setAnalytics] = useState<import('@/lib/skupApi').ManagerAnalytics | null>(null);
-  const [tab, setTab] = useState<"overview"|"bookings"|"menu"|"hours"|"events"|"photos"|"offers"|"waitlist">("overview");
+  const [tables, setTables] = useState<RestaurantTable[]>([]);
+  const [tableForm, setTableForm] = useState({ name:"", capacity:"2", shape:"square" as RestaurantTable["shape"], zone:"" });
+  const [tab, setTab] = useState<"overview"|"bookings"|"menu"|"hours"|"events"|"photos"|"offers"|"waitlist"|"tables">("overview");
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
@@ -99,11 +101,14 @@ export default function SkupManager() {
     if (analyticsResult.status !== "fulfilled") setError(prev => prev || "Restaurant loaded, but analytics could not be refreshed.");
     let waitlistRows: WaitlistEntry[] = [];
     try { if (r?.id) waitlistRows = await getRestaurantWaitlist(activeToken, r.id); } catch { setError(prev => prev || "Restaurant loaded, but waitlist could not be refreshed."); }
+    let tableRows: RestaurantTable[] = [];
+    try { if (r?.id) tableRows = await getRestaurantTables(activeToken, r.id); } catch { setError(prev => prev || "Restaurant loaded, but tables could not be refreshed."); }
     setRestaurant(r);
     setBookings((b || []) as ManagerBooking[]);
     setEvents(e || []);
     setOffers(o || []);
     setWaitlist(waitlistRows || []);
+    setTables(tableRows || []);
     setAnalytics(a);
     setForm({
       name: r?.name || "",
@@ -296,6 +301,18 @@ export default function SkupManager() {
     }
   };
 
+  const addTable = () => {
+    const name = tableForm.name.trim();
+    const capacity = Number(tableForm.capacity);
+    if (!name || !Number.isInteger(capacity) || capacity < 1 || capacity > 30) {
+      setError("Table name and capacity are required.");
+      return;
+    }
+    run(() => createRestaurantTable(token, restaurant.id, { name, capacity, shape: tableForm.shape, zone: tableForm.zone.trim() || null, isActive: true }), "Table created.").then(ok => {
+      if (ok) setTableForm({ name:"", capacity:"2", shape:"square", zone:"" });
+    });
+  };
+
   const addOffer = () => {
     if (!offerForm.title.trim()) { setError("Offer title is required."); return; }
     run(
@@ -357,6 +374,7 @@ export default function SkupManager() {
             ["events","Events"],
             ["offers","Offers"],
             ["waitlist","Waitlist"],
+            ["tables","Tables"],
             ["photos","Photos"],
           ].map(([key,label]) => <button key={key} className={tab===key ? "active" : ""} onClick={() => setTab(key as typeof tab)}>{label}</button>)}
         </nav>
@@ -496,6 +514,23 @@ export default function SkupManager() {
               ))}
               {!restaurant.photos?.length ? <div className="empty-state">No photos have been added yet.</div> : null}
             </div>
+          </section>
+        ) : null}
+
+        {tab === "tables" ? (
+          <section className="manager-panel">
+            <div className="section-head"><div><span className="kicker">FLOOR PLAN</span><h2>Tables & capacity</h2><p className="manager-section-note">Configure the tables used by LUKMA availability and booking allocation.</p></div></div>
+            <div className="manager-form-grid table-manager-grid">
+              <input value={tableForm.name} onChange={e=>setTableForm({...tableForm,name:e.target.value})} placeholder="Table name · e.g. T1"/>
+              <input value={tableForm.capacity} onChange={e=>setTableForm({...tableForm,capacity:e.target.value.replace(/\D/g,"").slice(0,2)})} placeholder="Capacity" inputMode="numeric"/>
+              <select value={tableForm.shape} onChange={e=>setTableForm({...tableForm,shape:e.target.value as RestaurantTable["shape"]})}><option value="square">Square</option><option value="round">Round</option><option value="rectangle">Rectangle</option></select>
+              <input value={tableForm.zone} onChange={e=>setTableForm({...tableForm,zone:e.target.value})} placeholder="Zone · Terrace / Main hall"/>
+              <button className="green-btn small" onClick={addTable}><Plus size={14}/> Add table</button>
+            </div>
+            {tables.length ? <div className="manager-table-grid">{tables.map(table => <div className={"manager-table-card "+(!table.isActive?"inactive":"")} key={table.id}>
+              <div className="table-visual"><span>{table.name}</span><strong>{table.capacity}</strong></div><div><b>{table.name}</b><small>{table.capacity} seats{table.zone ? " · " + table.zone : ""}</small></div>
+              <button className="red-mini" onClick={()=>run(()=>deleteRestaurantTable(token,table.id),"Table deleted.")}><Trash2 size={13}/></button>
+            </div>)}</div> : <div className="empty-state"><h3>No tables configured</h3><p>Add tables to enable capacity-aware booking.</p></div>}
           </section>
         ) : null}
 
