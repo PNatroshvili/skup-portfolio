@@ -84,9 +84,13 @@ export default function SkupChat(){
         };
         const timeout=window.setTimeout(()=>finish(new Error("Message delivery timed out. Please try again.")),5000);
         const sendNow=()=>{
-          socket.emit("joinBookingRoom",bookingId);
-          socket.emit("sendMessage",{bookingId,senderId:userId,senderRole,content:body});
-          window.setTimeout(()=>finish(),500);
+          socket.emit("joinBookingRoom",bookingId,(joinResult:{ok:boolean;error?:string})=>{
+            if(!joinResult?.ok){finish(new Error(joinResult?.error || "Could not open this booking chat."));return;}
+            socket.emit("sendMessage",{bookingId,content:body},(result:{ok:boolean;error?:string})=>{
+              if(result?.ok) finish();
+              else finish(new Error(result?.error || "Could not send the message."));
+            });
+          });
         };
         socket.once("connect",sendNow);
         socket.once("connect_error",()=>finish(new Error("Could not connect to the booking chat.")));
