@@ -71,6 +71,7 @@ export default function SkupRestaurant() {
   const [reviewComment, setReviewComment] = useState("");
   const [reviewBusy, setReviewBusy] = useState(false);
   const [reviewMessage, setReviewMessage] = useState("");
+  const [shareMessage, setShareMessage] = useState("");
   const bookingSubmitRef = useRef(false);
 
   useEffect(() => {
@@ -291,24 +292,36 @@ export default function SkupRestaurant() {
 
   async function toggleFavorite() {
     const token = localStorage.getItem("skup_access_token");
-    if (!token) { window.location.href = "/account/"; return; }
+    if (!token) { window.location.href = "/account/?mode=login"; return; }
     setFavoriteBusy(true);
+    setReviewMessage("");
     try {
       if (favorite) { await removeFavorite(token,id); setFavorite(false); }
       else { await addFavorite(token,id); setFavorite(true); }
-    } catch {} finally { setFavoriteBusy(false); }
+    } catch(e) {
+      setReviewMessage(e instanceof Error ? e.message : "Could not update favorites.");
+    } finally { setFavoriteBusy(false); }
   }
 
   async function shareRestaurant() {
     const url = window.location.href;
+    setShareMessage("");
     try {
       if (navigator.share) {
         await navigator.share({ title: restaurant?.name || "LUKMA", text: "Check out this place on LUKMA", url });
-      } else if (navigator.clipboard) {
-        await navigator.clipboard.writeText(url);
-        window.alert("Link copied.");
+        return;
       }
-    } catch {}
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(url);
+        setShareMessage("Link copied to your clipboard.");
+        window.setTimeout(() => setShareMessage(""), 1800);
+        return;
+      }
+      setShareMessage("Sharing is not available on this device.");
+    } catch(e) {
+      if (e instanceof DOMException && e.name === "AbortError") return;
+      setShareMessage("Could not share this restaurant.");
+    }
   }
 
   const currentPhoto = photos[photoIndex]?.url;
@@ -348,7 +361,7 @@ export default function SkupRestaurant() {
             <div className="restaurant-rating-line"><Star size={14} fill="currentColor"/><strong>{avg.toFixed(1)}</strong><span>({restaurant.reviewsCount} reviews)</span><span className="dot"/> <MapPin size={14}/><span>{restaurant.address}</span></div>
             <div className="restaurant-actions">
               <button onClick={toggleFavorite} disabled={favoriteBusy} className="outline-btn"><Heart size={15} fill={favorite ? "currentColor":"none"}/> {favorite ? "Saved" : "Save"}</button>
-              <button className="outline-btn" onClick={shareRestaurant}><Share2 size={15}/> Share</button>
+              <button className="outline-btn" onClick={shareRestaurant}><Share2 size={15}/> Share</button>{shareMessage ? <span className="review-message">{shareMessage}</span> : null}
               <a className="outline-btn" href={"https://www.google.com/maps/search/?api=1&query="+restaurant.latitude+","+restaurant.longitude} target="_blank" rel="noreferrer"><MapPin size={15}/> Directions</a>
             </div>
             {waitTime !== null ? <div className="live-wait"><Clock3 size={14}/><strong>~{waitTime} min wait</strong><span>Estimated from current demand</span><i style={{width:Math.min(100,waitTime*2.4)+"%"}}/></div> : null}
