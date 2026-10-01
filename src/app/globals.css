@@ -2166,3 +2166,49 @@ h3{font-weight:600}
     height:68px;
   }
 }
+
+/* Official LUKMA brand mark */
+.skup-logo{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  flex:0 0 auto;
+  min-width:max-content;
+}
+.skup-logo img{
+  width:34px;
+  height:34px;
+  display:block;
+  object-fit:contain;
+  flex:0 0 34px;
+}
+.skup-logo-word{
+  font-family:var(--serif);
+  font-size:22px;
+  font-weight:800;
+  letter-spacing:-.055em;
+  line-height:1;
+  color:var(--ink);
+}
+.footer-brand{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+.footer-brand img{
+  width:27px;
+  height:27px;
+  display:block;
+  object-fit:contain;
+}
+.footer-brand>span{
+  color:#fff;
+  font-family:var(--serif);
+  font-size:21px;
+  font-weight:800;
+  letter-spacing:-.05em;
+}
+@media(max-width:820px){
+  .discover-app .skup-logo img{width:30px;height:30px;flex-basis:30px}
+  .discover-app .skup-logo-word{font-size:20px}
+}
