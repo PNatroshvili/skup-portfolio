@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LocateFixed, Search, SlidersHorizontal, Star, X, ArrowDownUp } from "lucide-react";
+import { LocateFixed, Search, SlidersHorizontal, Star, X, ArrowDownUp, ChevronDown } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import { getCollections, getCuisines, getRestaurants, type Cuisine, type Restaurant } from "@/lib/skupApi";
@@ -381,6 +381,52 @@ export default function SkupDiscover(){
 
   const surprise=()=>{if(!sorted.length)return;const r=sorted[Math.floor(Math.random()*sorted.length)];selectRestaurant(r);};
 
+  const stripScrollRef=useRef<HTMLDivElement|null>(null);
+  const stripDragRef=useRef({active:false,startX:0,scrollLeft:0,moved:false});
+
+  const handleStripPointerDown=(event:React.PointerEvent<HTMLDivElement>)=>{
+    if(event.pointerType==="mouse" && event.button!==0 && event.button!==2)return;
+    const el=stripScrollRef.current;
+    if(!el)return;
+    stripDragRef.current={active:true,startX:event.clientX,scrollLeft:el.scrollLeft,moved:false};
+    el.setPointerCapture?.(event.pointerId);
+  };
+
+  const handleStripPointerMove=(event:React.PointerEvent<HTMLDivElement>)=>{
+    const state=stripDragRef.current;
+    const el=stripScrollRef.current;
+    if(!state.active || !el)return;
+    const delta=event.clientX-state.startX;
+    if(Math.abs(delta)>5)state.moved=true;
+    if(state.moved){
+      event.preventDefault();
+      el.scrollLeft=state.scrollLeft-delta;
+    }
+  };
+
+  const handleStripPointerUp=(event:React.PointerEvent<HTMLDivElement>)=>{
+    const el=stripScrollRef.current;
+    stripDragRef.current.active=false;
+    try{el?.releasePointerCapture?.(event.pointerId);}catch{}
+    if(stripDragRef.current.moved){
+      window.setTimeout(()=>{stripDragRef.current.moved=false;},0);
+    }
+  };
+
+  const handleStripClick=(event:React.MouseEvent<HTMLDivElement>)=>{
+    if(stripDragRef.current.moved){
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  };
+
+  const scrollStrip=(direction:number)=>{
+    stripScrollRef.current?.scrollBy({
+      left:direction*Math.max(260,stripScrollRef.current.clientWidth*.92),
+      behavior:"smooth"
+    });
+  };
+
   return <div className="skup-site discover-app">
     <SkupHeader searchValue={q} onSearchChange={setQ} activeNav="discover"/>
     <main className="discover-page">
@@ -399,10 +445,10 @@ export default function SkupDiscover(){
 
       <section className="discover-toolbar shell">
         <div className="discover-filter-scroll">
-          <button className="filter-chip location-chip" onClick={resetMap}><LocateFixed size={14}/> Tbilisi <span className="chip-caret">⌄</span></button>
-          <button className={"filter-chip "+(cuisineId?"active":"")} onClick={()=>setShowFilters(v=>!v)}>{cuisineId ? (cuisines.find(c=>c.id===cuisineId)?.name || "Cuisine") : "All cuisines"} <span className="chip-caret">⌄</span></button>
-          <button className={"filter-chip "+(priceLevel?"active":"")} onClick={()=>setPriceLevel(priceLevel==="3" ? "" : String(Number(priceLevel||0)+1))}>₾ Price <span className="chip-caret">⌄</span></button>
-          <button className={"filter-chip "+(minRating?"active":"")} onClick={()=>setMinRating(minRating ? "" : "4")}><Star size={13} fill="currentColor"/> {minRating ? minRating+"+" : "Rating"} <span className="chip-caret">⌄</span></button>
+          <button className="filter-chip location-chip" onClick={resetMap}><LocateFixed size={14}/> <span>Tbilisi</span> <ChevronDown className="chip-caret" size={12}/></button>
+          <button className={"filter-chip dropdown-chip "+(cuisineId?"active":"")} onClick={()=>setShowFilters(v=>!v)}>{cuisineId ? (cuisines.find(c=>c.id===cuisineId)?.name || "Cuisine") : "All cuisines"} <ChevronDown className="chip-caret" size={12}/></button>
+          <button className={"filter-chip dropdown-chip "+(priceLevel?"active":"")} onClick={()=>setPriceLevel(priceLevel==="3" ? "" : String(Number(priceLevel||0)+1))}><span>₾ Price</span> <ChevronDown className="chip-caret" size={12}/></button>
+          <button className={"filter-chip dropdown-chip "+(minRating?"active":"")} onClick={()=>setMinRating(minRating ? "" : "4")}><Star size={13} fill="currentColor"/> <span>{minRating ? minRating+"+" : "Rating"}</span> <ChevronDown className="chip-caret" size={12}/></button>
           <button className={"filter-chip "+(isOpen?"active":"")} onClick={()=>setIsOpen(v=>!v)}><span className={"filter-dot "+(isOpen?"on":"")}></span> Open now</button>
           <button className={"filter-icon-button "+(showFilters?"active":"")} onClick={()=>setShowFilters(v=>!v)} aria-label="More filters"><SlidersHorizontal size={16}/></button>
         </div>
@@ -411,11 +457,11 @@ export default function SkupDiscover(){
         </div>
       </section>
 
-      {showFilters?<section className="discover-filter-panel shell">
+      <section className={"discover-filter-panel shell "+(showFilters?"open":"")} aria-hidden={!showFilters}>
         <div><span className="filter-panel-label">Cuisine</span><div className="filter-options">{cuisines.map(c=><button key={c.id} className={cuisineId===c.id?"selected":""} onClick={()=>setCuisineId(cuisineId===c.id?"":c.id)}>{c.icon||"•"} {c.name}</button>)}</div></div>
         <div><span className="filter-panel-label">Price</span><div className="filter-options">{["1","2","3"].map(v=><button key={v} className={priceLevel===v?"selected":""} onClick={()=>setPriceLevel(priceLevel===v?"":v)}>{"₾".repeat(Number(v))} <small>{v==="1"?"Everyday":v==="2"?"Mid-range":"Premium"}</small></button>)}</div></div>
         <div><span className="filter-panel-label">Dietary</span><div className="filter-options">{Object.keys(DIETARY).map(v=><button key={v} className={dietary.includes(v)?"selected":""} onClick={()=>setDietary(prev=>prev.includes(v)?prev.filter(x=>x!==v):[...prev,v])}>{v==="vegan"?"🌱":v==="vegetarian"?"🥗":v==="halal"?"☪️":v==="glutenfree"?"🌾":"🦐"} {v}</button>)}</div></div>
-      </section>:null}
+      </section>
 
       {error?<div className="shell inline-error discover-error">{error}</div>:null}
 
@@ -483,15 +529,30 @@ export default function SkupDiscover(){
           </div>:null}
 
           <div className="map-bottom-strip" aria-label="Restaurant map selection">
-            <button className="map-strip-arrow left" onClick={()=>{const nextIndex=Math.max(0,sorted.findIndex(r=>r.id===selectedRestaurant?.id)-1);if(sorted[nextIndex])selectRestaurant(sorted[nextIndex]);}} aria-label="Previous restaurant">‹</button>
-            <div className="map-strip-scroll">
-              {[...sorted.slice(0,7),...(selectedRestaurant && !sorted.slice(0,7).some(item=>item.id===selectedRestaurant.id)?[selectedRestaurant]:[])].slice(0,8).map(r=><button key={r.id} className={"map-strip-card "+(r.id===selectedRestaurant?.id?"selected":"")} onClick={()=>selectRestaurant(r)}>
-                <img src={restaurantPhoto(r)} alt=""/>
-                <span>{r.name}</span>
-                <small><Star size={10} fill="currentColor"/> {Number(r.ratingAvg||0).toFixed(1)} ({r.reviewsCount || 0})</small>
-              </button>)}
+            <button className="map-strip-arrow left" onClick={()=>scrollStrip(-1)} aria-label="Scroll restaurants left">‹</button>
+            <div
+              ref={stripScrollRef}
+              className="map-strip-scroll"
+              onPointerDown={handleStripPointerDown}
+              onPointerMove={handleStripPointerMove}
+              onPointerUp={handleStripPointerUp}
+              onPointerCancel={handleStripPointerUp}
+              onClick={handleStripClick}
+              onContextMenu={event=>event.preventDefault()}
+            >
+              {sorted.map(r=>{
+                const tags=[r.cuisine?.name,r.district,r.discountPercent?"Offer":""].filter(Boolean).slice(0,2);
+                return <button key={r.id} className={"map-strip-card "+(r.id===selectedRestaurant?.id?"selected":"")} onClick={()=>selectRestaurant(r)}>
+                  <img src={restaurantPhoto(r)} alt="" draggable={false}/>
+                  <div className="map-strip-copy">
+                    <div className="map-strip-title">{r.name}</div>
+                    <small><Star size={11} fill="currentColor"/> {Number(r.ratingAvg||0).toFixed(1)} <span>({r.reviewsCount || 0})</span></small>
+                    <div className="map-strip-tags">{tags.map((tag,i)=><span key={i}>{tag}</span>)}</div>
+                  </div>
+                </button>;
+              })}
             </div>
-            <button className="map-strip-arrow right" onClick={()=>{const nextIndex=Math.min(sorted.length-1,sorted.findIndex(r=>r.id===selectedRestaurant?.id)+1);if(sorted[nextIndex])selectRestaurant(sorted[nextIndex]);}} aria-label="Next restaurant">›</button>
+            <button className="map-strip-arrow right" onClick={()=>scrollStrip(1)} aria-label="Scroll restaurants right">›</button>
           </div>
         </div>
       </section>
