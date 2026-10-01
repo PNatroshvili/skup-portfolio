@@ -26,7 +26,7 @@ import {
   type Review,
 } from "@/lib/skupApi";
 import SkupHeader from "./SkupHeader";
-import { addBookingToCalendar, bookingQrUrl, estimateWaitTime, restaurantPhoto, trackRecentlyViewed } from "@/lib/lukmaUtils";
+import { addBookingToCalendar, bookingQrUrl, restaurantPhoto, trackRecentlyViewed } from "@/lib/lukmaUtils";
 
 function todayISO() {
   return new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Tbilisi" });
@@ -354,7 +354,6 @@ export default function SkupRestaurant() {
 
   const avg = Number(restaurant.ratingAvg || 0);
   const isOpen = Boolean(restaurant.isOpen);
-  const waitTime = estimateWaitTime(restaurant);
 
   return (
     <div className="skup-site">
@@ -393,7 +392,6 @@ export default function SkupRestaurant() {
               <a className="outline-btn" href={"https://www.google.com/maps/search/?api=1&query="+restaurant.latitude+","+restaurant.longitude} target="_blank" rel="noreferrer"><MapPin size={15}/> Directions</a>
             </div>
             {favoriteMessage || shareMessage ? <div className="restaurant-action-message">{favoriteMessage || shareMessage}</div> : null}
-            {waitTime !== null ? <div className="live-wait"><Clock3 size={14}/><strong>~{waitTime} min wait</strong><span>Estimated from current demand</span><i style={{width:Math.min(100,waitTime*2.4)+"%"}}/></div> : null}
           </div>
 
           <aside className="booking-card">
