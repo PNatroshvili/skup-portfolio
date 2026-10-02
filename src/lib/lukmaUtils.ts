@@ -11,7 +11,7 @@ export const LUKMA_PHOTOS = {
   mediterranean: "https://images.unsplash.com/photo-1544025162-d76694265947?w=1200",
 } as const;
 
-export function restaurantPhoto(restaurant: Restaurant): string {
+export function restaurantPhoto(restaurant: Partial<Pick<Restaurant, "cover_photo" | "photos" | "cuisine">>): string {
   return (
     restaurant.cover_photo ||
     restaurant.photos?.find(photo => photo.isCover)?.url ||
