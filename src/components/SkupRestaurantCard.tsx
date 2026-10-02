@@ -16,6 +16,8 @@ export default function RestaurantCard({
   selected?: boolean;
   onHover?: () => void;
 }) {
+  const deal = Math.max(Number(restaurant.discountPercent || 0), Number(restaurant.bestOfferDiscount || 0)) || null;
+
   return (
     <Link
       href={"/restaurant/?id=" + encodeURIComponent(restaurant.id)}
@@ -24,7 +26,7 @@ export default function RestaurantCard({
     >
       <div className="restaurant-photo-wrap">
         <img src={restaurantPhoto(restaurant)} alt="" className="restaurant-photo" loading="lazy" />
-        {restaurant.discountPercent ? <span className="restaurant-deal">-{restaurant.discountPercent}%</span> : null}
+        {deal ? <span className="restaurant-deal">-{deal}%</span> : null}
       </div>
       <div className="restaurant-card-body">
         <div className="restaurant-card-title-row">
