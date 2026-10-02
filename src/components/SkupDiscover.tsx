@@ -325,7 +325,7 @@ export default function SkupDiscover(){
 
       const addRestaurantMarker=(r:Restaurant,forceSelected=false)=>{
         const lat=Number(r.latitude),lng=Number(r.longitude);
-        const discount=Number(r.discountPercent||0);
+        const discount=Math.max(Number(r.discountPercent||0),Number(r.bestOfferDiscount||0));
         const photo=restaurantPhoto(r).replace(/"/g,"&quot;");
         const marker=L.marker([lat,lng],{
           icon:L.divIcon({
@@ -613,7 +613,7 @@ export default function SkupDiscover(){
                 return <article key={r.id} data-restaurant-id={r.id} onMouseEnter={()=>{setSelected(r.id);setMapPreviewOpen(true)}} onClick={()=>selectRestaurant(r)} className={"discover-card-wrap "+(r.id===selectedRestaurant?.id?"selected":"")}>
                   <div className="discover-card-photo">
                     <img src={restaurantPhoto(r)} alt="" loading="lazy"/>
-                    {r.discountPercent ? <span className="discover-card-deal">-{r.discountPercent}%</span> : null}
+                    {Math.max(Number(r.discountPercent||0),Number(r.bestOfferDiscount||0)) ? <span className="discover-card-deal">-{Math.max(Number(r.discountPercent||0),Number(r.bestOfferDiscount||0))}%</span> : null}
                     <button type="button" className={"discover-card-heart "+(favoriteIds.has(r.id)?"is-saved":"")} aria-label={favoriteIds.has(r.id) ? "Remove from favorites" : "Save to favorites"} aria-pressed={favoriteIds.has(r.id)} disabled={favoriteBusyId===r.id} onClick={e=>{e.stopPropagation();toggleDiscoverFavorite(r.id)}}><HeartMini/></button>
                   </div>
                   <div className="discover-card-body">
@@ -628,7 +628,7 @@ export default function SkupDiscover(){
                     <div className="discover-card-tags">
                       {r.cuisine?.name ? <span>{r.cuisine.name}</span> : null}
                       {r.district ? <span>{r.district}</span> : null}
-                      {r.discountPercent ? <span className="deal-tag">Offer</span> : null}
+                      {Math.max(Number(r.discountPercent||0),Number(r.bestOfferDiscount||0)) ? <span className="deal-tag">Offer</span> : null}
                     </div>
                     {(availabilityByRestaurant[r.id] || []).length ? <div className="discover-available-times"><small>Available</small>{(availabilityByRestaurant[r.id] || []).slice(0,4).map(t => <Link key={t} href={"/restaurant/?id="+encodeURIComponent(r.id)+"&date="+encodeURIComponent(bookingDate)+"&guests="+bookingGuests+"&time="+encodeURIComponent(t)} onClick={e=>e.stopPropagation()} className={bookingTime===t?"active":""}>{t}</Link>)}</div> : null}
                     <div className="discover-card-bottom">
@@ -663,7 +663,7 @@ export default function SkupDiscover(){
               <span>{selectedRestaurant.cuisine?.name||"Restaurant"} · {selectedRestaurant.district||selectedRestaurant.city}</span>
               <small><Star size={11} fill="currentColor"/> {Number(selectedRestaurant.ratingAvg||0).toFixed(1)} ({selectedRestaurant.reviewsCount || 0})</small>
               <span className={"map-focus-open "+(selectedRestaurant.isOpen?"open":"closed")}><i></i>{selectedRestaurant.isOpen?"Open now":"Closed"}</span>
-              <Link href={"/restaurant/?id="+encodeURIComponent(selectedRestaurant.id)} className="map-focus-button">View details</Link>
+              <Link href={"/restaurant/?id="+encodeURIComponent(selectedRestaurant.id)+"&date="+encodeURIComponent(bookingDate)+"&guests="+bookingGuests+(bookingTime?"&time="+encodeURIComponent(bookingTime):"")} className="map-focus-button">View details</Link>
             </div>
           </div>:null}
 
