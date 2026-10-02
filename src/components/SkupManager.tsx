@@ -24,6 +24,7 @@ import {
   getRestaurantWaitlist,
   getRestaurantTables,
   createRestaurantTable,
+  updateRestaurantTable,
   deleteRestaurantTable,
   updateWaitlistStatus,
   getReviews,
@@ -564,9 +565,11 @@ export default function SkupManager() {
               <button className="green-btn small" onClick={addTable}><Plus size={14}/> Add table</button>
             </div>
             {tables.length ? <div className="manager-table-grid">{tables.map(table => <div className={"manager-table-card "+(!table.isActive?"inactive":"")} key={table.id}>
-              <div className="table-visual"><span>{table.name}</span><strong>{table.capacity}</strong></div><div><b>{table.name}</b><small>{table.capacity} seats{table.zone ? " · " + table.zone : ""}</small></div>
+              <div className="table-visual"><span>{table.name}</span><strong>{table.capacity}</strong></div>
+              <div><b>{table.name}</b><small>{table.capacity} seats{table.zone ? " · " + table.zone : ""}</small></div>
+              <label className="switch-line"><input type="checkbox" checked={table.isActive} onChange={e=>run(()=>updateRestaurantTable(token,table.id,{isActive:e.target.checked}),e.target.checked ? "Table enabled." : "Table disabled.")}/><span>{table.isActive ? "Active" : "Off"}</span></label>
               <button className="red-mini" onClick={()=>run(()=>deleteRestaurantTable(token,table.id),"Table deleted.")}><Trash2 size={13}/></button>
-            </div>)}</div> : <div className="empty-state"><h3>No tables configured</h3><p>Add tables to enable capacity-aware booking.</p></div>}
+            </div>)}</div> : <div className="empty-state"><h3>No tables configured</h3><p>Add tables to enable capacity-aware booking.</p></div>
           </section>
         ) : null}
 
