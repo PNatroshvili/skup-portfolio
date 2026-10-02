@@ -86,10 +86,30 @@ export default function SkupRestaurant() {
   const bookingSubmitRef = useRef(false);
 
   useEffect(() => {
-    const nextId = new URLSearchParams(window.location.search).get("id") || "";
+    const params = new URLSearchParams(window.location.search);
+    const nextId = params.get("id") || "";
+    const today = todayISO();
+    const requestedDate = params.get("date") || "";
+    const nextDate = /^\\d{4}-\\d{2}-\\d{2}$/.test(requestedDate) && requestedDate >= today ? requestedDate : today;
+    const requestedGuests = Number(params.get("guests"));
+    const nextGuests = Number.isInteger(requestedGuests) ? Math.min(12, Math.max(1, requestedGuests)) : 2;
+    const requestedTime = params.get("time") || "";
+    const nextTime = /^\\d{2}:\\d{2}$/.test(requestedTime) ? requestedTime : "";
+
     setId(nextId);
+    setDate(nextDate);
+    setGuests(nextGuests);
+    setTime(nextTime);
+
     if (!nextId) { setLoading(false); return; }
-    Promise.allSettled([getRestaurant(nextId), getMenu(nextId), getReviews(nextId), getEvents(nextId), getOffers({ restaurantId: nextId, date: date, guests })])
+
+    Promise.allSettled([
+      getRestaurant(nextId),
+      getMenu(nextId),
+      getReviews(nextId),
+      getEvents(nextId),
+      getOffers({ restaurantId: nextId, date: nextDate, time: nextTime || undefined, guests: nextGuests }),
+    ])
       .then(([restaurantResult, menuResult, reviewsResult, eventsResult, offersResult]) => {
         if (restaurantResult.status !== "fulfilled") throw restaurantResult.reason;
         const r = restaurantResult.value;
