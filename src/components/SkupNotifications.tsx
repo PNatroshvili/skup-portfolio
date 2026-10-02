@@ -130,7 +130,7 @@ export default function SkupNotifications() {
           </div>
         ) : loading ? (
           <div className="notification-skeletons">
-            {Array.from({length:5}).map((_, i) => <div key={i} className="notification-skeleton"/>}
+            {Array.from({length:5}).map((_, i) => <div key={i} className="notification-skeleton" />)}
           </div>
         ) : error ? (
           <div className="inline-error">
