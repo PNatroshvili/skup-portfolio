@@ -18,6 +18,7 @@ export type Restaurant = {
   longitude: number;
   phone?: string | null;
   discountPercent?: number | null;
+  bestOfferDiscount?: number | null;
   ratingAvg: number;
   reviewsCount: number;
   status: string;
