@@ -3,19 +3,13 @@
 import Link from "next/link";
 import { CalendarDays, CheckCircle2, Clock3, MessageCircle, QrCode, RefreshCw, Star, XCircle } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { getMyBookings, updateBookingStatus, createReview, type Restaurant } from "@/lib/skupApi";
+import { getMyBookings, updateBookingStatus, createReview, type BookingRecord } from "@/lib/skupApi";
 import { addBookingToCalendar, bookingCountdown, bookingQrUrl, isBookingUpcoming, restaurantPhoto } from "@/lib/lukmaUtils";
 import SkupHeader from "./SkupHeader";
 
-type Booking = {
-  id: string;
-  date: string;
-  time: string;
+type Booking = BookingRecord & {
   guestsCount?: number;
   guests_count?: number;
-  comment?: string | null;
-  status: string;
-  restaurant?: Restaurant & { name?: string; address?: string };
 };
 
 const STATUS: Record<string, { label: string; className: string }> = {
@@ -140,6 +134,7 @@ export default function SkupBookings() {
                         <div className="booking-card-top">
                           <div><span className={"status " + status.className}>{status.label}</span><h2>{restaurant?.name || "Restaurant"}</h2><p>{restaurant?.address || "Tbilisi"} · {guests} guest{guests === 1 ? "" : "s"}</p></div>
                           <div className="booking-date-large"><strong>{b.date}</strong><span>{b.time}</span>{b.status==="confirmed" ? <small>{isBookingUpcoming(b.date,b.time) ? bookingCountdown(b.date,b.time) : "Past booking"}</small> : null}</div>
+                          {Number(b.discountPercentApplied || 0) > 0 ? <span className="booking-offer-badge">-{b.discountPercentApplied}% offer applied</span> : null}
                         </div>
                         {b.comment ? <p className="booking-note">{b.comment}</p> : null}
                         <div className="booking-actions">

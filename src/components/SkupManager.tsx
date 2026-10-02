@@ -7,19 +7,36 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   addMenuCategory,
   addMenuItem,
+  createOffer,
+  updateOffer,
   createRestaurantEvent,
   deleteMenuCategory,
   deleteMenuItem,
+  deleteOffer,
   deleteRestaurantEvent,
   deleteRestaurantPhoto,
   setCoverPhoto,
   uploadRestaurantPhoto,
   getMyRestaurant,
   getMyRestaurantBookings,
+  getMyOffers,
   getMyRestaurantEvents,
+  getManagerAnalytics,
+  getRestaurantWaitlist,
+  getRestaurantTables,
+  createRestaurantTable,
+  updateRestaurantTable,
+  deleteRestaurantTable,
+  updateWaitlistStatus,
+  getReviews,
+  replyToReview,
   type MenuCategory,
   type Restaurant,
   type RestaurantEvent,
+  type RestaurantOffer,
+  type Review,
+  type WaitlistEntry,
+  type RestaurantTable,
   updateBookingStatus,
   updateMenuItem,
   uploadMenuItemPhoto,
@@ -53,7 +70,15 @@ export default function SkupManager() {
   const [restaurant, setRestaurant] = useState<ManagedRestaurant | null>(null);
   const [bookings, setBookings] = useState<ManagerBooking[]>([]);
   const [events, setEvents] = useState<RestaurantEvent[]>([]);
-  const [tab, setTab] = useState<"overview"|"bookings"|"menu"|"hours"|"events"|"photos">("overview");
+  const [offers, setOffers] = useState<RestaurantOffer[]>([]);
+  const [waitlist, setWaitlist] = useState<WaitlistEntry[]>([]);
+  const [managerReviews, setManagerReviews] = useState<Review[]>([]);
+  const [replyReviewId, setReplyReviewId] = useState<string | null>(null);
+  const [replyDraft, setReplyDraft] = useState('');
+  const [analytics, setAnalytics] = useState<import('@/lib/skupApi').ManagerAnalytics | null>(null);
+  const [tables, setTables] = useState<RestaurantTable[]>([]);
+  const [tableForm, setTableForm] = useState({ name:"", capacity:"2", shape:"square" as RestaurantTable["shape"], zone:"" });
+  const [tab, setTab] = useState<"overview"|"bookings"|"menu"|"hours"|"events"|"photos"|"offers"|"waitlist"|"tables"|"reviews">("overview");
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
@@ -65,26 +90,44 @@ export default function SkupManager() {
   const [newItemCategory, setNewItemCategory] = useState("");
   const [newItem, setNewItem] = useState({ name:"", description:"", price:"", available:true });
   const [eventForm, setEventForm] = useState({ title:"", description:"", emoji:"✦", eventDate:"" });
+  const [offerForm, setOfferForm] = useState({ title:"", description:"", discountPercent:"", startDate:"", endDate:"", startTime:"", endTime:"", minimumGuests:"", maximumGuests:"" });
   const [photoBusy, setPhotoBusy] = useState(false);
   const runQueueRef = useRef<Promise<void>>(Promise.resolve());
   const runBusyRef = useRef(false);
 
   const reload = async (t: string) => {
     const activeToken = typeof window !== "undefined" ? localStorage.getItem("skup_access_token") || t : t;
-    const [restaurantResult, bookingsResult, eventsResult] = await Promise.allSettled([
+    const [restaurantResult, bookingsResult, eventsResult, offersResult, analyticsResult] = await Promise.allSettled([
       getMyRestaurant(activeToken),
       getMyRestaurantBookings(activeToken),
       getMyRestaurantEvents(activeToken),
+      getMyOffers(activeToken),
+      getManagerAnalytics(activeToken),
     ]);
     if (restaurantResult.status !== "fulfilled") throw restaurantResult.reason;
     const r = restaurantResult.value;
     const b = bookingsResult.status === "fulfilled" ? bookingsResult.value : [];
     const e = eventsResult.status === "fulfilled" ? eventsResult.value : [];
+    const o = offersResult.status === "fulfilled" ? offersResult.value : [];
+    const a = analyticsResult.status === "fulfilled" ? analyticsResult.value : null;
     if (bookingsResult.status !== "fulfilled") setError("Restaurant loaded, but bookings could not be refreshed.");
     if (eventsResult.status !== "fulfilled") setError(prev => prev || "Restaurant loaded, but events could not be refreshed.");
+    if (offersResult.status !== "fulfilled") setError(prev => prev || "Restaurant loaded, but offers could not be refreshed.");
+    if (analyticsResult.status !== "fulfilled") setError(prev => prev || "Restaurant loaded, but analytics could not be refreshed.");
+    let waitlistRows: WaitlistEntry[] = [];
+    try { if (r?.id) waitlistRows = await getRestaurantWaitlist(activeToken, r.id); } catch { setError(prev => prev || "Restaurant loaded, but waitlist could not be refreshed."); }
+    let tableRows: RestaurantTable[] = [];
+    try { if (r?.id) tableRows = await getRestaurantTables(activeToken, r.id); } catch { setError(prev => prev || "Restaurant loaded, but tables could not be refreshed."); }
+    let reviewRows: Review[] = [];
+    try { if (r?.id) { const reviewResult = await getReviews(r.id); reviewRows = reviewResult.data || []; } } catch { setError(prev => prev || "Restaurant loaded, but reviews could not be refreshed."); }
     setRestaurant(r);
     setBookings((b || []) as ManagerBooking[]);
     setEvents(e || []);
+    setOffers(o || []);
+    setWaitlist(waitlistRows || []);
+    setTables(tableRows || []);
+    setManagerReviews(reviewRows || []);
+    setAnalytics(a);
     setForm({
       name: r?.name || "",
       description: r?.description || "",
@@ -276,6 +319,44 @@ export default function SkupManager() {
     }
   };
 
+  const sendReviewReply = (reviewId: string) => {
+    if (!replyDraft.trim()) { setError("Reply cannot be empty."); return; }
+    run(() => replyToReview(token, reviewId, replyDraft.trim()), "Review response sent.").then(ok => {
+      if (ok) { setReplyReviewId(null); setReplyDraft(""); }
+    });
+  };
+
+  const addTable = () => {
+    const name = tableForm.name.trim();
+    const capacity = Number(tableForm.capacity);
+    if (!name || !Number.isInteger(capacity) || capacity < 1 || capacity > 30) {
+      setError("Table name and capacity are required.");
+      return;
+    }
+    run(() => createRestaurantTable(token, restaurant.id, { name, capacity, shape: tableForm.shape, zone: tableForm.zone.trim() || null, isActive: true }), "Table created.").then(ok => {
+      if (ok) setTableForm({ name:"", capacity:"2", shape:"square", zone:"" });
+    });
+  };
+
+  const addOffer = () => {
+    if (!offerForm.title.trim()) { setError("Offer title is required."); return; }
+    run(
+      () => createOffer(token, restaurant.id, {
+        title: offerForm.title.trim(),
+        description: offerForm.description.trim() || undefined,
+        discountPercent: offerForm.discountPercent === "" ? null : Number(offerForm.discountPercent),
+        startDate: offerForm.startDate || null,
+        endDate: offerForm.endDate || null,
+        startTime: offerForm.startTime || null,
+        endTime: offerForm.endTime || null,
+        minimumGuests: offerForm.minimumGuests === "" ? null : Number(offerForm.minimumGuests),
+        maximumGuests: offerForm.maximumGuests === "" ? null : Number(offerForm.maximumGuests),
+        isActive: true,
+      }),
+      "Offer created."
+    ).then(ok => { if (ok) setOfferForm({ title:"", description:"", discountPercent:"", startDate:"", endDate:"", startTime:"", endTime:"", minimumGuests:"", maximumGuests:"" }); });
+  };
+
   const addEvent = () => {
     if (!eventForm.title.trim()) return;
     run(
@@ -316,12 +397,24 @@ export default function SkupManager() {
             ["menu","Menu"],
             ["hours","Opening hours"],
             ["events","Events"],
-    ["photos","Photos"],
+            ["offers","Offers"],
+            ["waitlist","Waitlist"],
+            ["tables","Tables"],
+            ["reviews","Reviews"],
+            ["photos","Photos"],
           ].map(([key,label]) => <button key={key} className={tab===key ? "active" : ""} onClick={() => setTab(key as typeof tab)}>{label}</button>)}
         </nav>
 
         {tab === "overview" ? (
           <>
+            {analytics ? <section className="manager-stat-grid analytics-stat-grid">
+              <div><span>Today</span><strong>{analytics.todayBookings}</strong><small>Bookings</small></div>
+              <div><span>Guests</span><strong>{analytics.guests}</strong><small>Total covers</small></div>
+              <div><span>Confirmed</span><strong>{analytics.confirmedBookings}</strong><small>All time</small></div>
+              <div><span>Cancellation</span><strong>{analytics.totalBookings ? Math.round((analytics.cancelledBookings / analytics.totalBookings) * 100) + "%" : "0%"}</strong><small>Booking rate</small></div>
+              <div><span>Rating</span><strong>{analytics.ratingAvg.toFixed(1)}</strong><small>{analytics.reviewsCount} reviews</small></div>
+            </section> : null}
+
             <section className="manager-stat-grid">
               <div><span>New requests</span><strong>{pending.length}</strong><small>Need a response</small></div>
               <div><span>Today</span><strong>{todayBookings.length}</strong><small>Pending or confirmed</small></div>
@@ -446,6 +539,75 @@ export default function SkupManager() {
                 </div>
               ))}
               {!restaurant.photos?.length ? <div className="empty-state">No photos have been added yet.</div> : null}
+            </div>
+          </section>
+        ) : null}
+
+        {tab === "reviews" ? (
+          <section className="manager-panel">
+            <div className="section-head"><div><span className="kicker">REVIEWS</span><h2>Customer reviews</h2><p className="manager-section-note">Reply directly to guests from the restaurant manager.</p></div></div>
+            {managerReviews.length ? <div className="manager-review-list">{managerReviews.slice(0,30).map(review => <div className="manager-review-row" key={review.id}>
+              <div className="manager-review-head"><strong>{review.user?.name || "Guest"}</strong><span>★ {Number(review.rating || 0).toFixed(1)} · {new Date(review.createdAt).toLocaleDateString("ka-GE")}</span></div>
+              {review.comment ? <p>{review.comment}</p> : <small>No comment.</small>}
+              {review.restaurantReply ? <div className="manager-existing-reply"><strong>Your response</strong><p>{review.restaurantReply}</p></div> : null}
+              {replyReviewId === review.id ? <div className="manager-reply-editor"><textarea value={replyDraft} maxLength={1000} onChange={e=>setReplyDraft(e.target.value)} placeholder="Write a helpful response…"/><div><button className="outline-btn small" onClick={()=>{setReplyReviewId(null);setReplyDraft("");}}>Cancel</button><button className="green-btn small" onClick={()=>sendReviewReply(review.id)} disabled={busy}>Reply</button></div></div> : <button className="outline-btn small" onClick={()=>{setReplyReviewId(review.id);setReplyDraft(review.restaurantReply || "");}}>Reply to review</button>}
+            </div>)}</div> : <div className="empty-state"><h3>No reviews yet</h3><p>Verified customer reviews will appear here.</p></div>}
+          </section>
+        ) : null}
+
+        {tab === "tables" ? (
+          <section className="manager-panel">
+            <div className="section-head"><div><span className="kicker">FLOOR PLAN</span><h2>Tables & capacity</h2><p className="manager-section-note">Configure the tables used by LUKMA availability and booking allocation.</p></div></div>
+            <div className="manager-form-grid table-manager-grid">
+              <input value={tableForm.name} onChange={e=>setTableForm({...tableForm,name:e.target.value})} placeholder="Table name · e.g. T1"/>
+              <input value={tableForm.capacity} onChange={e=>setTableForm({...tableForm,capacity:e.target.value.replace(/\D/g,"").slice(0,2)})} placeholder="Capacity" inputMode="numeric"/>
+              <select value={tableForm.shape} onChange={e=>setTableForm({...tableForm,shape:e.target.value as RestaurantTable["shape"]})}><option value="square">Square</option><option value="round">Round</option><option value="rectangle">Rectangle</option></select>
+              <input value={tableForm.zone} onChange={e=>setTableForm({...tableForm,zone:e.target.value})} placeholder="Zone · Terrace / Main hall"/>
+              <button className="green-btn small" onClick={addTable}><Plus size={14}/> Add table</button>
+            </div>
+            {tables.length ? <div className="manager-table-grid">{tables.map(table => <div className={"manager-table-card "+(!table.isActive?"inactive":"")} key={table.id}>
+              <div className="table-visual"><span>{table.name}</span><strong>{table.capacity}</strong></div>
+              <div><b>{table.name}</b><small>{table.capacity} seats{table.zone ? " · " + table.zone : ""}</small></div>
+              <label className="switch-line"><input type="checkbox" checked={table.isActive} onChange={e=>run(()=>updateRestaurantTable(token,table.id,{isActive:e.target.checked}),e.target.checked ? "Table enabled." : "Table disabled.")}/><span>{table.isActive ? "Active" : "Off"}</span></label>
+              <button className="red-mini" onClick={()=>run(()=>deleteRestaurantTable(token,table.id),"Table deleted.")}><Trash2 size={13}/></button>
+            </div>)}</div> : <div className="empty-state"><h3>No tables configured</h3><p>Add tables to enable capacity-aware booking.</p></div>}
+          </section>
+        ) : null}
+
+        {tab === "waitlist" ? (
+          <section className="manager-panel">
+            <div className="section-head"><div><span className="kicker">WAITLIST</span><h2>Waiting guests</h2><p className="manager-section-note">Guests who asked to be notified when a table becomes available.</p></div></div>
+            {waitlist.length ? waitlist.map(entry => <div className="manager-waitlist-row" key={entry.id}>
+              <div><strong>{entry.date}</strong><span>{entry.timeFrom || "Any time"}{entry.timeTo ? " → " + entry.timeTo : ""}</span></div>
+              <div><strong>{entry.guestsCount} guests</strong><span>{entry.status}</span></div>
+              <select value={entry.status} onChange={e=>run(()=>updateWaitlistStatus(token,entry.id,e.target.value as "waiting"|"notified"|"booked"|"cancelled"|"expired"),"Waitlist updated.")}>
+                <option value="waiting">waiting</option><option value="notified">notified</option><option value="booked">booked</option><option value="cancelled">cancelled</option><option value="expired">expired</option>
+              </select>
+            </div>) : <div className="empty-state"><h3>No guests waiting</h3><p>When a booking is unavailable, customers can join your waiting list.</p></div>}
+          </section>
+        ) : null}
+
+        {tab === "offers" ? (
+          <section className="manager-panel">
+            <div className="section-head"><div><span className="kicker">PROMOTIONS</span><h2>Restaurant offers</h2><p className="manager-section-note">Create time-bound offers that appear on customer restaurant pages.</p></div></div>
+            <div className="manager-form-grid offer-manager-grid">
+              <input value={offerForm.title} onChange={e=>setOfferForm({...offerForm,title:e.target.value})} placeholder="Offer title"/>
+              <input value={offerForm.discountPercent} onChange={e=>setOfferForm({...offerForm,discountPercent:e.target.value.replace(/\D/g,"").slice(0,2)})} placeholder="Discount %" inputMode="numeric"/>
+              <input value={offerForm.startDate} onChange={e=>setOfferForm({...offerForm,startDate:e.target.value})} type="date"/>
+              <input value={offerForm.endDate} onChange={e=>setOfferForm({...offerForm,endDate:e.target.value})} type="date"/>
+              <input value={offerForm.startTime} onChange={e=>setOfferForm({...offerForm,startTime:e.target.value})} type="time"/>
+              <input value={offerForm.endTime} onChange={e=>setOfferForm({...offerForm,endTime:e.target.value})} type="time"/>
+              <input value={offerForm.minimumGuests} onChange={e=>setOfferForm({...offerForm,minimumGuests:e.target.value.replace(/\D/g,"").slice(0,2)})} placeholder="Min guests"/>
+              <input value={offerForm.maximumGuests} onChange={e=>setOfferForm({...offerForm,maximumGuests:e.target.value.replace(/\D/g,"").slice(0,2)})} placeholder="Max guests"/>
+              <textarea value={offerForm.description} onChange={e=>setOfferForm({...offerForm,description:e.target.value})} placeholder="Offer description"/>
+              <button className="green-btn small" onClick={addOffer}><Plus size={14}/> Create offer</button>
+            </div>
+            <div className="manager-offer-list">
+              {offers.length ? offers.map(offer => <div className="manager-offer-row" key={offer.id}>
+                <div><strong>{offer.title}</strong><span>{offer.discountPercent ? "-"+offer.discountPercent+"%" : "Special offer"}{offer.startDate ? " · "+offer.startDate : ""}{offer.endDate ? " → "+offer.endDate : ""}</span>{offer.description ? <small>{offer.description}</small> : null}</div>
+                <button className={"status "+(offer.isActive ? "status-confirmed" : "status-cancelled")} onClick={()=>run(()=>updateOffer(token,offer.id,{isActive:!offer.isActive}),offer.isActive ? "Offer disabled." : "Offer enabled.")}>{offer.isActive ? "active" : "inactive"}</button>
+                <button className="red-mini" onClick={()=>run(()=>deleteOffer(token,offer.id),"Offer deleted.")}><Trash2 size={13}/></button>
+              </div>) : <div className="empty-state"><h3>No offers yet</h3><p>Create your first customer-facing promotion above.</p></div>}
             </div>
           </section>
         ) : null}

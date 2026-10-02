@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { LocateFixed, Search, SlidersHorizontal, Star, X, ArrowDownUp, ChevronDown } from "lucide-react";
+import { LocateFixed, Search, SlidersHorizontal, Star, X, ArrowDownUp, ChevronDown, Heart, CalendarDays, Users, Clock3 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
-import { addFavorite, getCollections, getCuisines, getFavorites, getRestaurants, removeFavorite, type Cuisine, type Restaurant } from "@/lib/skupApi";
+import { addFavorite, getAvailability, getCollections, getCuisines, getFavorites, getRestaurants, removeFavorite, type Cuisine, type Restaurant } from "@/lib/skupApi";
 import { restaurantPhoto } from "@/lib/lukmaUtils";
 import SkupHeader from "./SkupHeader";
 
@@ -33,6 +33,12 @@ export default function SkupDiscover(){
   const [discountOnly,setDiscountOnly]=useState(false);
   const [priceLevel,setPriceLevel]=useState("");
   const [dietary,setDietary]=useState<string[]>([]);
+  const [bookingDate,setBookingDate]=useState(() => new Date().toISOString().slice(0,10));
+  const [bookingGuests,setBookingGuests]=useState(2);
+  const [bookingTime,setBookingTime]=useState("");
+  const [bookingSlots,setBookingSlots]=useState<string[]>([]);
+  const [bookingLoading,setBookingLoading]=useState(false);
+  const [availabilityByRestaurant,setAvailabilityByRestaurant]=useState<Record<string,string[]>>({});
   const [sort,setSort]=useState<"rating"|"name"|"discount"|"distance">("rating");
   const [nearMe,setNearMe]=useState(false);
   const [userLocation,setUserLocation]=useState<{lat:number;lng:number}|null>(null);
@@ -158,6 +164,9 @@ export default function SkupDiscover(){
     setDiscountOnly(params.get("offers")==="true");
     setPriceLevel(params.get("price")||"");
     setDietary((params.get("dietary")||"").split(",").filter(x=>DIETARY[x]));
+    setBookingDate(params.get("date") || new Date().toISOString().slice(0,10));
+    setBookingGuests(Math.max(1, Math.min(12, Number(params.get("guests") || 2))));
+    setBookingTime(params.get("time") || "");
     const requestedSort=params.get("sort");
     if (requestedSort==="name" || requestedSort==="discount" || requestedSort==="distance") setSort(requestedSort);
     setSearchReady(true);
@@ -202,9 +211,12 @@ export default function SkupDiscover(){
     if(discountOnly)params.set("offers","true");
     if(priceLevel)params.set("price",priceLevel);
     if(dietary.length)params.set("dietary",dietary.join(","));
+    if(bookingDate)params.set("date",bookingDate);
+    if(bookingGuests!==2)params.set("guests",String(bookingGuests));
+    if(bookingTime)params.set("time",bookingTime);
     if(sort!=="rating")params.set("sort",sort);
     window.history.replaceState(null,"",params.toString()?"/discover/?"+params.toString():"/discover/");
-  },[searchReady,q,cuisineId,collectionId,isOpen,minRating,discountOnly,priceLevel,dietary,sort,nearMe]);
+  },[searchReady,q,cuisineId,collectionId,isOpen,minRating,discountOnly,priceLevel,dietary,sort,nearMe,bookingDate,bookingGuests,bookingTime]);
 
   const filtered=useMemo(()=>{
     return restaurants.filter(r=>{
@@ -215,18 +227,19 @@ export default function SkupDiscover(){
         const collection=collections.find(x=>x.id===collectionId);
         if(collection?.filterType==="is_open" && !r.isOpen)return false;
         if((collection?.filterType==="cuisine_id" || collection?.filterType==="cuisine") && collection.filterValue && r.cuisine?.id!==collection.filterValue)return false;
-        if((collection?.filterType==="discount" || collection?.filterType==="offer") && !Number(r.discountPercent||0))return false;
+        if((collection?.filterType==="discount" || collection?.filterType==="offer") && !Math.max(Number(r.discountPercent||0), Number(r.bestOfferDiscount||0)))return false;
         if((collection?.filterType==="rating" || collection?.filterType==="min_rating") && collection.filterValue && Number(r.ratingAvg||0)<Number(collection.filterValue))return false;
         if((collection?.filterType==="q" || collection?.filterType==="keyword") && collection.filterValue && !hay.includes(String(collection.filterValue).toLowerCase()))return false;
       }
       if(isOpen&&!r.isOpen)return false;
       if(minRating&&Number(r.ratingAvg)<Number(minRating))return false;
-      if(discountOnly&&!Number(r.discountPercent||0))return false;
+      if(discountOnly&&!Math.max(Number(r.discountPercent||0), Number(r.bestOfferDiscount||0)))return false;
       if(priceLevel){
         const level=(r.priceLevel || (Number(r.avgMenuPrice||NaN)<15?"1":Number(r.avgMenuPrice||NaN)<30?"2":Number.isFinite(Number(r.avgMenuPrice))?"3":"" )) as string;
         if(level!==priceLevel)return false;
       }
       if(dietary.length&&!dietary.every(key=>DIETARY[key].some(word=>hay.includes(word))))return false;
+      if(bookingTime && !(availabilityByRestaurant[r.id] || []).includes(bookingTime)) return false;
       if(searchAsMapMoves && mapBounds){
         const lat=Number(r.latitude),lng=Number(r.longitude);
         if(!Number.isFinite(lat)||!Number.isFinite(lng)) return false;
@@ -234,13 +247,13 @@ export default function SkupDiscover(){
       }
       return true;
     });
-  },[restaurants,q,cuisineId,collectionId,collections,isOpen,minRating,discountOnly,priceLevel,dietary,searchAsMapMoves,mapBounds]);
+  },[restaurants,q,cuisineId,collectionId,collections,isOpen,minRating,discountOnly,priceLevel,dietary,searchAsMapMoves,mapBounds,availabilityByRestaurant,bookingTime]);
 
   const sorted=useMemo(()=>{
     const list=[...filtered];
     if(sort==="distance"&&userLocation)return list.sort((a,b)=>distanceKm(userLocation.lat,userLocation.lng,Number(a.latitude),Number(a.longitude))-distanceKm(userLocation.lat,userLocation.lng,Number(b.latitude),Number(b.longitude)));
     if(sort==="name")return list.sort((a,b)=>a.name.localeCompare(b.name));
-    if(sort==="discount")return list.sort((a,b)=>Number(b.discountPercent||0)-Number(a.discountPercent||0));
+    if(sort==="discount")return list.sort((a,b)=>Math.max(Number(b.discountPercent||0), Number(b.bestOfferDiscount||0))-Math.max(Number(a.discountPercent||0), Number(a.bestOfferDiscount||0)));
     return list.sort((a,b)=>Number(b.ratingAvg||0)-Number(a.ratingAvg||0));
   },[filtered,sort,userLocation]);
 
@@ -312,7 +325,7 @@ export default function SkupDiscover(){
 
       const addRestaurantMarker=(r:Restaurant,forceSelected=false)=>{
         const lat=Number(r.latitude),lng=Number(r.longitude);
-        const discount=Number(r.discountPercent||0);
+        const discount=Math.max(Number(r.discountPercent||0),Number(r.bestOfferDiscount||0));
         const photo=restaurantPhoto(r).replace(/"/g,"&quot;");
         const marker=L.marker([lat,lng],{
           icon:L.divIcon({
@@ -421,8 +434,24 @@ export default function SkupDiscover(){
     }finally{setFavoriteBusyId(null);}
   };
 
+  useEffect(()=>{
+    if(!selectedRestaurant){setBookingSlots([]);setBookingTime("");return;}
+    let cancelled=false;
+    setBookingLoading(true);
+    getAvailability(selectedRestaurant.id,bookingDate,bookingGuests)
+      .then(result=>{
+        if(cancelled)return;
+        const available=(result?.slots||[]).filter(slot=>slot.available).map(slot=>String(slot.time).slice(0,5));
+        setBookingSlots(available.slice(0,8));
+        setBookingTime(prev=>prev && available.includes(prev) ? prev : "");
+      })
+      .catch(()=>{if(!cancelled){setBookingSlots([]);setBookingTime("");}})
+      .finally(()=>{if(!cancelled)setBookingLoading(false);});
+    return()=>{cancelled=true;};
+  },[selectedRestaurant?.id,bookingDate,bookingGuests]);
+
   const clearFilters=()=>{
-    setQ("");setCuisineId("");setCollectionId("");setIsOpen(false);setMinRating("");setDiscountOnly(false);setPriceLevel("");setDietary([]);setNearMe(false);setUserLocation(null);setSort("rating");setOpenMenu(null);
+    setQ("");setCuisineId("");setCollectionId("");setIsOpen(false);setMinRating("");setDiscountOnly(false);setPriceLevel("");setDietary([]);setNearMe(false);setUserLocation(null);setSort("rating");setBookingDate(new Date().toISOString().slice(0,10));setBookingGuests(2);setBookingTime("");setOpenMenu(null);
   };
   const resetMap=()=>{
     mapUserInteractedRef.current=false;
@@ -510,6 +539,11 @@ export default function SkupDiscover(){
       </section>
 
       <section className="discover-toolbar shell" ref={toolbarRef}>
+        <div className="discover-booking-context" aria-label="Booking context">
+          <label className="context-control"><CalendarDays size={14}/><span>Date</span><input type="date" min={new Date().toISOString().slice(0,10)} value={bookingDate} onChange={e=>{setBookingDate(e.target.value);setBookingTime("");}}/></label>
+          <label className="context-control"><Users size={14}/><span>Guests</span><select value={bookingGuests} onChange={e=>{setBookingGuests(Number(e.target.value));setBookingTime("");}}>{Array.from({length:12},(_,i)=>i+1).map(n=><option key={n} value={n}>{n}</option>)}</select></label>
+          <div className="context-availability">{bookingLoading ? <span><Clock3 size={13}/> Checking availability…</span> : bookingSlots.length ? <><span><Clock3 size={13}/> Available times</span><div>{bookingSlots.map(slot=><button type="button" key={slot} className={bookingTime===slot?"selected":""} onClick={()=>setBookingTime(bookingTime===slot?"":slot)}>{slot}</button>)}</div></> : <span><Clock3 size={13}/> Select a restaurant to see availability</span>}</div>
+        </div>
         <div className="discover-filter-scroll">
           <div className="filter-menu-wrap">
             <button className={"filter-chip dropdown-chip location-chip "+(nearMe?"active":"")} onClick={()=>setOpenMenu(openMenu==="location"?null:"location")} aria-expanded={openMenu==="location"}><LocateFixed size={14}/> <span>{nearMe?"Near me":"Tbilisi"}</span> <ChevronDown className="chip-caret" size={12}/></button>
@@ -579,7 +613,7 @@ export default function SkupDiscover(){
                 return <article key={r.id} data-restaurant-id={r.id} onMouseEnter={()=>{setSelected(r.id);setMapPreviewOpen(true)}} onClick={()=>selectRestaurant(r)} className={"discover-card-wrap "+(r.id===selectedRestaurant?.id?"selected":"")}>
                   <div className="discover-card-photo">
                     <img src={restaurantPhoto(r)} alt="" loading="lazy"/>
-                    {r.discountPercent ? <span className="discover-card-deal">-{r.discountPercent}%</span> : null}
+                    {Math.max(Number(r.discountPercent||0),Number(r.bestOfferDiscount||0)) ? <span className="discover-card-deal">-{Math.max(Number(r.discountPercent||0),Number(r.bestOfferDiscount||0))}%</span> : null}
                     <button type="button" className={"discover-card-heart "+(favoriteIds.has(r.id)?"is-saved":"")} aria-label={favoriteIds.has(r.id) ? "Remove from favorites" : "Save to favorites"} aria-pressed={favoriteIds.has(r.id)} disabled={favoriteBusyId===r.id} onClick={e=>{e.stopPropagation();toggleDiscoverFavorite(r.id)}}><HeartMini/></button>
                   </div>
                   <div className="discover-card-body">
@@ -594,11 +628,12 @@ export default function SkupDiscover(){
                     <div className="discover-card-tags">
                       {r.cuisine?.name ? <span>{r.cuisine.name}</span> : null}
                       {r.district ? <span>{r.district}</span> : null}
-                      {r.discountPercent ? <span className="deal-tag">Offer</span> : null}
+                      {Math.max(Number(r.discountPercent||0),Number(r.bestOfferDiscount||0)) ? <span className="deal-tag">Offer</span> : null}
                     </div>
+                    {(availabilityByRestaurant[r.id] || []).length ? <div className="discover-available-times"><small>Available</small>{(availabilityByRestaurant[r.id] || []).slice(0,4).map(t => <Link key={t} href={"/restaurant/?id="+encodeURIComponent(r.id)+"&date="+encodeURIComponent(bookingDate)+"&guests="+bookingGuests+"&time="+encodeURIComponent(t)} onClick={e=>e.stopPropagation()} className={bookingTime===t?"active":""}>{t}</Link>)}</div> : null}
                     <div className="discover-card-bottom">
                       <span className={"discover-open-state "+(r.isOpen?"open":"closed")}><i></i>{r.isOpen?"Open":"Closed"}{r.isOpen && r.workingHours?.find(h=>h.day===new Date().getDay())?.close ? <> · Closes {r.workingHours.find(h=>h.day===new Date().getDay())?.close}</> : null}</span>
-                      <Link className="discover-view" href={"/restaurant/?id="+encodeURIComponent(r.id)} onClick={e=>e.stopPropagation()}>View</Link>
+                      <Link className="discover-view" href={"/restaurant/?id="+encodeURIComponent(r.id)+"&date="+encodeURIComponent(bookingDate)+"&guests="+bookingGuests+(bookingTime?"&time="+encodeURIComponent(bookingTime):"")} onClick={e=>e.stopPropagation()}>View</Link>
                     </div>
                   </div>
                 </article>;
@@ -628,7 +663,7 @@ export default function SkupDiscover(){
               <span>{selectedRestaurant.cuisine?.name||"Restaurant"} · {selectedRestaurant.district||selectedRestaurant.city}</span>
               <small><Star size={11} fill="currentColor"/> {Number(selectedRestaurant.ratingAvg||0).toFixed(1)} ({selectedRestaurant.reviewsCount || 0})</small>
               <span className={"map-focus-open "+(selectedRestaurant.isOpen?"open":"closed")}><i></i>{selectedRestaurant.isOpen?"Open now":"Closed"}</span>
-              <Link href={"/restaurant/?id="+encodeURIComponent(selectedRestaurant.id)} className="map-focus-button">View details</Link>
+              <Link href={"/restaurant/?id="+encodeURIComponent(selectedRestaurant.id)+"&date="+encodeURIComponent(bookingDate)+"&guests="+bookingGuests+(bookingTime?"&time="+encodeURIComponent(bookingTime):"")} className="map-focus-button">View details</Link>
             </div>
           </div>:null}
 

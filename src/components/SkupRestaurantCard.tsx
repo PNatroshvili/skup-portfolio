@@ -16,6 +16,8 @@ export default function RestaurantCard({
   selected?: boolean;
   onHover?: () => void;
 }) {
+  const deal = Math.max(Number(restaurant.discountPercent || 0), Number(restaurant.bestOfferDiscount || 0)) || null;
+
   return (
     <Link
       href={"/restaurant/?id=" + encodeURIComponent(restaurant.id)}
@@ -24,7 +26,7 @@ export default function RestaurantCard({
     >
       <div className="restaurant-photo-wrap">
         <img src={restaurantPhoto(restaurant)} alt="" className="restaurant-photo" loading="lazy" />
-        {restaurant.discountPercent ? <span className="restaurant-deal">-{restaurant.discountPercent}%</span> : null}
+        {deal ? <span className="restaurant-deal">-{deal}%</span> : null}
       </div>
       <div className="restaurant-card-body">
         <div className="restaurant-card-title-row">
@@ -32,6 +34,7 @@ export default function RestaurantCard({
           <span className="restaurant-rating"><Star size={12} fill="currentColor" /> {Number(restaurant.ratingAvg || 0).toFixed(1)}</span>
         </div>
         <div className="restaurant-meta"><span>{restaurant.cuisine?.name || "Restaurant"}</span><span>·</span><span>{restaurant.district || restaurant.city}</span></div>
+        <div className="restaurant-card-context"><span>{restaurant.priceLevel ? "₾".repeat(Number(restaurant.priceLevel)) : Number.isFinite(Number(restaurant.avgMenuPrice)) ? "≈ ₾" + Number(restaurant.avgMenuPrice).toFixed(0) : "Price on menu"}</span><span className={"restaurant-open-mini " + (restaurant.isOpen ? "open" : "closed")}><i></i>{restaurant.isOpen ? "Open now" : "Closed"}</span></div>
         {!compact ? (
           <div className="restaurant-bottom-meta"><span><MapPin size={12} /> {restaurant.address}</span>{restaurant.reviewsCount > 0 ? <span>{restaurant.reviewsCount} reviews</span> : null}</div>
         ) : null}

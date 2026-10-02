@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, CalendarDays, MapPin, Search, Sparkles, Users } from "lucide-react";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { getCollections, getCuisines, getRestaurants, type Cuisine, type Restaurant } from "@/lib/skupApi";
+import { getAvailabilitySummary, getCollections, getCuisines, getOffers, getRecommended, getRecommendedForUser, getRestaurants, type Cuisine, type Restaurant, type RestaurantOffer } from "@/lib/skupApi";
 import { readRecentlyViewed, restaurantPhoto } from "@/lib/lukmaUtils";
 import RestaurantCard from "./SkupRestaurantCard";
 import SkupHeader from "./SkupHeader";
@@ -12,6 +12,9 @@ export default function SkupHome() {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [cuisines, setCuisines] = useState<Cuisine[]>([]);
   const [collections, setCollections] = useState<Awaited<ReturnType<typeof getCollections>>>([]);
+  const [offers, setOffers] = useState<RestaurantOffer[]>([]);
+  const [availableTonight, setAvailableTonight] = useState<(Restaurant & { availableTimes?: string[] })[]>([]);
+  const [recommended, setRecommended] = useState<(Restaurant & { recommendationReason?: string })[]>([]);
   const [recent, setRecent] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -23,8 +26,13 @@ export default function SkupHome() {
       getRestaurants({ city: "თბილისი", page: 1, limit: 200 }),
       getCuisines(),
       getCollections(),
+      getOffers({ date: new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Tbilisi" }), guests: 2 }),
+      getAvailabilitySummary(new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Tbilisi" }), 2, 16),
+      (typeof window !== "undefined" && localStorage.getItem("skup_access_token")
+        ? getRecommendedForUser(localStorage.getItem("skup_access_token") || "", 12)
+        : getRecommended(12)),
     ])
-      .then(([r, c, col]) => {
+      .then(([r, c, col, offerResult, availabilityResult, recommendationResult]) => {
         if (r.status === "fulfilled") {
           setRestaurants(r.value.data || []);
         } else {
@@ -35,6 +43,15 @@ export default function SkupHome() {
         }
         if (col.status === "fulfilled") {
           setCollections((col.value || []).filter(x => x.isActive).sort((a, b) => a.sortOrder - b.sortOrder));
+        }
+        if (offerResult.status === "fulfilled") {
+          setOffers((offerResult.value || []).filter(x => x.isActive));
+        }
+        if (availabilityResult.status === "fulfilled") {
+          setAvailableTonight(availabilityResult.value?.restaurants || []);
+        }
+        if (recommendationResult.status === "fulfilled") {
+          setRecommended((recommendationResult.value || []).slice(0, 8));
         }
       })
       .finally(() => setLoading(false));
@@ -77,6 +94,33 @@ export default function SkupHome() {
             {loading ? Array.from({length:4}).map((_, i) => <div className="restaurant-skeleton" key={i}/>) : trending.length ? trending.map(r => <RestaurantCard key={r.id} restaurant={r}/>) : <div className="home-empty">No restaurants available right now.</div>}
           </div>
         </section>
+        {recommended.length ? <section className="section shell">
+          <div className="section-head"><div><span className="kicker">Made for you</span><h2>Recommended for you</h2></div><Link href="/discover/">Explore <ArrowRight size={15}/></Link></div>
+          <div className="restaurant-grid four">{recommended.slice(0,4).map(r=><div key={r.id}><RestaurantCard restaurant={r}/>{r.recommendationReason ? <div className="recommendation-reason">{r.recommendationReason}</div> : null}</div>)}</div>
+        </section> : null}
+
+        {availableTonight.length ? <section className="section section-soft">
+          <div className="shell">
+            <div className="section-head"><div><span className="kicker">Bookable now</span><h2>Available tonight</h2></div><Link href="/discover/">See all <ArrowRight size={15}/></Link></div>
+            <div className="restaurant-grid four">{availableTonight.slice(0,4).map(r=><div key={r.id}><RestaurantCard restaurant={r}/><div className="home-availability-times">{(r.availableTimes || []).slice(0,3).map(t=><Link key={t} href={"/restaurant/?id="+encodeURIComponent(r.id)+"&date="+encodeURIComponent(new Date().toLocaleDateString("en-CA",{timeZone:"Asia/Tbilisi"}))+"&guests=2&time="+encodeURIComponent(t)}>{t}</Link>)}</div></div>)}</div>
+          </div>
+        </section> : null}
+        {restaurants.some(r => Number(r.discountPercent) > 0) || offers.length > 0 ? <section className="section shell">
+          <div className="section-head"><div><span className="kicker">Save on your table</span><h2>Best offers</h2></div><Link href="/discover/?offers=true">All offers <ArrowRight size={15}/></Link></div>
+          <div className="restaurant-grid four">{restaurants.filter(r => Number(r.discountPercent) > 0 || offers.some(o => o.restaurantId === r.id)).sort((a,b) => Math.max(Number(b.discountPercent||0), Number(offers.find(o=>o.restaurantId===b.id)?.discountPercent||0)) - Math.max(Number(a.discountPercent||0), Number(offers.find(o=>o.restaurantId===a.id)?.discountPercent||0))).slice(0,4).map(r => <RestaurantCard key={r.id} restaurant={r}/>)}</div>
+        </section> : null}
+
+        {cuisines.length ? <section className="section section-soft">
+          <div className="shell">
+            <div className="section-head"><div><span className="kicker">Explore by taste</span><h2>Cuisines</h2></div><Link href="/discover/">Explore <ArrowRight size={15}/></Link></div>
+            <div className="home-cuisine-row">{cuisines.slice(0,10).map(c => <Link key={c.id} href={"/discover/?cuisine_id="+encodeURIComponent(c.id)} className="home-cuisine-card"><span>{c.icon || "🍽️"}</span><strong>{c.name}</strong><small>Explore</small></Link>)}</div>
+          </div>
+        </section> : null}
+
+        {restaurants.some(r => r.isOpen) ? <section className="section shell">
+          <div className="section-head"><div><span className="kicker">Right now</span><h2>Open now</h2></div><Link href="/discover/?is_open=true">See all <ArrowRight size={15}/></Link></div>
+          <div className="restaurant-grid four">{restaurants.filter(r => r.isOpen).slice(0,4).map(r => <RestaurantCard key={r.id} restaurant={r}/>)}</div>
+        </section> : null}
 
         {recent.length ? <section className="section shell">
           <div className="section-head"><div><span className="kicker">Welcome back</span><h2>Recently viewed</h2></div><Link href="/discover/">Discover more <ArrowRight size={15}/></Link></div>

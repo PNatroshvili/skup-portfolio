@@ -1,18 +1,14 @@
-name: Lukma Web Build Check
+name: LUKMA Web V2 Check
 
 on:
   push:
-    branches: ["feat/skup-web-platform-v1", "feat/lukma-thefork-upgrade-v2"]
-  workflow_dispatch:
+    branches: ["feat/lukma-thefork-upgrade-v2"]
   pull_request:
     branches: ["main"]
+  workflow_dispatch:
 
 permissions:
   contents: read
-
-concurrency:
-  group: lukma-web-build-${{ github.event.pull_request.head.ref || github.ref }}
-  cancel-in-progress: true
 
 jobs:
   build:
@@ -23,6 +19,6 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm install
+      - run: npm ci
       - run: npm run build
       - run: npm run lint

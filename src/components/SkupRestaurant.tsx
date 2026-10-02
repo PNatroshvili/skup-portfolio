@@ -12,6 +12,8 @@ import {
   getEvents,
   getFavorites,
   getMenu,
+  getOffers,
+  joinWaitlist,
   getRestaurant,
   getReviews,
   login,
@@ -20,10 +22,11 @@ import {
   type MenuCategory,
   type Restaurant,
   type RestaurantEvent,
+  type RestaurantOffer,
   type Review,
 } from "@/lib/skupApi";
 import SkupHeader from "./SkupHeader";
-import { addBookingToCalendar, bookingQrUrl, estimateWaitTime, restaurantPhoto, trackRecentlyViewed } from "@/lib/lukmaUtils";
+import { addBookingToCalendar, bookingQrUrl, restaurantPhoto, trackRecentlyViewed } from "@/lib/lukmaUtils";
 
 function todayISO() {
   return new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Tbilisi" });
@@ -50,6 +53,8 @@ export default function SkupRestaurant() {
   const [menu, setMenu] = useState<MenuCategory[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [events, setEvents] = useState<RestaurantEvent[]>([]);
+  const [offers, setOffers] = useState<RestaurantOffer[]>([]);
+  const [selectedOffer, setSelectedOffer] = useState<RestaurantOffer | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [photoIndex, setPhotoIndex] = useState(0);
@@ -68,19 +73,44 @@ export default function SkupRestaurant() {
   const [favorite, setFavorite] = useState(false);
   const [favoriteBusy, setFavoriteBusy] = useState(false);
   const [reviewRating, setReviewRating] = useState(5);
+  const [foodRating, setFoodRating] = useState(5);
+  const [serviceRating, setServiceRating] = useState(5);
+  const [ambienceRating, setAmbienceRating] = useState(5);
   const [reviewComment, setReviewComment] = useState("");
   const [reviewBusy, setReviewBusy] = useState(false);
   const [reviewMessage, setReviewMessage] = useState("");
   const [shareMessage, setShareMessage] = useState("");
   const [favoriteMessage, setFavoriteMessage] = useState("");
+  const [waitlistJoined, setWaitlistJoined] = useState(false);
+  const [waitlistBusy, setWaitlistBusy] = useState(false);
   const bookingSubmitRef = useRef(false);
 
   useEffect(() => {
-    const nextId = new URLSearchParams(window.location.search).get("id") || "";
+    const params = new URLSearchParams(window.location.search);
+    const nextId = params.get("id") || "";
+    const today = todayISO();
+    const requestedDate = params.get("date") || "";
+    const nextDate = /^\\d{4}-\\d{2}-\\d{2}$/.test(requestedDate) && requestedDate >= today ? requestedDate : today;
+    const requestedGuests = Number(params.get("guests"));
+    const nextGuests = Number.isInteger(requestedGuests) ? Math.min(12, Math.max(1, requestedGuests)) : 2;
+    const requestedTime = params.get("time") || "";
+    const nextTime = /^\\d{2}:\\d{2}$/.test(requestedTime) ? requestedTime : "";
+
     setId(nextId);
+    setDate(nextDate);
+    setGuests(nextGuests);
+    setTime(nextTime);
+
     if (!nextId) { setLoading(false); return; }
-    Promise.allSettled([getRestaurant(nextId), getMenu(nextId), getReviews(nextId), getEvents(nextId)])
-      .then(([restaurantResult, menuResult, reviewsResult, eventsResult]) => {
+
+    Promise.allSettled([
+      getRestaurant(nextId),
+      getMenu(nextId),
+      getReviews(nextId),
+      getEvents(nextId),
+      getOffers({ restaurantId: nextId, date: nextDate, time: nextTime || undefined, guests: nextGuests }),
+    ])
+      .then(([restaurantResult, menuResult, reviewsResult, eventsResult, offersResult]) => {
         if (restaurantResult.status !== "fulfilled") throw restaurantResult.reason;
         const r = restaurantResult.value;
         setRestaurant(r);
@@ -88,6 +118,7 @@ export default function SkupRestaurant() {
         if (menuResult.status === "fulfilled") setMenu(menuResult.value || []);
         if (reviewsResult.status === "fulfilled") setReviews(reviewsResult.value?.data || []);
         if (eventsResult.status === "fulfilled") setEvents((eventsResult.value || []).filter(x => x.isActive));
+        if (offersResult.status === "fulfilled") setOffers((offersResult.value || []).filter(x => x.isActive));
       })
       .catch(() => setLoadError("Restaurant could not be loaded right now."))
       .finally(() => setLoading(false));
@@ -129,6 +160,17 @@ export default function SkupRestaurant() {
       .finally(() => { if (!cancelled) setAvailabilityLoading(false); });
     return () => { cancelled = true; };
   }, [id, date, guests]);
+
+  useEffect(() => {
+    if (!id || !date) { setSelectedOffer(null); return; }
+    let cancelled = false;
+    getOffers({ restaurantId: id, date, time: time || undefined, guests })
+      .then(result => {
+        if (!cancelled) setSelectedOffer((result || []).filter(x => x.isActive)[0] || null);
+      })
+      .catch(() => { if (!cancelled) setSelectedOffer(null); });
+    return () => { cancelled = true; };
+  }, [id, date, time, guests]);
 
   const photos = useMemo(() => {
     if (!restaurant) return [];
@@ -260,6 +302,20 @@ export default function SkupRestaurant() {
     }
   }
 
+  async function joinWaitlistForDate() {
+    const token = localStorage.getItem("skup_access_token");
+    if (!token) { window.location.href = "/account/?mode=login"; return; }
+    if (waitlistBusy || waitlistJoined) return;
+    setWaitlistBusy(true);
+    setAvailabilityError("");
+    try {
+      await joinWaitlist(token, { restaurant_id: id, date, guests_count: guests });
+      setWaitlistJoined(true);
+    } catch (e) {
+      setAvailabilityError(e instanceof Error ? e.message : "Could not join the waitlist.");
+    } finally { setWaitlistBusy(false); }
+  }
+
   async function submitReview() {
     const token = localStorage.getItem("skup_access_token");
     if (!token) {
@@ -272,10 +328,14 @@ export default function SkupRestaurant() {
       await createReview(token, {
         restaurant_id: id,
         rating: reviewRating,
+        food_rating: foodRating,
+        service_rating: serviceRating,
+        ambience_rating: ambienceRating,
         comment: reviewComment.trim() || undefined,
       });
       setReviewComment("");
       setReviewRating(5);
+      setFoodRating(5); setServiceRating(5); setAmbienceRating(5);
       setReviewMessage("Review published.");
       try {
         const [freshReviews, freshRestaurant] = await Promise.all([getReviews(id), getRestaurant(id)]);
@@ -333,7 +393,6 @@ export default function SkupRestaurant() {
 
   const avg = Number(restaurant.ratingAvg || 0);
   const isOpen = Boolean(restaurant.isOpen);
-  const waitTime = estimateWaitTime(restaurant);
 
   return (
     <div className="skup-site">
@@ -357,6 +416,12 @@ export default function SkupRestaurant() {
               {restaurant.discountPercent ? <span className="badge-deal">-{restaurant.discountPercent}% offer</span> : null}
               <span className={"badge-open " + (!isOpen ? "closed" : "")}><span/> {isOpen ? "Open now" : "Closed now"}</span>
             </div>
+            {offers.length ? <div className="restaurant-offer-stack" aria-label="Available offers">
+              {offers.slice(0,2).map(offer => <div className="restaurant-offer-banner" key={offer.id}>
+                <span className="offer-icon">%</span>
+                <div><strong>{offer.title}</strong><p>{offer.description || (offer.discountPercent ? offer.discountPercent + "% off" : "Special offer")}</p></div>
+              </div>)}
+            </div> : null}
             <h1>{restaurant.name}</h1>
             <div className="restaurant-subline">{restaurant.cuisine?.name || "Restaurant"} <span>·</span> {restaurant.district || restaurant.city}</div>
             <div className="restaurant-rating-line"><Star size={14} fill="currentColor"/><strong>{avg.toFixed(1)}</strong><span>({restaurant.reviewsCount} reviews)</span><span className="dot"/> <MapPin size={14}/><span>{restaurant.address}</span></div>
@@ -366,7 +431,6 @@ export default function SkupRestaurant() {
               <a className="outline-btn" href={"https://www.google.com/maps/search/?api=1&query="+restaurant.latitude+","+restaurant.longitude} target="_blank" rel="noreferrer"><MapPin size={15}/> Directions</a>
             </div>
             {favoriteMessage || shareMessage ? <div className="restaurant-action-message">{favoriteMessage || shareMessage}</div> : null}
-            {waitTime !== null ? <div className="live-wait"><Clock3 size={14}/><strong>~{waitTime} min wait</strong><span>Estimated from current demand</span><i style={{width:Math.min(100,waitTime*2.4)+"%"}}/></div> : null}
           </div>
 
           <aside className="booking-card">
@@ -378,10 +442,12 @@ export default function SkupRestaurant() {
             {availabilityLoading ? <div className="time-loading">Loading available times…</div> :
               availability?.open === false ? <div className="time-empty">The restaurant is closed on this date.</div> :
               availableSlots.length && availability ? <div className="time-grid">{availability.slots.map(slot => <button key={slot.time} disabled={!slot.available} onClick={() => { setTime(slot.time); setAvailabilityError(""); }} className={slot.time===time ? "active":""}>{slot.time}</button>)}</div> :
+              (!availabilityLoading && availability?.open && availableSlots.length === 0) ? <div className="booking-no-availability"><strong>ამ დროს თავისუფალი მაგიდა აღარ არის.</strong><span>დაგვატოვე მოთხოვნა და თავისუფალი ადგილის გამოჩენისას შეგატყობინებთ.</span><button className="waitlist-web-btn" onClick={joinWaitlistForDate} disabled={waitlistBusy || waitlistJoined}>{waitlistBusy ? "მოთხოვნა იგზავნება…" : waitlistJoined ? "მოლოდინის სიაში ხარ ✓" : "მოლოდინის სიაში დამატება"}</button></div> :
               <div className="time-empty">No available times remain for this date.</div>}
             {availabilityError ? <div className="booking-inline-error">{availabilityError}</div> : null}
             <label className="booking-comment">Note<textarea value={comment} onChange={e => setComment(e.target.value.slice(0,200))} placeholder="Allergy, birthday, special request..." /></label>
             <button className="booking-submit" onClick={submitBooking} disabled={bookingState==="submitting" || !time || availabilityLoading}>{bookingState==="submitting" ? "Sending..." : "Continue"} <span>→</span></button>
+            {selectedOffer ? <div className="booking-offer-summary"><span>%</span><div><strong>{selectedOffer.title}</strong><small>{selectedOffer.discountPercent ? selectedOffer.discountPercent + "% discount applied to eligible booking." : (selectedOffer.description || "Special offer available for this booking.")}</small></div></div> : null}
             <div className="booking-note"><CheckCircle2 size={13}/> Your request is sent to the restaurant for confirmation</div>
           </aside>
         </section>
@@ -411,12 +477,16 @@ export default function SkupRestaurant() {
               <div className="section-title-small">Reviews <span>{restaurant.reviewsCount}</span></div>
               <div className="review-compose">
                 <div className="review-compose-head"><strong>Rate this place</strong><span>1–5 stars</span></div>
-                <div className="review-stars">{[1,2,3,4,5].map(value => <button key={value} type="button" aria-label={value + " stars"} className={value <= reviewRating ? "active" : ""} onClick={() => setReviewRating(value)}><Star size={18} fill="currentColor"/></button>)}</div>
+                <div className="review-stars">{[1,2,3,4,5].map(value => <button key={value} type="button" aria-label={value + " stars"} className={value <= reviewRating ? "active" : ""} onClick={() => setReviewRating(value)}><Star size={18} fill="currentColor"/></button>)}</div>                <div className="review-dimensions">
+                  <div className="review-dimension"><span>Food</span><div>{[1,2,3,4,5].map(n => <button type="button" key={n} aria-label={"Food " + n + " stars"} className={n <= foodRating ? "active" : ""} onClick={() => setFoodRating(n)}><Star size={13} fill="currentColor"/></button>)}</div></div>
+                  <div className="review-dimension"><span>Service</span><div>{[1,2,3,4,5].map(n => <button type="button" key={n} aria-label={"Service " + n + " stars"} className={n <= serviceRating ? "active" : ""} onClick={() => setServiceRating(n)}><Star size={13} fill="currentColor"/></button>)}</div></div>
+                  <div className="review-dimension"><span>Ambience</span><div>{[1,2,3,4,5].map(n => <button type="button" key={n} aria-label={"Ambience " + n + " stars"} className={n <= ambienceRating ? "active" : ""} onClick={() => setAmbienceRating(n)}><Star size={13} fill="currentColor"/></button>)}</div></div>
+                </div>
                 <textarea value={reviewComment} onChange={e => setReviewComment(e.target.value.slice(0,1000))} placeholder="What did you like? What would you recommend to others?" />
                 {reviewMessage ? <div className="review-message">{reviewMessage}</div> : null}
                 <button className="green-btn small" onClick={submitReview} disabled={reviewBusy}>{reviewBusy ? "Sending…" : "Publish"}</button>
               </div>
-              {reviews.length ? <div className="reviews-list">{reviews.slice(0,8).map(rv => <div key={rv.id} className="review-row"><div className="review-avatar">{(rv.reviewerName || rv.user?.name || "S").slice(0,1)}</div><div><div className="review-head"><strong>{rv.reviewerName || rv.user?.name || "guest"}</strong><span><Star size={11} fill="currentColor"/> {rv.rating}</span></div><p>{rv.comment || ""}</p></div></div>)}</div> : <p className="muted-copy">No published reviews yet.</p>}
+              {reviews.length ? <div className="reviews-list">{reviews.slice(0,8).map(rv => <div key={rv.id} className="review-row"><div className="review-avatar">{(rv.reviewerName || rv.user?.name || "S").slice(0,1)}</div><div className="review-content"><div className="review-head"><div><strong>{rv.reviewerName || rv.user?.name || "guest"}</strong>{rv.verified ? <span className="verified-review">✓ Verified visit</span> : null}</div><span><Star size={11} fill="currentColor"/> {Number(rv.rating||0).toFixed(1)}</span></div>{rv.comment ? <p>{rv.comment}</p> : null}<div className="review-subratings">{rv.foodRating ? <span>Food {rv.foodRating}/5</span> : null}{rv.serviceRating ? <span>Service {rv.serviceRating}/5</span> : null}{rv.ambienceRating ? <span>Ambience {rv.ambienceRating}/5</span> : null}</div>{rv.photos?.length ? <div className="review-photo-row">{rv.photos.slice(0,4).map(photo => <img key={photo.id} src={photo.url} alt="" loading="lazy" />)}</div> : null}{rv.restaurantReply ? <div className="restaurant-review-reply"><strong>Restaurant response</strong><p>{rv.restaurantReply}</p>{rv.restaurantReplyAt ? <small>{new Date(rv.restaurantReplyAt).toLocaleDateString("ka-GE")}</small> : null}</div> : null}</div></div>)}</div> : <p className="muted-copy">No published reviews yet.</p>}
             </article>
 
             <article id="photos" className="detail-section"><div className="section-title-small">Photos</div>{photos.length ? <div className="detail-photo-grid">{photos.map(p => <img key={p.id} src={p.url} alt={restaurant.name} loading="lazy" />)}</div> : <p className="muted-copy">No photos have been added yet.</p>}</article>

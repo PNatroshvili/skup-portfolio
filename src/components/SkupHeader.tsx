@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Heart, LogIn, LogOut, Map, Menu, Shield, Search, Utensils, X } from "lucide-react";
+import { Bell, Heart, LogIn, LogOut, Map, Menu, Shield, Search, Utensils, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { getNotifications } from "@/lib/skupApi";
 
 export default function SkupHeader({
   searchValue,
@@ -17,8 +18,14 @@ export default function SkupHeader({
   const [role, setRole] = useState("");
   const [userName, setUserName] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
   useEffect(() => {
     const hasToken = Boolean(localStorage.getItem("skup_access_token"));
+    const refreshNotificationCount = async () => {
+      const token = localStorage.getItem("skup_access_token");
+      if (!token) { setNotificationCount(0); return; }
+      try { const result = await getNotifications(token); setNotificationCount(result.unreadCount || 0); } catch { setNotificationCount(0); }
+    };
     if (hasToken) {
       try {
         const user = JSON.parse(localStorage.getItem("skup_user") || "{}");
@@ -28,7 +35,8 @@ export default function SkupHeader({
         setRole("");
         setUserName("");
       }
-    }
+      refreshNotificationCount();
+    } else setNotificationCount(0);
     setAuthenticated(hasToken);
     const sync = () => {
       const hasToken = Boolean(localStorage.getItem("skup_access_token"));
@@ -36,6 +44,7 @@ export default function SkupHeader({
         setRole("");
         setUserName("");
         setAuthenticated(false);
+        setNotificationCount(0);
         return;
       }
       try {
@@ -43,6 +52,7 @@ export default function SkupHeader({
         setRole(String(user?.role || ""));
         setUserName(String(user?.name || user?.email || ""));
         setAuthenticated(true);
+        refreshNotificationCount();
       } catch {
         setRole("");
         setUserName("");
@@ -50,9 +60,11 @@ export default function SkupHeader({
       }
     };
     window.addEventListener("storage", sync);
+    window.addEventListener("skup-notifications-changed", refreshNotificationCount);
     window.addEventListener("skup-auth-changed", sync);
     return () => {
       window.removeEventListener("storage", sync);
+      window.removeEventListener("skup-notifications-changed", refreshNotificationCount);
       window.removeEventListener("skup-auth-changed", sync);
     };
   }, []);
@@ -64,12 +76,13 @@ export default function SkupHeader({
           <Link className={activeNav === "discover" ? "active" : ""} href="/discover/">Discover</Link>
           <Link className={activeNav === "map" ? "active" : ""} href="/discover/#map">Map</Link>
           <Link className={activeNav === "tonight" ? "active" : ""} href="/discover/?is_open=true">Tonight</Link>
+          <Link className={activeNav === "offers" ? "active" : ""} href="/discover/?offers=true">Offers</Link>
           <Link className={activeNav === "collections" ? "active" : ""} href="/discover/#collections">Collections</Link>
           <Link href="/journal/">Journal</Link>
         </nav>
         <div className="skup-header-actions">
           {onSearchChange ? <label className="header-search"><Search size={15}/><input value={searchValue || ""} onChange={e => onSearchChange(e.target.value)} placeholder="Search restaurants, cuisine…" aria-label="Search restaurants, cuisine" /></label> : null}
-          <Link className="header-icon" href="/favorites/" aria-label="Favorites"><Heart size={18} /></Link>
+          <Link className="header-icon header-notification" href="/notifications/" aria-label="Notifications"><Bell size={17}/>{notificationCount > 0 ? <span className="header-notification-badge">{notificationCount > 9 ? "9+" : notificationCount}</span> : null}</Link><Link className="header-icon" href="/favorites/" aria-label="Favorites"><Heart size={18} /></Link>
           {role === "restaurant_manager" ? <Link className="header-restaurant-link" href="/for-restaurants/dashboard/"><Utensils size={14}/> Manager</Link> : null}
           {role === "admin" ? <Link className="header-restaurant-link" href="/admin/"><Shield size={14}/> Admin</Link> : null}
           {authenticated ? <>
@@ -90,11 +103,13 @@ export default function SkupHeader({
           <Link href="/discover/" onClick={() => setOpen(false)}><Search size={17}/> Discover</Link>
           <Link href="/discover/#map" onClick={() => setOpen(false)}><Map size={17}/> Map</Link>
           <Link href="/discover/?is_open=true" onClick={() => setOpen(false)}>Tonight</Link>
+          <Link href="/discover/?offers=true" onClick={() => setOpen(false)}>Offers</Link>
           <Link href="/discover/#collections" onClick={() => setOpen(false)}>Collections</Link>
           <Link href="/journal/" onClick={() => setOpen(false)}>Journal</Link>
           <Link href="/bookings/" onClick={() => setOpen(false)}>My bookings</Link>
           <Link href="/favorites/" onClick={() => setOpen(false)}>Favorites</Link>
           <Link href="/rewards/" onClick={() => setOpen(false)}>Rewards</Link>
+          <Link href="/notifications/" onClick={() => setOpen(false)}>Notifications</Link>
           <Link href="/referral/" onClick={() => setOpen(false)}>Referral</Link>
           <Link href="/account/" onClick={() => setOpen(false)}><Heart size={17}/> My LUKMA</Link>
           {role === "restaurant_manager" ? <Link href="/for-restaurants/dashboard/" onClick={() => setOpen(false)}>Restaurant portal</Link> : null}

@@ -18,6 +18,7 @@ export type Restaurant = {
   longitude: number;
   phone?: string | null;
   discountPercent?: number | null;
+  bestOfferDiscount?: number | null;
   ratingAvg: number;
   reviewsCount: number;
   status: string;
@@ -47,11 +48,18 @@ export type MenuCategory = {
 export type Review = {
   id: string;
   rating: number;
+  foodRating?: number | null;
+  serviceRating?: number | null;
+  ambienceRating?: number | null;
   comment?: string | null;
   reviewerName?: string | null;
   reviewerAvatar?: string | null;
   createdAt: string;
   status: string;
+  verified?: boolean;
+  photos?: { id: string; url: string; createdAt?: string }[];
+  restaurantReply?: string | null;
+  restaurantReplyAt?: string | null;
   user?: { name?: string | null; lastName?: string | null };
 };
 
@@ -61,6 +69,32 @@ export type RestaurantEvent = {
   description?: string | null;
   emoji?: string | null;
   eventDate?: string | null;
+  isActive: boolean;
+};
+
+export type UserNotification = {
+  id: string;
+  userId: string;
+  title: string;
+  body: string;
+  type: string;
+  data?: Record<string, unknown> | null;
+  readAt?: string | null;
+  createdAt: string;
+};
+
+export type RestaurantOffer = {
+  id: string;
+  restaurantId: string;
+  title: string;
+  description?: string | null;
+  discountPercent?: number | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  startTime?: string | null;
+  endTime?: string | null;
+  minimumGuests?: number | null;
+  maximumGuests?: number | null;
   isActive: boolean;
 };
 
@@ -141,6 +175,18 @@ async function request<T>(path: string, init?: RequestInit, retry = true): Promi
   return response.json();
 }
 
+export async function getRecommended(limit = 12, geo?: { lat: number; lng: number }) {
+  const search = new URLSearchParams({ limit: String(limit) });
+  if (geo) { search.set("lat", String(geo.lat)); search.set("lng", String(geo.lng)); }
+  return request<(Restaurant & { recommendationReason?: string; recommendationScore?: number; distanceKm?: number | null })[]>("/restaurants/recommended?" + search.toString());
+}
+
+export async function getRecommendedForUser(token: string, limit = 12, geo?: { lat: number; lng: number }) {
+  const search = new URLSearchParams({ limit: String(limit) });
+  if (geo) { search.set("lat", String(geo.lat)); search.set("lng", String(geo.lng)); }
+  return request<(Restaurant & { recommendationReason?: string; recommendationScore?: number; distanceKm?: number | null })[]>("/restaurants/recommended/me?" + search.toString(), { headers: { Authorization: "Bearer " + token } });
+}
+
 export async function getRestaurants(params: Record<string, string | number | boolean | undefined> = {}) {
   const search = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {
@@ -158,7 +204,7 @@ export async function getMenu(id: string) {
   return request<MenuCategory[]>("/restaurants/" + encodeURIComponent(id) + "/menu");
 }
 
-export async function createReview(token: string, payload: { restaurant_id: string; rating: number; comment?: string }) {
+export async function createReview(token: string, payload: { restaurant_id: string; rating: number; food_rating?: number; service_rating?: number; ambience_rating?: number; comment?: string }) {
   return request<any>("/reviews", {
     method: "POST",
     headers: { Authorization: "Bearer " + token },
@@ -174,6 +220,46 @@ export async function getEvents(id: string) {
   return request<RestaurantEvent[]>("/events/restaurant/" + encodeURIComponent(id));
 }
 
+export async function getAvailabilitySummary(date: string, guests = 2, limit = 24) {
+  return request<{ date: string; guests: number; restaurants: (Restaurant & { availableTimes?: string[] })[] }>(
+    "/bookings/availability-summary?date=" + encodeURIComponent(date) +
+    "&guests=" + encodeURIComponent(String(guests)) +
+    "&limit=" + encodeURIComponent(String(limit)),
+  );
+}
+
+export async function getOffers(params: { restaurantId?: string; date?: string; time?: string; guests?: number } = {}) {
+  const search = new URLSearchParams();
+  if (params.restaurantId) search.set("restaurant_id", params.restaurantId);
+  if (params.date) search.set("date", params.date);
+  if (params.time) search.set("time", params.time);
+  if (params.guests) search.set("guests", String(params.guests));
+  const query = search.toString() ? "?" + search.toString() : "";
+  return request<RestaurantOffer[]>("/offers" + query);
+}
+
+export async function getMyOffers(token: string) {
+  return request<RestaurantOffer[]>("/offers/mine", { headers: { Authorization: "Bearer " + token } });
+}
+
+export async function createOffer(token: string, restaurantId: string, payload: Partial<RestaurantOffer> & { title: string }) {
+  return request<RestaurantOffer>("/offers/" + encodeURIComponent(restaurantId), {
+    method: "POST", headers: { Authorization: "Bearer " + token }, body: JSON.stringify(payload),
+  });
+}
+
+export async function updateOffer(token: string, offerId: string, payload: Partial<RestaurantOffer>) {
+  return request<RestaurantOffer>("/offers/" + encodeURIComponent(offerId), {
+    method: "PATCH", headers: { Authorization: "Bearer " + token }, body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteOffer(token: string, offerId: string) {
+  return request<{ ok: boolean }>("/offers/" + encodeURIComponent(offerId), {
+    method: "DELETE", headers: { Authorization: "Bearer " + token },
+  });
+}
+
 export async function getCuisines() {
   return request<Cuisine[]>("/cuisines");
 }
@@ -185,6 +271,20 @@ export async function getCollections() {
 export async function getHomeConfig() {
   return request<{ id: number; sectionKey: string; titleKa: string; isActive: boolean; sortOrder: number }[]>("/home-config");
 }
+
+export type BookingRecord = {
+  id: string;
+  restaurantId: string;
+  userId: string;
+  date: string;
+  time: string;
+  guestsCount: number;
+  comment?: string | null;
+  offerId?: string | null;
+  discountPercentApplied?: number | null;
+  status: string;
+  restaurant?: { id: string; name: string; address: string; cover_photo?: string | null };
+};
 
 export type AvailabilitySlot = { time: string; available: boolean };
 export type Availability = {
@@ -284,6 +384,22 @@ export async function getMe(token: string) {
   });
 }
 
+export type ManagerAnalytics = {
+  restaurantId: string;
+  totalBookings: number;
+  todayBookings: number;
+  confirmedBookings: number;
+  cancelledBookings: number;
+  guests: number;
+  ratingAvg: number;
+  reviewsCount: number;
+  daily: { date: string; bookings: number; guests: number }[];
+};
+
+export async function getManagerAnalytics(token: string) {
+  return request<ManagerAnalytics>("/restaurants/mine/analytics", { headers: { Authorization: "Bearer " + token } });
+}
+
 export async function getMyRestaurant(token: string) {
   return request<Restaurant & { menuCategories?: MenuCategory[] } & { workingHours?: Restaurant["workingHours"] }>("/restaurants/mine", {
     headers: { Authorization: "Bearer " + token },
@@ -291,7 +407,7 @@ export async function getMyRestaurant(token: string) {
 }
 
 export async function getMyRestaurantBookings(token: string) {
-  return request<any[]>("/bookings/my-restaurant", {
+  return request<BookingRecord[]>("/bookings/my-restaurant", {
     headers: { Authorization: "Bearer " + token },
   });
 }
@@ -444,7 +560,7 @@ export async function deleteRestaurantEvent(token: string, eventId: string) {
 }
 
 export async function getMyBookings(token: string) {
-  return request<any[]>("/bookings/my", {
+  return request<BookingRecord[]>("/bookings/my", {
     headers: { Authorization: "Bearer " + token },
   });
 }
@@ -478,7 +594,7 @@ export async function getFavorites(token: string) {
 }
 
 export async function getLoyalty(token: string) {
-  return request<{ points: number; tier: string; nextTier?: string | null; progress: number; referralCode?: string | null }>("/auth/me/loyalty", {
+  return request<{ points: number; tier: string; nextTier?: string | null; progress: number; referralCode?: string | null; transactions?: { id:string; delta:number; balanceAfter:number; type:string; description?:string|null; createdAt:string }[]; tiers?: { name:string; min:number; max:number }[] }>("/auth/me/loyalty", {
     headers: { Authorization: "Bearer " + token },
   });
 }
@@ -626,5 +742,99 @@ export async function removeFavorite(token: string, restaurantId: string) {
   return request<any>("/favorites/" + encodeURIComponent(restaurantId), {
     method: "DELETE",
     headers: { Authorization: "Bearer " + token },
+  });
+}
+
+
+export async function getNotifications(token: string) {
+  return request<{ data: UserNotification[]; unreadCount: number }>("/notifications", { headers: { Authorization: "Bearer " + token } });
+}
+
+export async function markNotificationRead(token: string, id: string) {
+  return request<UserNotification>("/notifications/" + encodeURIComponent(id) + "/read", { method: "PATCH", headers: { Authorization: "Bearer " + token } });
+}
+
+export async function markAllNotificationsRead(token: string) {
+  return request<{ ok: boolean }>("/notifications/read-all", { method: "PATCH", headers: { Authorization: "Bearer " + token } });
+}
+
+
+export type WaitlistEntry = {
+  id: string;
+  restaurantId: string;
+  userId: string;
+  date: string;
+  timeFrom?: string | null;
+  timeTo?: string | null;
+  guestsCount: number;
+  status: string;
+  expiresAt?: string | null;
+  createdAt: string;
+};
+
+export async function joinWaitlist(token: string, payload: { restaurant_id: string; date: string; time_from?: string; time_to?: string; guests_count: number }) {
+  return request<WaitlistEntry>("/waitlist", {
+    method: "POST",
+    headers: { Authorization: "Bearer " + token },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function getMyWaitlist(token: string) {
+  return request<WaitlistEntry[]>("/waitlist/mine", { headers: { Authorization: "Bearer " + token } });
+}
+
+export async function cancelWaitlist(token: string, id: string) {
+  return request<WaitlistEntry>("/waitlist/" + encodeURIComponent(id), {
+    method: "DELETE",
+    headers: { Authorization: "Bearer " + token },
+  });
+}
+
+
+export async function getRestaurantWaitlist(token: string, restaurantId: string) {
+  return request<WaitlistEntry[]>("/waitlist/restaurant/" + encodeURIComponent(restaurantId), { headers: { Authorization: "Bearer " + token } });
+}
+
+export async function updateWaitlistStatus(token: string, id: string, status: "waiting" | "notified" | "booked" | "cancelled" | "expired") {
+  return request<WaitlistEntry>("/waitlist/" + encodeURIComponent(id) + "/status", {
+    method: "PATCH",
+    headers: { Authorization: "Bearer " + token },
+    body: JSON.stringify({ status }),
+  });
+}
+
+
+export type RestaurantTable = {
+  id: string;
+  restaurantId: string;
+  name: string;
+  capacity: number;
+  shape: "round" | "square" | "rectangle";
+  posX: number;
+  posY: number;
+  zone?: string | null;
+  isActive: boolean;
+};
+
+export async function getRestaurantTables(token: string, restaurantId: string) {
+  return request<RestaurantTable[]>("/restaurants/" + encodeURIComponent(restaurantId) + "/tables", { headers: { Authorization: "Bearer " + token } });
+}
+export async function createRestaurantTable(token: string, restaurantId: string, payload: Partial<RestaurantTable> & { name: string; capacity: number }) {
+  return request<RestaurantTable>("/restaurants/" + encodeURIComponent(restaurantId) + "/tables", { method: "POST", headers: { Authorization: "Bearer " + token }, body: JSON.stringify(payload) });
+}
+export async function updateRestaurantTable(token: string, tableId: string, payload: Partial<RestaurantTable>) {
+  return request<RestaurantTable>("/restaurants/tables/" + encodeURIComponent(tableId), { method: "PATCH", headers: { Authorization: "Bearer " + token }, body: JSON.stringify(payload) });
+}
+export async function deleteRestaurantTable(token: string, tableId: string) {
+  return request<{ ok: boolean }>("/restaurants/tables/" + encodeURIComponent(tableId), { method: "DELETE", headers: { Authorization: "Bearer " + token } });
+}
+
+
+export async function replyToReview(token: string, reviewId: string, reply: string) {
+  return request<Review>("/reviews/" + encodeURIComponent(reviewId) + "/reply", {
+    method: "PATCH",
+    headers: { Authorization: "Bearer " + token },
+    body: JSON.stringify({ reply }),
   });
 }
