@@ -227,13 +227,13 @@ export default function SkupDiscover(){
         const collection=collections.find(x=>x.id===collectionId);
         if(collection?.filterType==="is_open" && !r.isOpen)return false;
         if((collection?.filterType==="cuisine_id" || collection?.filterType==="cuisine") && collection.filterValue && r.cuisine?.id!==collection.filterValue)return false;
-        if((collection?.filterType==="discount" || collection?.filterType==="offer") && !Number(r.discountPercent||0))return false;
+        if((collection?.filterType==="discount" || collection?.filterType==="offer") && !Math.max(Number(r.discountPercent||0), Number(r.bestOfferDiscount||0)))return false;
         if((collection?.filterType==="rating" || collection?.filterType==="min_rating") && collection.filterValue && Number(r.ratingAvg||0)<Number(collection.filterValue))return false;
         if((collection?.filterType==="q" || collection?.filterType==="keyword") && collection.filterValue && !hay.includes(String(collection.filterValue).toLowerCase()))return false;
       }
       if(isOpen&&!r.isOpen)return false;
       if(minRating&&Number(r.ratingAvg)<Number(minRating))return false;
-      if(discountOnly&&!Number(r.discountPercent||0))return false;
+      if(discountOnly&&!Math.max(Number(r.discountPercent||0), Number(r.bestOfferDiscount||0)))return false;
       if(priceLevel){
         const level=(r.priceLevel || (Number(r.avgMenuPrice||NaN)<15?"1":Number(r.avgMenuPrice||NaN)<30?"2":Number.isFinite(Number(r.avgMenuPrice))?"3":"" )) as string;
         if(level!==priceLevel)return false;
@@ -253,7 +253,7 @@ export default function SkupDiscover(){
     const list=[...filtered];
     if(sort==="distance"&&userLocation)return list.sort((a,b)=>distanceKm(userLocation.lat,userLocation.lng,Number(a.latitude),Number(a.longitude))-distanceKm(userLocation.lat,userLocation.lng,Number(b.latitude),Number(b.longitude)));
     if(sort==="name")return list.sort((a,b)=>a.name.localeCompare(b.name));
-    if(sort==="discount")return list.sort((a,b)=>Number(b.discountPercent||0)-Number(a.discountPercent||0));
+    if(sort==="discount")return list.sort((a,b)=>Math.max(Number(b.discountPercent||0), Number(b.bestOfferDiscount||0))-Math.max(Number(a.discountPercent||0), Number(a.bestOfferDiscount||0)));
     return list.sort((a,b)=>Number(b.ratingAvg||0)-Number(a.ratingAvg||0));
   },[filtered,sort,userLocation]);
 
