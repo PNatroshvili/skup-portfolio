@@ -3,19 +3,13 @@
 import Link from "next/link";
 import { CalendarDays, CheckCircle2, Clock3, MessageCircle, QrCode, RefreshCw, Star, XCircle } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { getMyBookings, updateBookingStatus, createReview, type Restaurant } from "@/lib/skupApi";
+import { getMyBookings, updateBookingStatus, createReview, type BookingRecord } from "@/lib/skupApi";
 import { addBookingToCalendar, bookingCountdown, bookingQrUrl, isBookingUpcoming, restaurantPhoto } from "@/lib/lukmaUtils";
 import SkupHeader from "./SkupHeader";
 
-type Booking = {
-  id: string;
-  date: string;
-  time: string;
+type Booking = BookingRecord & {
   guestsCount?: number;
   guests_count?: number;
-  comment?: string | null;
-  status: string;
-  restaurant?: Restaurant & { name?: string; address?: string };
 };
 
 const STATUS: Record<string, { label: string; className: string }> = {
