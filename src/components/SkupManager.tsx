@@ -8,6 +8,7 @@ import {
   addMenuCategory,
   addMenuItem,
   createOffer,
+  updateOffer,
   createRestaurantEvent,
   deleteMenuCategory,
   deleteMenuItem,
