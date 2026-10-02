@@ -602,7 +602,11 @@ export default function SkupManager() {
               <button className="green-btn small" onClick={addOffer}><Plus size={14}/> Create offer</button>
             </div>
             <div className="manager-offer-list">
-              {offers.length ? offers.map(offer => <div className="manager-offer-row" key={offer.id}><div><strong>{offer.title}</strong><span>{offer.discountPercent ? "-"+offer.discountPercent+"%" : "Special offer"}{offer.startDate ? " · "+offer.startDate : ""}{offer.endDate ? " → "+offer.endDate : ""}</span>{offer.description ? <small>{offer.description}</small> : null}</div><span className={"status "+(offer.isActive ? "status-confirmed" : "status-cancelled")}>{offer.isActive ? "active" : "inactive"}</span><button className="red-mini" onClick={()=>run(()=>deleteOffer(token,offer.id),"Offer deleted.")}><Trash2 size={13}/></button></div>) : <div className="empty-state"><h3>No offers yet</h3><p>Create your first customer-facing promotion above.</p></div>}
+              {offers.length ? offers.map(offer => <div className="manager-offer-row" key={offer.id}>
+                <div><strong>{offer.title}</strong><span>{offer.discountPercent ? "-"+offer.discountPercent+"%" : "Special offer"}{offer.startDate ? " · "+offer.startDate : ""}{offer.endDate ? " → "+offer.endDate : ""}</span>{offer.description ? <small>{offer.description}</small> : null}</div>
+                <button className={"status "+(offer.isActive ? "status-confirmed" : "status-cancelled")} onClick={()=>run(()=>updateOffer(token,offer.id,{isActive:!offer.isActive}),offer.isActive ? "Offer disabled." : "Offer enabled.")}>{offer.isActive ? "active" : "inactive"}</button>
+                <button className="red-mini" onClick={()=>run(()=>deleteOffer(token,offer.id),"Offer deleted.")}><Trash2 size={13}/></button>
+              </div>) : <div className="empty-state"><h3>No offers yet</h3><p>Create your first customer-facing promotion above.</p></div>}
             </div>
           </section>
         ) : null}
