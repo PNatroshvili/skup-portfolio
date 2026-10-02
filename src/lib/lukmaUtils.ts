@@ -43,6 +43,16 @@ export function clearRecentlyViewed() {
   try { localStorage.removeItem(RECENT_KEY); } catch {}
 }
 
+export function bookingTimestamp(date: string, time: string) {
+  const [y, m, d] = date.split("-").map(Number);
+  const [hh, mm] = time.split(":").map(Number);
+  return Date.UTC(y, m - 1, d, hh, mm) - 4 * 60 * 60 * 1000;
+}
+
+export function isBookingUpcoming(date: string, time: string) {
+  return bookingTimestamp(date, time) >= Date.now();
+}
+
 export function addBookingToCalendar(booking: {
   id: string;
   date: string;
